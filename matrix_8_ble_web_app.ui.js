@@ -425,7 +425,7 @@ export function bindUi(actions) {
       const txt = ui.textInput.value.trim();
       if (!txt) return alert("Mesaj yaz.");
       const speed = clamp(ui.textSpeedInput.value, 1, 65535, 90);
-      const result = actions.buildTextScrollFrames(txt, speed, state.textDirection === "right", true);
+      const result = actions.buildTextScrollFrames(txt, speed, state.textDirection === "left", true);
       if (!result.frames.length) throw new Error("Yazı karesi üretilemedi.");
       if (result.truncated) {
         alert(`Mesaj uzun olduğu için ilk ${MAX_FRAMES} kare gönderildi.`);
