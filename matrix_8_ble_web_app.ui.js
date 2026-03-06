@@ -23,6 +23,165 @@ let brightnessAutoTimer = null;
 let brightnessPendingValue = null;
 let brightnessLastSentValue = null;
 let globalPointerUpBound = false;
+let textPreviewTimer = null;
+let textPreviewFrames = [];
+let textPreviewIndex = 0;
+let animPreviewTimer = null;
+let animPreviewIndex = 0;
+
+function emptyRows8() {
+  return Array(8).fill(0);
+}
+
+function ensureTextPreviewGrid() {
+  if (!ui.textPreviewGrid) return;
+  if (ui.textPreviewGrid.childElementCount === 64) return;
+  ui.textPreviewGrid.innerHTML = "";
+  for (let i = 0; i < 64; i++) {
+    const dot = document.createElement("span");
+    dot.className = "text-preview-dot";
+    ui.textPreviewGrid.appendChild(dot);
+  }
+}
+
+function drawTextPreviewRows(rows) {
+  if (!ui.textPreviewGrid) return;
+  const dots = ui.textPreviewGrid.querySelectorAll(".text-preview-dot");
+  if (dots.length !== 64) return;
+  for (let r = 0; r < 8; r++) {
+    const row = rows[r] || 0;
+    for (let c = 0; c < 8; c++) {
+      const on = ((row >> (7 - c)) & 1) === 1;
+      dots[r * 8 + c].classList.toggle("on", on);
+    }
+  }
+}
+
+function stopTextPreview(clearGrid = false) {
+  if (textPreviewTimer) {
+    clearTimeout(textPreviewTimer);
+    textPreviewTimer = null;
+  }
+  textPreviewFrames = [];
+  textPreviewIndex = 0;
+  if (clearGrid) drawTextPreviewRows(emptyRows8());
+}
+
+function stepTextPreview(delayMs) {
+  if (!textPreviewFrames.length) return;
+  textPreviewTimer = window.setTimeout(() => {
+    textPreviewIndex = (textPreviewIndex + 1) % textPreviewFrames.length;
+    drawTextPreviewRows(textPreviewFrames[textPreviewIndex].rows);
+    stepTextPreview(delayMs);
+  }, delayMs);
+}
+
+function refreshTextPreview(actions) {
+  ensureTextPreviewGrid();
+  const txt = ui.textInput.value.trim();
+  if (!txt) {
+    stopTextPreview(true);
+    if (ui.textPreviewHint) ui.textPreviewHint.textContent = "Mesaj yazınca akış burada görünecek.";
+    return;
+  }
+
+  const frameMs = textLettersPerSecToFrameMs();
+  const result = actions.buildTextScrollFrames(txt, frameMs, state.textDirection === "right", false);
+  textPreviewFrames = result.frames;
+  textPreviewIndex = 0;
+
+  if (!textPreviewFrames.length) {
+    stopTextPreview(true);
+    if (ui.textPreviewHint) ui.textPreviewHint.textContent = "Önizleme üretilemedi.";
+    return;
+  }
+
+  if (textPreviewTimer) {
+    clearTimeout(textPreviewTimer);
+    textPreviewTimer = null;
+  }
+  drawTextPreviewRows(textPreviewFrames[0].rows);
+  stepTextPreview(frameMs);
+  if (ui.textPreviewHint) {
+    ui.textPreviewHint.textContent = result.truncated
+      ? `Önizleme: ilk ${MAX_FRAMES} kare`
+      : `Önizleme: ${textPreviewFrames.length} kare`;
+  }
+}
+
+function ensureAnimPreviewGrid() {
+  if (!ui.animPreviewGrid) return;
+  if (ui.animPreviewGrid.childElementCount === 64) return;
+  ui.animPreviewGrid.innerHTML = "";
+  for (let i = 0; i < 64; i++) {
+    const dot = document.createElement("span");
+    dot.className = "text-preview-dot";
+    ui.animPreviewGrid.appendChild(dot);
+  }
+}
+
+function drawAnimPreviewRows(rows) {
+  if (!ui.animPreviewGrid) return;
+  const dots = ui.animPreviewGrid.querySelectorAll(".text-preview-dot");
+  if (dots.length !== 64) return;
+  for (let r = 0; r < 8; r++) {
+    const row = rows[r] || 0;
+    for (let c = 0; c < 8; c++) {
+      const on = ((row >> (7 - c)) & 1) === 1;
+      dots[r * 8 + c].classList.toggle("on", on);
+    }
+  }
+}
+
+function stopAnimPreview(clearGrid = false) {
+  if (animPreviewTimer) {
+    clearTimeout(animPreviewTimer);
+    animPreviewTimer = null;
+  }
+  animPreviewIndex = 0;
+  if (clearGrid) drawAnimPreviewRows(emptyRows8());
+}
+
+function stepAnimPreview() {
+  if (!state.frames.length || ui.tabAnim?.hidden) return;
+  const frame = state.frames[animPreviewIndex];
+  if (!frame) return;
+  drawAnimPreviewRows(frame.rows || emptyRows8());
+  const delay = clamp(frame.duration, 40, 1200, 150);
+  const loopEnabled = Number(ui.loopSelect?.value || 0) === 1;
+  animPreviewTimer = window.setTimeout(() => {
+    if (!state.frames.length || ui.tabAnim?.hidden) return;
+    if (animPreviewIndex >= state.frames.length - 1) {
+      if (!loopEnabled) {
+        if (ui.animPreviewHint) ui.animPreviewHint.textContent = `Önizleme: ${state.frames.length} kare (tek tur)`;
+        animPreviewTimer = null;
+        return;
+      }
+      animPreviewIndex = 0;
+    } else {
+      animPreviewIndex += 1;
+    }
+    stepAnimPreview();
+  }, delay);
+}
+
+function refreshAnimPreview() {
+  ensureAnimPreviewGrid();
+  if (!ui.animPreviewGrid) return;
+  if (ui.tabAnim?.hidden) {
+    stopAnimPreview(false);
+    return;
+  }
+  if (!state.frames.length) {
+    stopAnimPreview(true);
+    if (ui.animPreviewHint) ui.animPreviewHint.textContent = "Önizleme için kare ekle.";
+    return;
+  }
+  stopAnimPreview(false);
+  animPreviewIndex = state.selectedFrame >= 0 ? Math.min(state.selectedFrame, state.frames.length - 1) : 0;
+  if (ui.animPreviewHint) ui.animPreviewHint.textContent = `Önizleme: ${state.frames.length} kare`;
+  stepAnimPreview();
+}
 
 export function resetBrightnessSyncState() {
   brightnessPendingValue = null;
@@ -62,6 +221,8 @@ export function setActiveTab(name) {
   ui.tabs.forEach((btn) => {
     btn.classList.toggle("active", btn.dataset.tab === name);
   });
+  if (name !== "text") stopTextPreview(false);
+  if (name !== "anim") stopAnimPreview(false);
 }
 
 function scheduleBrightnessFloatHide(delayMs = 650) {
@@ -70,6 +231,26 @@ function scheduleBrightnessFloatHide(delayMs = 650) {
     ui.brightnessFloatVal.classList.remove("show");
     ui.brightnessFloatVal.hidden = true;
   }, delayMs);
+}
+
+function updateTextSpeedUi() {
+  if (!ui.textSpeedInput || !ui.textSpeedVal) return;
+  const lettersPerSec = textLettersPerSec();
+  ui.textSpeedVal.textContent = `${lettersPerSec.toFixed(1)} harf/s`;
+}
+
+function textLettersPerSec() {
+  const raw = clamp(ui.textSpeedInput.value, 5, 600, 90);
+  // Eski geniş slider aralığını korurken harf/s değeri üretir: 5 -> 0.1, 600 -> 12.0
+  return raw / 50;
+}
+
+function textLettersPerSecToFrameMs() {
+  const lettersPerSec = textLettersPerSec();
+  // 5x7 fontta bir karakter yaklaşık 6 kolon kayar (5 kolon + 1 boşluk).
+  const columnsPerSec = lettersPerSec * 6;
+  const ms = Math.round(1000 / columnsPerSec);
+  return clamp(ms, 30, 2000, 90);
 }
 
 export function updateBrightnessUi(showFloat = false) {
@@ -95,6 +276,7 @@ function scheduleAutoBrightnessSet(actions, immediate = false) {
   const value = clamp(ui.brightnessRange.value, 0, 15, 8);
   brightnessPendingValue = value;
 
+  if (!state.livePreviewEnabled) return;
   if (!state.rx || !state.notifications) return;
   if (brightnessPendingValue === brightnessLastSentValue) return;
 
@@ -313,6 +495,8 @@ export function bindUi(actions) {
   ui.tabs.forEach((btn) => {
     btn.addEventListener("click", () => {
       setActiveTab(btn.dataset.tab);
+      if (btn.dataset.tab === "text") refreshTextPreview(actions);
+      if (btn.dataset.tab === "anim") refreshAnimPreview();
     });
   });
 
@@ -340,31 +524,44 @@ export function bindUi(actions) {
         return;
       }
       actions.setLivePreview(true);
+      scheduleAutoBrightnessSet(actions, true);
       await actions.pushPreviewFrame();
     } else {
       actions.setLivePreview(false);
     }
   });
 
-  ui.sendImgBtn.addEventListener("click", async () => {
-    try {
-      await actions.sendImage(PKT_IMG, "OK:IMG_BIN");
-    } catch (err) {
-      log(`Göster hatası: ${err.message}`);
-    }
-  });
+  if (ui.sendImgBtn) {
+    ui.sendImgBtn.addEventListener("click", async () => {
+      try {
+        if (!state.livePreviewEnabled) {
+          const brightness = clamp(ui.brightnessRange.value, 0, 15, 8);
+          if (brightness !== brightnessLastSentValue) {
+            await actions.sendTextAck(`BRT:${brightness}`, "OK:BRT");
+            brightnessLastSentValue = brightness;
+          }
+        }
+        await actions.sendImage(PKT_IMG, "OK:IMG_BIN");
+      } catch (err) {
+        log(`Göster hatası: ${err.message}`);
+      }
+    });
+  }
 
-  ui.addFrameBtn.addEventListener("click", () => {
-    if (state.frames.length >= MAX_FRAMES) {
-      alert(`Maksimum ${MAX_FRAMES} kare.`);
-      return;
-    }
-    state.frames.push(actions.currentDraftFrame());
-    state.selectedFrame = state.frames.length - 1;
-    actions.markAnimationDirty();
-    hooks.renderFrames();
-    log(`Kare eklendi (#${state.frames.length}).`);
-  });
+  if (ui.addFrameBtn) {
+    ui.addFrameBtn.addEventListener("click", () => {
+      if (state.frames.length >= MAX_FRAMES) {
+        alert(`Maksimum ${MAX_FRAMES} kare.`);
+        return;
+      }
+      state.frames.push(actions.currentDraftFrame());
+      state.selectedFrame = state.frames.length - 1;
+      actions.markAnimationDirty();
+      hooks.renderFrames();
+      refreshAnimPreview();
+      log(`Kare eklendi (#${state.frames.length}).`);
+    });
+  }
 
   ui.updateFrameBtn.addEventListener("click", () => {
     if (state.selectedFrame < 0 || !state.frames[state.selectedFrame]) {
@@ -374,6 +571,7 @@ export function bindUi(actions) {
     state.frames[state.selectedFrame] = actions.currentDraftFrame();
     actions.markAnimationDirty();
     hooks.renderFrames();
+    refreshAnimPreview();
     log(`Kare guncellendi (#${state.selectedFrame + 1}).`);
   });
 
@@ -389,6 +587,7 @@ export function bindUi(actions) {
       ui.frameBrightnessInput.value = String(f.brightness);
     }
     hooks.renderFrames();
+    refreshAnimPreview();
   });
 
   ui.clearFramesBtn.addEventListener("click", () => {
@@ -396,9 +595,13 @@ export function bindUi(actions) {
     state.selectedFrame = -1;
     actions.markAnimationDirty();
     hooks.renderFrames();
+    refreshAnimPreview();
   });
 
-  ui.loopSelect.addEventListener("change", actions.markAnimationDirty);
+  ui.loopSelect.addEventListener("change", () => {
+    actions.markAnimationDirty();
+    refreshAnimPreview();
+  });
 
   ui.brightnessRange.addEventListener("input", () => {
     updateBrightnessUi(true);
@@ -427,20 +630,31 @@ export function bindUi(actions) {
     state.textDirection = "left";
     ui.dirLeftBtn.classList.add("active");
     ui.dirRightBtn.classList.remove("active");
+    refreshTextPreview(actions);
   });
 
   ui.dirRightBtn.addEventListener("click", () => {
     state.textDirection = "right";
     ui.dirRightBtn.classList.add("active");
     ui.dirLeftBtn.classList.remove("active");
+    refreshTextPreview(actions);
+  });
+
+  ui.textInput.addEventListener("input", () => {
+    refreshTextPreview(actions);
+  });
+
+  ui.textSpeedInput.addEventListener("input", () => {
+    updateTextSpeedUi();
+    refreshTextPreview(actions);
   });
 
   ui.txtSendBtn.addEventListener("click", async () => {
     try {
       const txt = ui.textInput.value.trim();
       if (!txt) return alert("Mesaj yaz.");
-      const speed = clamp(ui.textSpeedInput.value, 1, 65535, 90);
-      const result = actions.buildTextScrollFrames(txt, speed, state.textDirection === "right", false);
+      const frameMs = textLettersPerSecToFrameMs();
+      const result = actions.buildTextScrollFrames(txt, frameMs, state.textDirection === "right", false);
       if (!result.frames.length) throw new Error("Yazı karesi üretilemedi.");
       if (result.truncated) {
         alert(`Mesaj uzun olduğu için ilk ${MAX_FRAMES} kare gönderildi.`);
@@ -526,6 +740,10 @@ export function bindUi(actions) {
       log(`Stop hatası: ${err.message}`);
     }
   });
+
+  refreshTextPreview(actions);
+  refreshAnimPreview();
+  updateTextSpeedUi();
 }
 
 export function loadStarterFrames() {
@@ -539,4 +757,5 @@ export function loadStarterFrames() {
   ui.frameBrightnessInput.value = String(state.frames[0].brightness);
   state.animationDirty = true;
   hooks.renderFrames();
+  refreshAnimPreview();
 }

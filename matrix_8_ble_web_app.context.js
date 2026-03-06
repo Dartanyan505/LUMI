@@ -73,6 +73,9 @@ export const ui = {
 
   textInput: document.getElementById("textInput"),
   textSpeedInput: document.getElementById("textSpeedInput"),
+  textSpeedVal: document.getElementById("textSpeedVal"),
+  textPreviewGrid: document.getElementById("textPreviewGrid"),
+  textPreviewHint: document.getElementById("textPreviewHint"),
   dirLeftBtn: document.getElementById("dirLeftBtn"),
   dirRightBtn: document.getElementById("dirRightBtn"),
   txtSendBtn: document.getElementById("txtSendBtn"),
@@ -90,6 +93,8 @@ export const ui = {
 
   frameInfo: document.getElementById("frameInfo"),
   frames: document.getElementById("frames"),
+  animPreviewGrid: document.getElementById("animPreviewGrid"),
+  animPreviewHint: document.getElementById("animPreviewHint"),
 
   pingBtn: document.getElementById("pingBtn"),
   statusBtn: document.getElementById("statusBtn"),

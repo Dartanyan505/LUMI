@@ -85,9 +85,9 @@
             <svg viewBox="0 0 24 24"><path d="M12 5c-6 0-9 7-9 7s3 7 9 7 9-7 9-7-3-7-9-7zm0 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8z"/></svg>
             <span id="previewBtnLabel">Canlı Önizleme</span>
           </button>
-          <button id="addFrameBtn" class="tool-btn">
-            <svg viewBox="0 0 24 24"><path d="M11 5h2v14h-2zM5 11h14v2H5z"/></svg>
-            <span>Kare Ekle</span>
+          <button id="sendImgBtn" class="tool-btn primary">
+            <svg viewBox="0 0 24 24"><path d="M3 12h10v2H3zm8-6 10 7-10 7v-5H5v-4h6z"/></svg>
+            <span>Göster</span>
           </button>
         </div>
 
@@ -101,51 +101,47 @@
               </div>
             </div>
           </div>
-          <div class="draw-send-wrap">
-            <button id="sendImgBtn" class="tool-btn primary">
-              <svg viewBox="0 0 24 24"><path d="M3 12h10v2H3zm8-6 10 7-10 7v-5H5v-4h6z"/></svg>
-              <span>Göster</span>
-            </button>
-          </div>
         </div>
       </section>
 
       <section id="tab-text" class="panel" hidden>
         <div class="text-studio">
-          <header class="text-head">
-            <p class="text-kicker">Yazı Akışı</p>
-            <h2 class="text-title">LED Mesaj Tasarla</h2>
-            <p class="text-note">Türkçe karakterler otomatik uyarlanır. En fazla 120 karakter.</p>
-          </header>
-
           <div class="text-card text-card-message">
             <label for="textInput">Mesaj</label>
             <input id="textInput" type="text" maxlength="120" placeholder="Merhaba dunya" />
-            <div class="text-subline">
-              <span>Desteklenenler: A-Z, 0-9, ! ? . , -</span>
+          </div>
+
+          <div class="text-card text-preview-shell">
+            <div class="text-preview-row">
+              <button id="dirLeftBtn" class="chip-toggle text-dir-btn text-dir-side" aria-label="Sola">
+                <svg viewBox="0 0 24 24"><path d="m14 7-5 5 5 5V7z"/></svg>
+              </button>
+              <div id="textPreviewGrid" class="text-preview-grid" aria-label="8x8 yazı önizleme"></div>
+              <button id="dirRightBtn" class="chip-toggle text-dir-btn text-dir-side" aria-label="Sağa">
+                <svg viewBox="0 0 24 24"><path d="m10 17 5-5-5-5v10z"/></svg>
+              </button>
+            </div>
+            <div id="textPreviewHint" class="text-preview-hint">
+              Mesaj yazınca akış burada görünecek.
             </div>
           </div>
 
           <div class="text-control-grid">
             <div class="text-card">
-              <label for="textSpeedInput">Geçiş Hızı (ms)</label>
-              <input id="textSpeedInput" type="number" min="1" max="65535" value="90" />
-              <div class="text-subline">
-                <span>Öneri: 70-120 aralığı daha okunaklıdır.</span>
+              <div class="text-speed-head">
+                <label for="textSpeedInput">Geçiş Hızı</label>
+                <span id="textSpeedVal" class="text-speed-val">1.8 harf/s</span>
               </div>
-            </div>
-
-            <div class="text-card">
-              <label>Akış Yönü</label>
-              <div class="text-dir-row">
-                <button id="dirLeftBtn" class="chip-toggle text-dir-btn">
-                  <svg viewBox="0 0 24 24"><path d="m14 7-5 5 5 5V7z"/></svg>
-                  <span>Sola</span>
-                </button>
-                <button id="dirRightBtn" class="chip-toggle text-dir-btn">
-                  <svg viewBox="0 0 24 24"><path d="m10 17 5-5-5-5v10z"/></svg>
-                  <span>Sağa</span>
-                </button>
+              <div class="text-speed-slider-wrap">
+                <input
+                  id="textSpeedInput"
+                  class="brightness-slider text-speed-slider"
+                  type="range"
+                  min="5"
+                  max="600"
+                  step="5"
+                  value="90"
+                />
               </div>
             </div>
           </div>
@@ -178,6 +174,11 @@
               <option value="0">Kapalı</option>
             </select>
           </div>
+        </div>
+
+        <div class="text-card anim-preview-shell" style="margin-top:10px;">
+          <div id="animPreviewGrid" class="text-preview-grid" aria-label="8x8 animasyon önizleme"></div>
+          <div id="animPreviewHint" class="text-preview-hint">Önizleme için kare ekle.</div>
         </div>
 
         <div class="quick-grid" style="margin-top:10px;">
