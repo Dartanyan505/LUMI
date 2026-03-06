@@ -68,7 +68,6 @@ export const ui = {
 
   brightnessRange: document.getElementById("brightnessRange"),
   brightnessFloatVal: document.getElementById("brightnessFloatVal"),
-  sendBrightnessBtn: document.getElementById("sendBrightnessBtn"),
   themeBtn: document.getElementById("themeBtn"),
   themeMeta: document.getElementById("themeMeta"),
 

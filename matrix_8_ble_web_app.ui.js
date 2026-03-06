@@ -13,6 +13,9 @@ const hooks = {
   scheduleLivePreview: () => {},
   renderFrames: () => {},
 };
+let brightnessAutoTimer = null;
+let brightnessPendingValue = null;
+let brightnessLastSentValue = null;
 
 export function setUiHooks(next) {
   if (next && typeof next.scheduleLivePreview === "function") {
@@ -70,6 +73,28 @@ export function updateBrightnessUi(showFloat = false) {
     ui.brightnessFloatVal.classList.add("show");
     scheduleBrightnessFloatHide();
   }
+}
+
+function scheduleAutoBrightnessSet(actions, immediate = false) {
+  const value = clamp(ui.brightnessRange.value, 0, 15, 8);
+  brightnessPendingValue = value;
+
+  if (!state.rx || !state.notifications) return;
+  if (brightnessPendingValue === brightnessLastSentValue) return;
+
+  if (brightnessAutoTimer) clearTimeout(brightnessAutoTimer);
+  brightnessAutoTimer = window.setTimeout(async () => {
+    brightnessAutoTimer = null;
+    const v = brightnessPendingValue;
+    if (v == null) return;
+    if (v === brightnessLastSentValue) return;
+    try {
+      await actions.sendTextAck(`BRT:${v}`, "OK:BRT");
+      brightnessLastSentValue = v;
+    } catch (err) {
+      log(`Parlaklık hatası: ${err.message}`);
+    }
+  }, immediate ? 0 : 120);
 }
 
 function applyTheme(themeKey, persist = true) {
@@ -354,6 +379,7 @@ export function bindUi(actions) {
   ui.brightnessRange.addEventListener("input", () => {
     updateBrightnessUi(true);
     ui.frameBrightnessInput.value = ui.brightnessRange.value;
+    scheduleAutoBrightnessSet(actions, false);
   });
 
   ui.brightnessRange.addEventListener("pointerdown", () => {
@@ -361,21 +387,13 @@ export function bindUi(actions) {
   });
   ui.brightnessRange.addEventListener("change", () => {
     scheduleBrightnessFloatHide(250);
+    scheduleAutoBrightnessSet(actions, true);
   });
   ui.brightnessRange.addEventListener("blur", () => {
     scheduleBrightnessFloatHide(120);
   });
 
   window.addEventListener("resize", () => updateBrightnessUi(false));
-
-  ui.sendBrightnessBtn.addEventListener("click", async () => {
-    try {
-      const v = clamp(ui.brightnessRange.value, 0, 15, 8);
-      await actions.sendTextAck(`BRT:${v}`, "OK:BRT");
-    } catch (err) {
-      log(`Parlaklık hatası: ${err.message}`);
-    }
-  });
 
   ui.themeBtn.addEventListener("click", () => {
     cycleTheme();
