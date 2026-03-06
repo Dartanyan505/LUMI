@@ -22,6 +22,7 @@ const THEME_CHROME_COLORS = {
 let brightnessAutoTimer = null;
 let brightnessPendingValue = null;
 let brightnessLastSentValue = null;
+let globalPointerUpBound = false;
 
 export function resetBrightnessSyncState() {
   brightnessPendingValue = null;
@@ -211,10 +212,13 @@ export function createGrid() {
     }
   }
 
-  window.addEventListener("pointerup", () => {
-    state.drawActive = false;
-    state.lastPaintedKey = "";
-  });
+  if (!globalPointerUpBound) {
+    window.addEventListener("pointerup", () => {
+      state.drawActive = false;
+      state.lastPaintedKey = "";
+    });
+    globalPointerUpBound = true;
+  }
 
   ui.pixelGrid.addEventListener("pointermove", (ev) => {
     if (!state.drawActive) return;

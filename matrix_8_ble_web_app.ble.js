@@ -10,6 +10,14 @@ import {
 import { gridToRows, mirrorRowsForDevice, renderStatus, setStatus } from "./matrix_8_ble_web_app.ui.js";
 
 let onDisconnectedCleanup = () => {};
+let txValueTarget = null;
+
+function onTxValueChanged(ev) {
+  const msg = new TextDecoder().decode(ev.target.value).trim();
+  log(`ESP -> ${msg}`);
+  if (msg.startsWith("MODE:")) renderStatus(msg);
+  resolveWaiters(msg);
+}
 
 export function setOnDisconnectedCleanup(fn) {
   onDisconnectedCleanup = typeof fn === "function" ? fn : () => {};
@@ -35,16 +43,32 @@ function resolveWaiters(msg) {
 
 function waitReply(match, timeoutMs = 2600) {
   if (!state.notifications) {
-    return Promise.reject(new Error("Bildirim acik degil."));
+    return {
+      promise: Promise.reject(new Error("Bildirim acik degil.")),
+      cancel: () => {},
+    };
   }
-  return new Promise((resolve, reject) => {
+  let waiter = null;
+  const promise = new Promise((resolve, reject) => {
     const timer = window.setTimeout(() => {
       const index = state.waiters.findIndex((w) => w.timer === timer);
       if (index >= 0) state.waiters.splice(index, 1);
       reject(new Error("Yanıt zaman asimi."));
     }, timeoutMs);
-    state.waiters.push({ match, resolve, reject, timer });
+    waiter = { match, resolve, reject, timer };
+    state.waiters.push(waiter);
   });
+
+  return {
+    promise,
+    cancel: () => {
+      if (!waiter) return;
+      const index = state.waiters.indexOf(waiter);
+      if (index >= 0) state.waiters.splice(index, 1);
+      clearTimeout(waiter.timer);
+      waiter = null;
+    },
+  };
 }
 
 export async function connectBle() {
@@ -53,12 +77,14 @@ export async function connectBle() {
     return;
   }
   try {
-    state.device = await navigator.bluetooth.requestDevice({
+    const nextDevice = await navigator.bluetooth.requestDevice({
       filters: [{ namePrefix: "LUMI" }],
       optionalServices: [SERVICE_UUID],
     });
+    nextDevice.removeEventListener("gattserverdisconnected", onDisconnected);
+    nextDevice.addEventListener("gattserverdisconnected", onDisconnected);
+    state.device = nextDevice;
 
-    state.device.addEventListener("gattserverdisconnected", onDisconnected);
     const gatt = await state.device.gatt.connect();
     const service = await gatt.getPrimaryService(SERVICE_UUID);
     state.rx = await service.getCharacteristic(RX_UUID);
@@ -67,12 +93,11 @@ export async function connectBle() {
     await state.tx.startNotifications();
     state.notifications = true;
 
-    state.tx.addEventListener("characteristicvaluechanged", (ev) => {
-      const msg = new TextDecoder().decode(ev.target.value).trim();
-      log(`ESP -> ${msg}`);
-      if (msg.startsWith("MODE:")) renderStatus(msg);
-      resolveWaiters(msg);
-    });
+    if (txValueTarget) {
+      txValueTarget.removeEventListener("characteristicvaluechanged", onTxValueChanged);
+    }
+    state.tx.addEventListener("characteristicvaluechanged", onTxValueChanged);
+    txValueTarget = state.tx;
 
     setStatus(`Bağlı: ${state.device.name || "LUMI"}`, true);
     log("Bağlantı kuruldu.");
@@ -86,6 +111,10 @@ function onDisconnected() {
   state.rx = null;
   state.tx = null;
   state.notifications = false;
+  if (txValueTarget) {
+    txValueTarget.removeEventListener("characteristicvaluechanged", onTxValueChanged);
+    txValueTarget = null;
+  }
   onDisconnectedCleanup();
   failWaiters("Bağlantı koptu.");
   log("Bağlantı koptu.");
@@ -106,8 +135,14 @@ async function writeBin(bytes) {
 export async function sendTextAck(command, okPrefix, timeoutMs = 2600) {
   return enqueueBleSend(async () => {
     const wait = waitReply((msg) => msg.startsWith(okPrefix) || msg.startsWith("ERR:"), timeoutMs);
-    await writeText(command);
-    const reply = await wait;
+    let reply;
+    try {
+      await writeText(command);
+      reply = await wait.promise;
+    } catch (err) {
+      wait.cancel();
+      throw err;
+    }
     if (reply.startsWith("ERR:")) throw new Error(reply);
     return reply;
   });
@@ -116,8 +151,14 @@ export async function sendTextAck(command, okPrefix, timeoutMs = 2600) {
 export async function sendBinAck(bytes, okPrefix, timeoutMs = 2800) {
   return enqueueBleSend(async () => {
     const wait = waitReply((msg) => msg.startsWith(okPrefix) || msg.startsWith("ERR:"), timeoutMs);
-    await writeBin(bytes);
-    const reply = await wait;
+    let reply;
+    try {
+      await writeBin(bytes);
+      reply = await wait.promise;
+    } catch (err) {
+      wait.cancel();
+      throw err;
+    }
     if (reply.startsWith("ERR:")) throw new Error(reply);
     return reply;
   });
