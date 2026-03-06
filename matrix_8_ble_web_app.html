@@ -1,0 +1,2318 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>LUMI</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Cg fill='%237a3f59'%3E%3Crect x='5' y='5' width='8' height='8' rx='2'/%3E%3Crect x='17' y='5' width='8' height='8' rx='2'/%3E%3Crect x='29' y='5' width='8' height='8' rx='2'/%3E%3Crect x='41' y='5' width='8' height='8' rx='2'/%3E%3Crect x='53' y='5' width='8' height='8' rx='2'/%3E%3Crect x='65' y='5' width='8' height='8' rx='2'/%3E%3Crect x='5' y='17' width='8' height='8' rx='2'/%3E%3Crect x='29' y='17' width='8' height='8' rx='2'/%3E%3Crect x='65' y='17' width='8' height='8' rx='2'/%3E%3Crect x='5' y='29' width='8' height='8' rx='2'/%3E%3Crect x='29' y='29' width='8' height='8' rx='2'/%3E%3Crect x='53' y='29' width='8' height='8' rx='2'/%3E%3Crect x='65' y='29' width='8' height='8' rx='2'/%3E%3Crect x='5' y='41' width='8' height='8' rx='2'/%3E%3Crect x='29' y='41' width='8' height='8' rx='2'/%3E%3Crect x='41' y='41' width='8' height='8' rx='2'/%3E%3Crect x='65' y='41' width='8' height='8' rx='2'/%3E%3Crect x='5' y='53' width='8' height='8' rx='2'/%3E%3Crect x='17' y='53' width='8' height='8' rx='2'/%3E%3Crect x='29' y='53' width='8' height='8' rx='2'/%3E%3Crect x='53' y='53' width='8' height='8' rx='2'/%3E%3Crect x='65' y='53' width='8' height='8' rx='2'/%3E%3Crect x='5' y='65' width='8' height='8' rx='2'/%3E%3Crect x='17' y='65' width='8' height='8' rx='2'/%3E%3Crect x='29' y='65' width='8' height='8' rx='2'/%3E%3Crect x='41' y='65' width='8' height='8' rx='2'/%3E%3Crect x='53' y='65' width='8' height='8' rx='2'/%3E%3Crect x='65' y='65' width='8' height='8' rx='2'/%3E%3C/g%3E%3C/svg%3E" />
+  <style>
+    :root {
+      --bg: #fff8fc;
+      --bg-a: #ffd8e9;
+      --bg-b: #ffe7c9;
+      --bg-c: #fff7fb;
+      --bg-end: #ffeef6;
+      --panel: #ffffff;
+      --line: #ecd3df;
+      --line-soft: #f4e4ec;
+      --text: #412f39;
+      --muted: #8d6d7d;
+      --brand: #ef6ea2;
+      --brand-2: #f79cbf;
+      --title: #70374f;
+      --ok: #2a9d6f;
+      --warn: #f2a340;
+      --danger: #e46d6d;
+      --pixel-off: #f7e3ec;
+      --pixel-on: #4b2e3e;
+      --shadow: 0 16px 34px rgba(212, 134, 166, 0.2);
+      --shadow-soft: 0 8px 18px rgba(212, 134, 166, 0.14);
+      --button-shadow: 0 8px 16px rgba(239, 110, 162, 0.24);
+      --overlay-glass: rgba(255, 255, 255, 0.35);
+      --tabs-bg: rgba(255, 248, 252, 0.98);
+      --tabs-border: #ecd1de;
+      --soft-bg: #fff3f8;
+      --soft-border: #efc8da;
+      --soft-text: #9a637b;
+      --soft-bg-2: #f5dce8;
+      --soft-border-2: #eec6d8;
+      --soft-text-2: #7a4d61;
+      --menu-bg: #fffafc;
+      --menu-border: #edd2df;
+      --menu-shadow: 0 12px 24px rgba(130, 71, 96, 0.18);
+      --tab-bg: #fffafc;
+      --tab-border: #efd6e2;
+      --tab-text: #926579;
+      --tab-active-a: #ffe5f1;
+      --tab-active-b: #ffeeda;
+      --tab-active-border: #efc0d3;
+      --tab-active-text: #7a4260;
+      --panel-end: #fff9fc;
+      --section-bg: #fff1f7;
+      --section-border: #f1d3e2;
+      --section-text: #8a546e;
+      --pixel-shell-border: #efc8da;
+      --pixel-shell-a: #fff4f9;
+      --pixel-shell-b: #fff9fc;
+      --pixel-shell-inner: #fff;
+      --pixel-border: rgba(96, 48, 70, 0.08);
+      --pixel-glow: 0 0 8px rgba(75, 46, 62, 0.25);
+      --tool-bg: #fff7fb;
+      --tool-border: #efc6d8;
+      --tool-text: #8a5a6f;
+      --tool-active-a: #f7aac7;
+      --tool-active-b: #ffd2e1;
+      --tool-active-border: #efb8cf;
+      --tool-active-text: #7d3f5c;
+      --warn-bg: #ffe7c8;
+      --warn-border: #f3cf9b;
+      --warn-text: #8d5d20;
+      --danger-bg: #ffd9d9;
+      --danger-border: #f1b3b3;
+      --danger-text: #8c3b3b;
+      --chip-bg: #fff6fa;
+      --chip-border: #efc9dc;
+      --chip-text: #8d6074;
+      --input-bg: #fffdfd;
+      --input-border: #eac7d8;
+      --input-focus: #e9a7c3;
+      --input-focus-shadow: rgba(247, 124, 168, 0.18);
+      --brightness-bg: #fffafd;
+      --brightness-border: #edd8e3;
+      --brightness-label: #8a5a70;
+      --brightness-value-bg: #fff1f7;
+      --brightness-value-border: #efcfdd;
+      --brightness-value-text: #76435b;
+      --brightness-track-a: #ffdbe9;
+      --brightness-track-b: #f8a8c6;
+      --brightness-thumb-bg: #fff;
+      --brightness-thumb-border: #eb86b1;
+      --brightness-thumb-shadow: 0 2px 7px rgba(238, 124, 171, 0.3);
+      --frame-border: #efc5d7;
+      --frame-bg-a: #fff7fb;
+      --frame-bg-b: #fff3f8;
+      --frame-active: #f78cb2;
+      --mini-off: #f0d8e4;
+      --status-item-bg: #fff7fb;
+      --status-item-border: #efd2df;
+      --log-bg: #fffdfd;
+      --log-border: #eed4e0;
+      --log-text: #7a556b;
+      --pill-bg: #ffeaf3;
+      --pill-border: #f3cadc;
+      --pill-text: #936578;
+      --connected-bg: #eafff4;
+      --connected-border: #9fdfbf;
+      --connected-text: #287a56;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at 12% 2%, var(--bg-a) 0, transparent 34%),
+        radial-gradient(circle at 88% 8%, var(--bg-b) 0, transparent 28%),
+        linear-gradient(180deg, var(--bg-c) 0%, var(--bg-end) 100%);
+      color: var(--text);
+    }
+
+    body.theme-sky {
+      --bg-a: #d8e8ff;
+      --bg-b: #d6f4ff;
+      --bg-c: #f4f9ff;
+      --bg-end: #edf4ff;
+      --line: #cedff4;
+      --text: #2e3d56;
+      --muted: #657da3;
+      --brand: #5e93ff;
+      --brand-2: #71c7ff;
+      --title: #2f4f85;
+      --pixel-off: #dfebff;
+      --pixel-on: #2f4f85;
+      --button-shadow: 0 8px 16px rgba(94, 147, 255, 0.26);
+      --tabs-bg: rgba(244, 249, 255, 0.98);
+      --tabs-border: #d6e4f5;
+      --soft-bg: #edf4ff;
+      --soft-border: #cdddf3;
+      --soft-text: #5b7398;
+      --soft-bg-2: #e4eefc;
+      --soft-border-2: #c9daf1;
+      --soft-text-2: #4f6384;
+      --menu-bg: #f7fbff;
+      --menu-border: #d7e5f6;
+      --menu-shadow: 0 12px 24px rgba(68, 104, 155, 0.18);
+      --tab-bg: #f8fbff;
+      --tab-border: #d8e5f6;
+      --tab-text: #5f779e;
+      --tab-active-a: #e5efff;
+      --tab-active-b: #dcf4ff;
+      --tab-active-border: #c6daf6;
+      --tab-active-text: #395c95;
+      --section-bg: #ebf3ff;
+      --section-border: #d5e3f8;
+      --section-text: #5271a3;
+      --pixel-shell-border: #d1e0f4;
+      --pixel-shell-a: #eef5ff;
+      --pixel-shell-b: #f8fbff;
+      --pixel-shell-inner: #ffffff;
+      --pixel-border: rgba(45, 72, 112, 0.12);
+      --pixel-glow: 0 0 8px rgba(47, 79, 133, 0.24);
+      --tool-bg: #f6faff;
+      --tool-border: #d4e3f6;
+      --tool-text: #56739f;
+      --tool-active-a: #cfe2ff;
+      --tool-active-b: #d6f1ff;
+      --tool-active-border: #bad3f5;
+      --tool-active-text: #345688;
+      --chip-bg: #f2f7ff;
+      --chip-border: #d8e6f8;
+      --chip-text: #5f7aa2;
+      --input-bg: #fcfeff;
+      --input-border: #d2e2f5;
+      --input-focus: #88aee8;
+      --input-focus-shadow: rgba(94, 147, 255, 0.2);
+      --brightness-bg: #f8fbff;
+      --brightness-border: #dae7f7;
+      --brightness-label: #5f7aa2;
+      --brightness-value-bg: #edf4ff;
+      --brightness-value-border: #d3e3f6;
+      --brightness-value-text: #426495;
+      --brightness-track-a: #d8e8ff;
+      --brightness-track-b: #92b8ff;
+      --brightness-thumb-border: #7da5ef;
+      --brightness-thumb-shadow: 0 2px 7px rgba(94, 147, 255, 0.32);
+      --frame-border: #d4e3f6;
+      --frame-bg-a: #f6faff;
+      --frame-bg-b: #edf4ff;
+      --frame-active: #7ea8ef;
+      --mini-off: #d8e7fa;
+      --status-item-bg: #f6faff;
+      --status-item-border: #d8e5f6;
+      --log-bg: #fcfeff;
+      --log-border: #dce8f8;
+      --log-text: #566f94;
+      --pill-bg: #eaf2ff;
+      --pill-border: #d3e3f6;
+      --pill-text: #5e7ba4;
+    }
+
+    body.theme-mint {
+      --bg-a: #ddf6ea;
+      --bg-b: #f7f0cc;
+      --bg-c: #f5fff8;
+      --bg-end: #eefcf3;
+      --line: #cde8d8;
+      --text: #2f4a41;
+      --muted: #64857a;
+      --brand: #4cbf9f;
+      --brand-2: #7ad4b2;
+      --title: #2f6b58;
+      --pixel-off: #dff3e8;
+      --pixel-on: #2f6b58;
+      --button-shadow: 0 8px 16px rgba(76, 191, 159, 0.26);
+      --tabs-bg: rgba(245, 255, 248, 0.98);
+      --tabs-border: #d4e9dd;
+      --soft-bg: #ecfaf2;
+      --soft-border: #cfe6d8;
+      --soft-text: #5d7f72;
+      --soft-bg-2: #e4f3eb;
+      --soft-border-2: #c9e1d3;
+      --soft-text-2: #4f6f63;
+      --menu-bg: #f7fff9;
+      --menu-border: #d7e9dd;
+      --menu-shadow: 0 12px 24px rgba(61, 114, 95, 0.18);
+      --tab-bg: #f8fff9;
+      --tab-border: #d7e8de;
+      --tab-text: #5f7d72;
+      --tab-active-a: #dff4ea;
+      --tab-active-b: #f3efcf;
+      --tab-active-border: #c3ddcf;
+      --tab-active-text: #366b58;
+      --section-bg: #eaf8f0;
+      --section-border: #d2e7d9;
+      --section-text: #4f7f70;
+      --pixel-shell-border: #d1e4d8;
+      --pixel-shell-a: #eefaf3;
+      --pixel-shell-b: #f8fff9;
+      --pixel-border: rgba(44, 84, 71, 0.12);
+      --pixel-glow: 0 0 8px rgba(47, 107, 88, 0.24);
+      --tool-bg: #f6fff9;
+      --tool-border: #d3e7dc;
+      --tool-text: #567d71;
+      --tool-active-a: #c9eadc;
+      --tool-active-b: #e6f3d0;
+      --tool-active-border: #bad8cb;
+      --tool-active-text: #315f50;
+      --chip-bg: #f2faf5;
+      --chip-border: #d8e9df;
+      --chip-text: #5f8174;
+      --input-bg: #fcfffd;
+      --input-border: #d1e5d9;
+      --input-focus: #77bca4;
+      --input-focus-shadow: rgba(76, 191, 159, 0.2);
+      --brightness-bg: #f7fff9;
+      --brightness-border: #d9eade;
+      --brightness-label: #5d8073;
+      --brightness-value-bg: #edf8f1;
+      --brightness-value-border: #d2e7da;
+      --brightness-value-text: #3f6f60;
+      --brightness-track-a: #d9f0e3;
+      --brightness-track-b: #8cd6bc;
+      --brightness-thumb-border: #69b89e;
+      --brightness-thumb-shadow: 0 2px 7px rgba(76, 191, 159, 0.32);
+      --frame-border: #d2e6db;
+      --frame-bg-a: #f6fff9;
+      --frame-bg-b: #edf8f2;
+      --frame-active: #6fbfa5;
+      --mini-off: #d6eadf;
+      --status-item-bg: #f5fff8;
+      --status-item-border: #d6e8de;
+      --log-bg: #fcfffd;
+      --log-border: #dcece2;
+      --log-text: #58786d;
+      --pill-bg: #eaf8f1;
+      --pill-border: #d2e7da;
+      --pill-text: #5d8173;
+    }
+
+    body.theme-sunset {
+      --bg-a: #ffe1d4;
+      --bg-b: #ffeacb;
+      --bg-c: #fff7f1;
+      --bg-end: #fff0e4;
+      --line: #f0d8ca;
+      --text: #563d34;
+      --muted: #947466;
+      --brand: #f08b61;
+      --brand-2: #f7b276;
+      --title: #9b4f37;
+      --pixel-off: #f8e4da;
+      --pixel-on: #8a4a35;
+      --button-shadow: 0 8px 16px rgba(240, 139, 97, 0.26);
+      --tabs-bg: rgba(255, 247, 241, 0.98);
+      --tabs-border: #efd9cb;
+      --soft-bg: #fff1e8;
+      --soft-border: #f0d4c5;
+      --soft-text: #9c6d59;
+      --soft-bg-2: #fbe5da;
+      --soft-border-2: #efd0bf;
+      --soft-text-2: #8a624f;
+      --menu-bg: #fffaf6;
+      --menu-border: #efd9cc;
+      --menu-shadow: 0 12px 24px rgba(131, 81, 61, 0.18);
+      --tab-bg: #fffaf6;
+      --tab-border: #efdccf;
+      --tab-text: #9a715e;
+      --tab-active-a: #ffe8dc;
+      --tab-active-b: #ffefdc;
+      --tab-active-border: #efcfbd;
+      --tab-active-text: #8f563f;
+      --section-bg: #fff0e7;
+      --section-border: #f1dacd;
+      --section-text: #976854;
+      --pixel-shell-border: #efd5c6;
+      --pixel-shell-a: #fff3ec;
+      --pixel-shell-b: #fff8f4;
+      --pixel-border: rgba(103, 61, 44, 0.12);
+      --pixel-glow: 0 0 8px rgba(138, 74, 53, 0.24);
+      --tool-bg: #fff9f5;
+      --tool-border: #efd8cc;
+      --tool-text: #946b58;
+      --tool-active-a: #ffd4c0;
+      --tool-active-b: #ffe3c7;
+      --tool-active-border: #efc6af;
+      --tool-active-text: #874f3c;
+      --chip-bg: #fff5ef;
+      --chip-border: #f0dbcf;
+      --chip-text: #9a715d;
+      --input-bg: #fffefd;
+      --input-border: #edd6c8;
+      --input-focus: #efac86;
+      --input-focus-shadow: rgba(240, 139, 97, 0.2);
+      --brightness-bg: #fffaf7;
+      --brightness-border: #eedcd2;
+      --brightness-label: #9a715e;
+      --brightness-value-bg: #fff0e8;
+      --brightness-value-border: #efd8cc;
+      --brightness-value-text: #844f3d;
+      --brightness-track-a: #ffe3d5;
+      --brightness-track-b: #f5b58f;
+      --brightness-thumb-border: #e49a74;
+      --brightness-thumb-shadow: 0 2px 7px rgba(240, 139, 97, 0.32);
+      --frame-border: #efd5c7;
+      --frame-bg-a: #fff9f5;
+      --frame-bg-b: #fff1e9;
+      --frame-active: #eea27c;
+      --mini-off: #f2ddd0;
+      --status-item-bg: #fff8f4;
+      --status-item-border: #efdcd0;
+      --log-bg: #fffefd;
+      --log-border: #efdfd5;
+      --log-text: #8e6a59;
+      --pill-bg: #fff1e9;
+      --pill-border: #efd8cc;
+      --pill-text: #9a705d;
+    }
+
+    .app {
+      max-width: 560px;
+      margin: 0 auto;
+      min-height: 100vh;
+      padding: 16px 12px 92px;
+    }
+
+    .hero {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 10px 12px;
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      justify-content: flex-start;
+    }
+
+    .hero-left {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-left: auto;
+    }
+
+    .title {
+      margin: 0;
+      font-size: 1.1rem;
+      font-weight: 800;
+      line-height: 1.2;
+      letter-spacing: 0.08em;
+      color: var(--title);
+      text-transform: uppercase;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-logo {
+      width: 26px;
+      height: 26px;
+      display: block;
+      color: var(--title);
+    }
+
+    .header-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      padding: 0;
+      display: grid;
+      place-items: center;
+      box-shadow: none;
+    }
+
+    .connection-indicator {
+      width: auto;
+      min-width: 92px;
+      padding: 0 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+      background: var(--soft-bg);
+      border: 1px solid var(--soft-border);
+      color: var(--soft-text);
+    }
+
+    .connection-indicator.connected {
+      background: var(--connected-bg);
+      border-color: var(--connected-border);
+      color: var(--connected-text);
+    }
+
+    .connection-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+      flex: 0 0 auto;
+    }
+
+    .connection-label {
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    .menu {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      left: auto;
+      width: min(220px, calc(100vw - 28px));
+      background: var(--menu-bg);
+      border: 1px solid var(--menu-border);
+      border-radius: 12px;
+      box-shadow: var(--menu-shadow);
+      padding: 10px;
+      z-index: 25;
+      transform-origin: top right;
+    }
+
+    .menu[hidden] { display: none; }
+
+    .menu-status {
+      font-size: 0.74rem;
+      padding: 7px 9px;
+      border-radius: 10px;
+      border: 1px solid var(--soft-border);
+      background: var(--soft-bg);
+      color: var(--soft-text);
+      margin-bottom: 8px;
+    }
+
+    .menu-status.connected {
+      border-color: var(--connected-border);
+      background: var(--connected-bg);
+      color: var(--connected-text);
+    }
+
+    .menu-btn {
+      width: 100%;
+      justify-content: flex-start;
+      box-shadow: none;
+      border-radius: 10px;
+      padding: 9px 10px;
+      margin-top: 6px;
+      font-size: 0.82rem;
+    }
+
+    .menu-btn:first-of-type { margin-top: 0; }
+
+    .menu-btn.secondary {
+      background: var(--soft-bg-2);
+      color: var(--soft-text-2);
+      border: 1px solid var(--soft-border-2);
+    }
+
+    button, input, select, textarea { font: inherit; }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    button {
+      border: none;
+      border-radius: 13px;
+      padding: 10px 12px;
+      background: linear-gradient(135deg, var(--brand), var(--brand-2));
+      color: #fff;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 120ms ease, filter 120ms ease, box-shadow 120ms ease;
+      box-shadow: var(--button-shadow);
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.04);
+    }
+
+    button.secondary {
+      background: var(--soft-bg-2);
+      color: var(--soft-text-2);
+      border: 1px solid var(--soft-border-2);
+      box-shadow: none;
+    }
+
+    button.warn {
+      background: var(--warn-bg);
+      color: var(--warn-text);
+    }
+
+    button.danger {
+      background: var(--danger-bg);
+      color: var(--danger-text);
+    }
+
+    .tabs {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: var(--tabs-bg);
+      border-top: 1px solid var(--tabs-border);
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 4px;
+      padding: 8px 8px calc(8px + env(safe-area-inset-bottom));
+      z-index: 20;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    .tab-btn {
+      background: var(--tab-bg);
+      color: var(--tab-text);
+      border: 1px solid var(--tab-border);
+      border-radius: 12px;
+      padding: 6px 6px;
+      font-size: 0.74rem;
+      font-weight: 700;
+      display: grid;
+      justify-items: center;
+      gap: 4px;
+      min-height: 52px;
+    }
+
+    .tab-btn svg {
+      width: 16px;
+      height: 16px;
+      fill: currentColor;
+    }
+
+    .tab-btn.active {
+      background: linear-gradient(135deg, var(--tab-active-a), var(--tab-active-b));
+      color: var(--tab-active-text);
+      border-color: var(--tab-active-border);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .panel {
+      margin-top: 12px;
+      background: linear-gradient(180deg, var(--panel) 0%, var(--panel-end) 100%);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      padding: 13px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .panel::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg, var(--overlay-glass), transparent 42%);
+      pointer-events: none;
+    }
+
+    .panel[hidden] { display: none; }
+
+    .section-title {
+      margin: 0 0 10px;
+      font-size: 0.84rem;
+      color: var(--section-text);
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: var(--section-bg);
+      border: 1px solid var(--section-border);
+    }
+
+    .pixel-wrap {
+      display: grid;
+      place-items: center;
+      margin-bottom: 10px;
+      width: 100%;
+    }
+
+    .pixel-grid {
+      display: grid;
+      grid-template-columns: repeat(8, minmax(0, 1fr));
+      gap: 6px;
+      width: 100%;
+      max-width: 100%;
+      aspect-ratio: 1 / 1;
+      padding: 12px;
+      border-radius: 16px;
+      border: 1px solid var(--pixel-shell-border);
+      background:
+        linear-gradient(180deg, var(--pixel-shell-a) 0%, var(--pixel-shell-b) 100%);
+      touch-action: none;
+      user-select: none;
+      box-shadow: inset 0 0 0 1px var(--pixel-shell-inner);
+    }
+
+    .px {
+      width: 100%;
+      height: 100%;
+      aspect-ratio: 1 / 1;
+      border: 1px solid var(--pixel-border);
+      border-radius: 9px;
+      background: var(--pixel-off);
+      cursor: pointer;
+      transition: transform 90ms ease, background 90ms ease, box-shadow 90ms ease;
+    }
+
+    .px.on {
+      background: var(--pixel-on);
+      box-shadow: var(--pixel-glow);
+      transform: scale(1.02);
+    }
+
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .row + .row { margin-top: 8px; }
+
+    .icon-btn {
+      width: 44px;
+      height: 44px;
+      padding: 0;
+      display: grid;
+      place-items: center;
+      background: var(--soft-bg);
+      border: 1px solid var(--soft-border);
+      color: var(--soft-text-2);
+      box-shadow: none;
+    }
+
+    .icon-btn svg {
+      width: 19px;
+      height: 19px;
+      fill: currentColor;
+    }
+
+    .quick-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .tool-btn {
+      display: grid;
+      justify-items: center;
+      gap: 5px;
+      padding: 10px 6px;
+      background: var(--tool-bg);
+      color: var(--tool-text);
+      border: 1px solid var(--tool-border);
+      font-size: 0.68rem;
+      font-weight: 700;
+      min-height: 64px;
+      box-shadow: none;
+    }
+
+    .tool-btn svg {
+      width: 18px;
+      height: 18px;
+      fill: currentColor;
+    }
+
+    .tool-btn.primary {
+      background: linear-gradient(135deg, var(--brand), var(--brand-2));
+      color: #fff;
+      border: 0;
+    }
+
+    .tool-btn.active {
+      background: linear-gradient(135deg, var(--tool-active-a), var(--tool-active-b));
+      border-color: var(--tool-active-border);
+      color: var(--tool-active-text);
+    }
+
+    .tool-btn.warn {
+      background: var(--warn-bg);
+      border-color: var(--warn-border);
+      color: var(--warn-text);
+    }
+
+    .tool-btn.danger {
+      background: var(--danger-bg);
+      border-color: var(--danger-border);
+      color: var(--danger-text);
+    }
+
+    .tool-btn.wide {
+      grid-column: span 3;
+      min-height: 48px;
+      font-size: 0.78rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      padding: 0 12px;
+    }
+
+    .chip-toggle {
+      padding: 8px 10px;
+      border-radius: 999px;
+      background: var(--chip-bg);
+      border: 1px solid var(--chip-border);
+      color: var(--chip-text);
+      font-size: 0.75rem;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 36px;
+    }
+
+    .chip-toggle svg {
+      width: 14px;
+      height: 14px;
+      fill: currentColor;
+    }
+
+    .chip-toggle.active {
+      background: linear-gradient(135deg, var(--brand), var(--brand-2));
+      border-color: transparent;
+      color: #fff;
+    }
+
+    .action-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-top: 8px;
+    }
+
+    .device-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .stack {
+      display: grid;
+      gap: 8px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    select {
+      width: 100%;
+      border: 1px solid var(--input-border);
+      border-radius: 11px;
+      background: var(--input-bg);
+      padding: 9px 10px;
+      color: var(--text);
+      outline: none;
+      transition: border-color 120ms ease, box-shadow 120ms ease;
+    }
+
+    input[type="text"]:focus,
+    input[type="number"]:focus,
+    select:focus {
+      border-color: var(--input-focus);
+      box-shadow: 0 0 0 3px var(--input-focus-shadow);
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--brand);
+    }
+
+    .brightness-shell {
+      background: var(--brightness-bg);
+      border: 1px solid var(--brightness-border);
+      border-radius: 12px;
+      padding: 9px 10px;
+      box-shadow: inset 0 1px 0 var(--pixel-shell-inner);
+    }
+
+    .brightness-shell label {
+      display: flex;
+      align-items: center;
+      margin-bottom: 7px;
+      color: var(--brightness-label);
+      font-size: 0.76rem;
+      letter-spacing: 0.02em;
+    }
+
+    .brightness-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: center;
+      margin-top: 0;
+    }
+
+    .brightness-slider {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 100%;
+      height: 7px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--brightness-track-a), var(--brightness-track-b));
+      outline: none;
+      margin: 0;
+    }
+
+    .brightness-slider-wrap {
+      position: relative;
+      width: 100%;
+      height: 30px;
+      display: flex;
+      align-items: center;
+    }
+
+    .brightness-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--brightness-thumb-bg);
+      border: 2px solid var(--brightness-thumb-border);
+      box-shadow: var(--brightness-thumb-shadow);
+      cursor: pointer;
+    }
+
+    .brightness-float-value {
+      position: absolute;
+      top: -8px;
+      min-width: 30px;
+      height: 22px;
+      border-radius: 999px;
+      transform: translate(-50%, -100%);
+      display: grid;
+      place-items: center;
+      padding: 0 7px;
+      font-size: 0.62rem;
+      font-weight: 800;
+      line-height: 1;
+      background: var(--panel);
+      border: 1px solid var(--input-border);
+      box-shadow: var(--shadow-soft);
+      color: var(--brightness-value-text);
+      pointer-events: none;
+      user-select: none;
+      opacity: 0;
+      transition: opacity 120ms ease;
+    }
+
+    .brightness-float-value.show {
+      opacity: 1;
+    }
+
+    .brightness-slider::-moz-range-thumb {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--brightness-thumb-bg);
+      border: 2px solid var(--brightness-thumb-border);
+      box-shadow: var(--brightness-thumb-shadow);
+      cursor: pointer;
+    }
+
+    .brightness-send {
+      width: 38px;
+      height: 38px;
+      border-radius: 11px;
+      padding: 0;
+      display: grid;
+      place-items: center;
+      margin: 0;
+      box-shadow: none;
+      border: 1px solid var(--soft-border);
+      background: var(--soft-bg);
+      color: var(--soft-text-2);
+    }
+
+    .brightness-send svg {
+      width: 18px;
+      height: 18px;
+      fill: currentColor;
+    }
+
+    .small {
+      font-size: 0.77rem;
+      color: var(--muted);
+    }
+
+    .frames {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 8px;
+      max-height: 220px;
+      overflow: auto;
+      margin-top: 8px;
+    }
+
+    .frame {
+      border: 1px solid var(--frame-border);
+      background: linear-gradient(180deg, var(--frame-bg-a) 0%, var(--frame-bg-b) 100%);
+      border-radius: 12px;
+      padding: 8px;
+      cursor: pointer;
+      transition: transform 110ms ease, border-color 110ms ease;
+    }
+
+    .frame:hover {
+      transform: translateY(-1px);
+    }
+
+    .frame.active {
+      border-color: var(--frame-active);
+      box-shadow: inset 0 0 0 1px var(--frame-active);
+    }
+
+    .mini {
+      display: grid;
+      grid-template-columns: repeat(8, 8px);
+      grid-template-rows: repeat(8, 8px);
+      gap: 2px;
+      justify-content: center;
+      margin-bottom: 6px;
+    }
+
+    .mini > span {
+      width: 8px;
+      height: 8px;
+      border-radius: 2px;
+      background: var(--mini-off);
+    }
+
+    .mini > span.on { background: var(--pixel-on); }
+
+    .status-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 6px;
+    }
+
+    .status-grid > div {
+      background: var(--status-item-bg);
+      border: 1px solid var(--status-item-border);
+      border-radius: 10px;
+      padding: 7px;
+      font-size: 0.72rem;
+      word-break: break-word;
+    }
+
+    .log {
+      margin-top: 8px;
+      min-height: 120px;
+      max-height: 220px;
+      overflow: auto;
+      background: var(--log-bg);
+      border: 1px solid var(--log-border);
+      border-radius: 12px;
+      padding: 8px;
+      font-family: Consolas, monospace;
+      font-size: 0.7rem;
+      line-height: 1.45;
+      white-space: pre-wrap;
+      color: var(--log-text);
+    }
+
+    .theme-meta {
+      margin-top: 8px;
+      text-align: center;
+      font-size: 0.73rem;
+      color: var(--muted);
+    }
+
+    .pill {
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: var(--pill-bg);
+      border: 1px solid var(--pill-border);
+      color: var(--pill-text);
+      font-size: 0.72rem;
+    }
+
+    @media (max-width: 420px) {
+      .quick-grid,
+      .device-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .tool-btn.wide {
+        grid-column: span 2;
+      }
+    }
+
+    @media (min-width: 700px) {
+      .app {
+        max-width: 900px;
+        padding-bottom: 22px;
+      }
+
+      .hero {
+        padding: 14px;
+      }
+
+      .tabs {
+        position: static;
+        margin-top: 12px;
+        border: 0;
+        background: transparent;
+        padding: 0;
+        gap: 8px;
+      }
+
+      .panel-wrap {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .panel[data-wide="1"] {
+        grid-column: 1 / -1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="hero">
+      <div class="brand">
+        <svg class="brand-logo" viewBox="0 0 80 80" aria-hidden="true">
+          <g fill="currentColor">
+            <rect x="5" y="5" width="8" height="8" rx="2"/><rect x="17" y="5" width="8" height="8" rx="2"/><rect x="29" y="5" width="8" height="8" rx="2"/><rect x="41" y="5" width="8" height="8" rx="2"/><rect x="53" y="5" width="8" height="8" rx="2"/><rect x="65" y="5" width="8" height="8" rx="2"/>
+            <rect x="5" y="17" width="8" height="8" rx="2"/><rect x="29" y="17" width="8" height="8" rx="2"/><rect x="65" y="17" width="8" height="8" rx="2"/>
+            <rect x="5" y="29" width="8" height="8" rx="2"/><rect x="29" y="29" width="8" height="8" rx="2"/><rect x="53" y="29" width="8" height="8" rx="2"/><rect x="65" y="29" width="8" height="8" rx="2"/>
+            <rect x="5" y="41" width="8" height="8" rx="2"/><rect x="29" y="41" width="8" height="8" rx="2"/><rect x="41" y="41" width="8" height="8" rx="2"/><rect x="65" y="41" width="8" height="8" rx="2"/>
+            <rect x="5" y="53" width="8" height="8" rx="2"/><rect x="17" y="53" width="8" height="8" rx="2"/><rect x="29" y="53" width="8" height="8" rx="2"/><rect x="53" y="53" width="8" height="8" rx="2"/><rect x="65" y="53" width="8" height="8" rx="2"/>
+            <rect x="5" y="65" width="8" height="8" rx="2"/><rect x="17" y="65" width="8" height="8" rx="2"/><rect x="29" y="65" width="8" height="8" rx="2"/><rect x="41" y="65" width="8" height="8" rx="2"/><rect x="53" y="65" width="8" height="8" rx="2"/><rect x="65" y="65" width="8" height="8" rx="2"/>
+          </g>
+        </svg>
+        <h1 class="title">LUMI</h1>
+      </div>
+      <div class="hero-left">
+        <button id="connectionMenuBtn" class="header-btn connection-indicator" title="Bağlan" aria-label="Bağlan">
+          <span class="connection-dot" aria-hidden="true"></span>
+          <span id="connectionLabel" class="connection-label">Bağlan</span>
+          <span class="sr-only">Bağlantı Butonu</span>
+        </button>
+      </div>
+    </section>
+
+    <nav class="tabs" aria-label="Sekmeler">
+      <button class="tab-btn active" data-tab="draw">
+        <svg viewBox="0 0 24 24"><path d="M7 16c.55 0 1 .45 1 1a3 3 0 0 1-3 3H4a1 1 0 0 1 0-2h1a1 1 0 0 0 1-1c0-.55.45-1 1-1Zm12.71-9.29a1 1 0 0 0 0-1.42l-1.99-1.99a1 1 0 0 0-1.42 0l-8.9 8.9c-.26.26-.45.58-.55.93l-.67 2.35a.75.75 0 0 0 .93.93l2.35-.67c.35-.1.67-.29.93-.55l8.9-8.9Z"/></svg>
+        <span>Çizim</span>
+      </button>
+      <button class="tab-btn" data-tab="text">
+        <svg viewBox="0 0 24 24"><path d="M4 5h16v3h-6v11h-4V8H4z"/></svg>
+        <span>Yazı</span>
+      </button>
+      <button class="tab-btn" data-tab="anim">
+        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7zM3 5h3v14H3z"/></svg>
+        <span>Animasyon</span>
+      </button>
+      <button class="tab-btn" data-tab="device">
+        <svg viewBox="0 0 80 80" aria-hidden="true"><g fill="currentColor"><rect x="5" y="5" width="8" height="8" rx="2"/><rect x="17" y="5" width="8" height="8" rx="2"/><rect x="29" y="5" width="8" height="8" rx="2"/><rect x="41" y="5" width="8" height="8" rx="2"/><rect x="53" y="5" width="8" height="8" rx="2"/><rect x="65" y="5" width="8" height="8" rx="2"/><rect x="5" y="17" width="8" height="8" rx="2"/><rect x="29" y="17" width="8" height="8" rx="2"/><rect x="65" y="17" width="8" height="8" rx="2"/><rect x="5" y="29" width="8" height="8" rx="2"/><rect x="29" y="29" width="8" height="8" rx="2"/><rect x="53" y="29" width="8" height="8" rx="2"/><rect x="65" y="29" width="8" height="8" rx="2"/><rect x="5" y="41" width="8" height="8" rx="2"/><rect x="29" y="41" width="8" height="8" rx="2"/><rect x="41" y="41" width="8" height="8" rx="2"/><rect x="65" y="41" width="8" height="8" rx="2"/><rect x="5" y="53" width="8" height="8" rx="2"/><rect x="17" y="53" width="8" height="8" rx="2"/><rect x="29" y="53" width="8" height="8" rx="2"/><rect x="53" y="53" width="8" height="8" rx="2"/><rect x="65" y="53" width="8" height="8" rx="2"/><rect x="5" y="65" width="8" height="8" rx="2"/><rect x="17" y="65" width="8" height="8" rx="2"/><rect x="29" y="65" width="8" height="8" rx="2"/><rect x="41" y="65" width="8" height="8" rx="2"/><rect x="53" y="65" width="8" height="8" rx="2"/><rect x="65" y="65" width="8" height="8" rx="2"/></g></svg>
+        <span>Cihaz</span>
+      </button>
+    </nav>
+
+    <div class="panel-wrap">
+      <section id="tab-draw" class="panel" data-wide="1">
+        <div class="pixel-wrap">
+          <div id="pixelGrid" class="pixel-grid"></div>
+        </div>
+        <div class="quick-grid">
+          <button id="clearGridBtn" class="tool-btn">
+            <svg viewBox="0 0 24 24"><path d="M6 7h12l-1 14H7zm3-4h6l1 2H8z"/></svg>
+            <span>Temizle</span>
+          </button>
+          <button id="fillGridBtn" class="tool-btn">
+            <svg viewBox="0 0 24 24"><path d="M7 3h10v18H7z"/></svg>
+            <span>Doldur</span>
+          </button>
+          <button id="invertGridBtn" class="tool-btn">
+            <svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18V3z"/></svg>
+            <span>Tersle</span>
+          </button>
+          <button id="rotateBtn" class="tool-btn">
+            <svg viewBox="0 0 24 24"><path d="M12 4V1L7 6l5 5V7a5 5 0 1 1-5 5H5a7 7 0 1 0 7-8z"/></svg>
+            <span>Döndür</span>
+          </button>
+          <button id="previewBtn" class="tool-btn">
+            <svg viewBox="0 0 24 24"><path d="M12 5c-6 0-9 7-9 7s3 7 9 7 9-7 9-7-3-7-9-7zm0 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8z"/></svg>
+            <span id="previewBtnLabel">Canlı Önizleme</span>
+          </button>
+          <button id="sendImgBtn" class="tool-btn primary">
+            <svg viewBox="0 0 24 24"><path d="M4 4h16v16H4zm4 4h8v8H8z"/></svg>
+            <span>Göster</span>
+          </button>
+          <button id="addFrameBtn" class="tool-btn wide">
+            <svg viewBox="0 0 24 24"><path d="M11 5h2v14h-2zM5 11h14v2H5z"/></svg>
+            <span>Kare Ekle</span>
+          </button>
+        </div>
+
+        <div class="stack" style="margin-top:10px;">
+          <div class="field brightness-shell">
+            <label for="brightnessRange">Parlaklık</label>
+            <div class="brightness-row">
+              <div class="brightness-slider-wrap">
+                <input id="brightnessRange" class="brightness-slider" type="range" min="0" max="15" value="8" />
+                <span id="brightnessFloatVal" class="brightness-float-value" hidden>8</span>
+              </div>
+              <button id="sendBrightnessBtn" class="secondary brightness-send" title="Parlaklığı Uygula" aria-label="Parlaklığı Uygula">
+                <svg viewBox="0 0 24 24"><path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8m0-5a.5.5 0 0 1 .5.5v1.038a.5.5 0 0 1-1 0V3.5A.5.5 0 0 1 12 3m0 17a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-1 0v-1a.5.5 0 0 1 .5-.5M3.5 12a.5.5 0 0 1 .5-.5h1.038a.5.5 0 0 1 0 1H4a.5.5 0 0 1-.5-.5M19 12a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 0 1h-1a.5.5 0 0 1-.5-.5M6.343 6.343a.5.5 0 0 1 .707 0l.734.734a.5.5 0 1 1-.707.707l-.734-.734a.5.5 0 0 1 0-.707m10.606 10.606a.5.5 0 0 1 .707 0l.734.734a.5.5 0 0 1-.707.707l-.734-.734a.5.5 0 0 1 0-.707M6.343 17.657a.5.5 0 0 1 0-.707l.734-.734a.5.5 0 1 1 .707.707l-.734.734a.5.5 0 0 1-.707 0m10.606-10.606a.5.5 0 0 1 0-.707l.734-.734a.5.5 0 1 1 .707.707l-.734.734a.5.5 0 0 1-.707 0"/></svg>
+                <span class="sr-only">Parlaklığı Uygula</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="tab-text" class="panel" hidden>
+        <div class="stack">
+          <div class="field">
+            <label for="textInput">Mesaj</label>
+            <input id="textInput" type="text" maxlength="120" placeholder="Slm" />
+          </div>
+          <div class="field">
+            <label for="textSpeedInput">Hız (ms)</label>
+            <input id="textSpeedInput" type="number" min="1" max="65535" value="90" />
+          </div>
+          <div class="action-row">
+            <span class="pill">Yön</span>
+            <button id="dirLeftBtn" class="chip-toggle">
+              <svg viewBox="0 0 24 24"><path d="m14 7-5 5 5 5V7z"/></svg>
+              <span>Sola</span>
+            </button>
+            <button id="dirRightBtn" class="chip-toggle">
+              <svg viewBox="0 0 24 24"><path d="m10 17 5-5-5-5v10z"/></svg>
+              <span>Sağa</span>
+            </button>
+          </div>
+          <div class="row">
+            <button id="txtSendBtn" class="tool-btn primary wide">
+              <svg viewBox="0 0 24 24"><path d="M3 11h11v2H3zm9-6 9 7-9 7v-5H5v-4h7z"/></svg>
+              <span>Mesajı Oynat</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section id="tab-anim" class="panel" hidden>
+        <div class="row">
+          <div class="field" style="flex:1 1 110px;">
+            <label for="frameDurationInput">Süre</label>
+            <input id="frameDurationInput" type="number" min="1" max="65535" value="150" />
+          </div>
+          <div class="field" style="flex:1 1 110px;">
+            <label for="frameBrightnessInput">Kare BRT</label>
+            <input id="frameBrightnessInput" type="number" min="0" max="15" value="8" />
+          </div>
+        </div>
+        <div class="row">
+          <div class="field" style="flex:1 1 100px;">
+            <label for="loopSelect">Loop</label>
+            <select id="loopSelect">
+              <option value="1" selected>Açık</option>
+              <option value="0">Kapalı</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="quick-grid" style="margin-top:10px;">
+          <button id="updateFrameBtn" class="tool-btn">
+            <svg viewBox="0 0 24 24"><path d="M5 19h14v2H5zM14.7 5.3l4 4L10 18H6v-4z"/></svg>
+            <span>Güncelle</span>
+          </button>
+          <button id="deleteFrameBtn" class="tool-btn">
+            <svg viewBox="0 0 24 24"><path d="M6 7h12l-1 14H7zm3-4h6l1 2H8z"/></svg>
+            <span>Sil</span>
+          </button>
+          <button id="clearFramesBtn" class="tool-btn">
+            <svg viewBox="0 0 24 24"><path d="M4 6h16v2H4zm2 4h12v10H6z"/></svg>
+            <span>Hepsini Sil</span>
+          </button>
+        </div>
+
+        <div class="row" style="margin-top:10px;">
+          <button id="playAnimBtn" class="icon-btn" title="Play" aria-label="Play">
+            <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          </button>
+          <button id="aniPauseBtn" class="icon-btn" title="Pause" aria-label="Pause">
+            <svg viewBox="0 0 24 24"><path d="M7 5h4v14H7zm6 0h4v14h-4z"/></svg>
+          </button>
+          <button id="aniResumeBtn" class="icon-btn" title="Resume" aria-label="Resume">
+            <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          </button>
+          <button id="aniStopBtn" class="icon-btn" title="Stop" aria-label="Stop">
+            <svg viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></svg>
+          </button>
+          <span class="small">Play: değişim varsa otomatik yükler.</span>
+        </div>
+
+        <div id="frameInfo" class="small" style="margin-top:10px;">0 kare</div>
+        <div id="frames" class="frames"></div>
+      </section>
+
+      <section id="tab-device" class="panel" hidden>
+        <div class="device-grid">
+          <button id="pingBtn" class="tool-btn">
+            <svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 18 0h-2a7 7 0 0 0-14 0zm4 0a5 5 0 0 1 10 0h-2a3 3 0 0 0-6 0zm4 0h2v8h-2z"/></svg>
+            <span>Ping</span>
+          </button>
+          <button id="statusBtn" class="tool-btn">
+            <svg viewBox="0 0 24 24"><path d="M4 5h16v14H4zm3 3v2h10V8zm0 4v2h6v-2z"/></svg>
+            <span>Durum</span>
+          </button>
+          <button id="helpBtn" class="tool-btn">
+            <svg viewBox="0 0 24 24"><path d="M11 18h2v2h-2zm1-16a9 9 0 0 0-9 9h2a7 7 0 1 1 7 7v2A9 9 0 1 0 12 2zm0 5a3 3 0 0 0-3 3h2a1 1 0 1 1 1 1 2 2 0 0 0-2 2v1h2v-1a.5.5 0 0 1 .5-.5A2.5 2.5 0 1 0 12 7z"/></svg>
+            <span>Yardım</span>
+          </button>
+          <button id="clearDeviceBtn" class="tool-btn warn">
+            <svg viewBox="0 0 24 24"><path d="M6 7h12l-1 14H7zM9 3h6l1 2H8z"/></svg>
+            <span>Temizle</span>
+          </button>
+          <button id="stopBtn" class="tool-btn danger">
+            <svg viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></svg>
+            <span>Durdur</span>
+          </button>
+          <button id="themeBtn" class="tool-btn">
+            <svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9h-2a7 7 0 1 1-7-7V3zm6.5 2.5 1 2 2 1-2 1-1 2-1-2-2-1 2-1z"/></svg>
+            <span>Tema</span>
+          </button>
+        </div>
+        <div id="themeMeta" class="theme-meta">Tema: Pembe</div>
+        <div class="status-grid" id="statusKv" style="margin-top:10px;"></div>
+        <div id="log" class="log"></div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const SERVICE_UUID = "6e400001-b5a3-f393-e0a9-e50e24dcca9e";
+    const RX_UUID = "6e400002-b5a3-f393-e0a9-e50e24dcca9e";
+    const TX_UUID = "6e400003-b5a3-f393-e0a9-e50e24dcca9e";
+
+    const PKT_IMG = 0x01;
+    const PKT_PREVIEW = 0x02;
+    const PKT_ANIM_BEGIN = 0x10;
+    const PKT_ANIM_CHUNK = 0x11;
+    const PKT_ANIM_END = 0x12;
+    const MAX_FRAMES = 256;
+    const UPLOAD_CHUNK_FRAMES = 1;
+
+    let device = null;
+    let rx = null;
+    let tx = null;
+    let notifications = false;
+
+    const grid = Array.from({ length: 8 }, () => Array(8).fill(false));
+    let drawActive = false;
+    let drawValue = true;
+    let lastPaintedKey = "";
+
+    let frames = [];
+    let selectedFrame = -1;
+    let textDirection = "left";
+    let livePreviewEnabled = false;
+    let livePreviewTimer = null;
+    let lastLivePreviewSignature = "";
+
+    let animationDirty = true;
+    let lastUploadedSignature = "";
+    let brightnessFloatHideTimer = null;
+    const THEME_STORAGE_KEY = "lumi_theme";
+    const THEMES = [
+      { key: "rose", label: "Pembe" },
+      { key: "sky", label: "Mavi" },
+      { key: "mint", label: "Mint" },
+      { key: "sunset", label: "Gün Batımı" }
+    ];
+    let currentTheme = "rose";
+
+    const waiters = [];
+    let bleSendQueue = Promise.resolve();
+
+    function enqueueBleSend(task) {
+      const run = bleSendQueue.catch(() => {}).then(task);
+      bleSendQueue = run.catch(() => {});
+      return run;
+    }
+
+    const ui = {
+      connectionMenuBtn: document.getElementById("connectionMenuBtn"),
+      connectionLabel: document.getElementById("connectionLabel"),
+
+      tabs: document.querySelectorAll(".tab-btn"),
+      tabDraw: document.getElementById("tab-draw"),
+      tabText: document.getElementById("tab-text"),
+      tabAnim: document.getElementById("tab-anim"),
+      tabDevice: document.getElementById("tab-device"),
+
+      pixelGrid: document.getElementById("pixelGrid"),
+      clearGridBtn: document.getElementById("clearGridBtn"),
+      fillGridBtn: document.getElementById("fillGridBtn"),
+      invertGridBtn: document.getElementById("invertGridBtn"),
+      rotateBtn: document.getElementById("rotateBtn"),
+      previewBtn: document.getElementById("previewBtn"),
+      previewBtnLabel: document.getElementById("previewBtnLabel"),
+      sendImgBtn: document.getElementById("sendImgBtn"),
+      addFrameBtn: document.getElementById("addFrameBtn"),
+
+      brightnessRange: document.getElementById("brightnessRange"),
+      brightnessFloatVal: document.getElementById("brightnessFloatVal"),
+      sendBrightnessBtn: document.getElementById("sendBrightnessBtn"),
+      themeBtn: document.getElementById("themeBtn"),
+      themeMeta: document.getElementById("themeMeta"),
+
+      textInput: document.getElementById("textInput"),
+      textSpeedInput: document.getElementById("textSpeedInput"),
+      dirLeftBtn: document.getElementById("dirLeftBtn"),
+      dirRightBtn: document.getElementById("dirRightBtn"),
+      txtSendBtn: document.getElementById("txtSendBtn"),
+
+      frameDurationInput: document.getElementById("frameDurationInput"),
+      frameBrightnessInput: document.getElementById("frameBrightnessInput"),
+      loopSelect: document.getElementById("loopSelect"),
+      updateFrameBtn: document.getElementById("updateFrameBtn"),
+      deleteFrameBtn: document.getElementById("deleteFrameBtn"),
+      clearFramesBtn: document.getElementById("clearFramesBtn"),
+      playAnimBtn: document.getElementById("playAnimBtn"),
+      aniPauseBtn: document.getElementById("aniPauseBtn"),
+      aniResumeBtn: document.getElementById("aniResumeBtn"),
+      aniStopBtn: document.getElementById("aniStopBtn"),
+
+      frameInfo: document.getElementById("frameInfo"),
+      frames: document.getElementById("frames"),
+
+      pingBtn: document.getElementById("pingBtn"),
+      statusBtn: document.getElementById("statusBtn"),
+      helpBtn: document.getElementById("helpBtn"),
+      clearDeviceBtn: document.getElementById("clearDeviceBtn"),
+      stopBtn: document.getElementById("stopBtn"),
+      statusKv: document.getElementById("statusKv"),
+      log: document.getElementById("log")
+    };
+
+    function log(line) {
+      const t = new Date().toLocaleTimeString();
+      ui.log.textContent += `[${t}] ${line}\n`;
+      if (ui.log.textContent.length > 20000) {
+        ui.log.textContent = ui.log.textContent.slice(-16000);
+      }
+      ui.log.scrollTop = ui.log.scrollHeight;
+    }
+
+    function clamp(value, min, max, fallback) {
+      const n = Number(value);
+      if (!Number.isFinite(n)) return fallback;
+      return Math.min(max, Math.max(min, Math.trunc(n)));
+    }
+
+    function byteHex(n) {
+      return (n & 0xff).toString(16).toUpperCase().padStart(2, "0");
+    }
+
+    function setStatus(text, connected) {
+      ui.connectionMenuBtn.classList.toggle("connected", Boolean(connected));
+      ui.connectionLabel.textContent = connected ? "Bağlı" : "Bağlan";
+      ui.connectionMenuBtn.title = connected ? "Bağlantıyı kes" : "Bağlan";
+      ui.connectionMenuBtn.setAttribute("aria-label", connected ? "Bağlantıyı kes" : "Bağlan");
+    }
+
+    function setActiveTab(name) {
+      const map = {
+        draw: ui.tabDraw,
+        text: ui.tabText,
+        anim: ui.tabAnim,
+        device: ui.tabDevice,
+      };
+      Object.entries(map).forEach(([key, panel]) => {
+        panel.hidden = key !== name;
+      });
+      ui.tabs.forEach((btn) => {
+        btn.classList.toggle("active", btn.dataset.tab === name);
+      });
+    }
+
+    function scheduleBrightnessFloatHide(delayMs = 650) {
+      if (brightnessFloatHideTimer) clearTimeout(brightnessFloatHideTimer);
+      brightnessFloatHideTimer = window.setTimeout(() => {
+        ui.brightnessFloatVal.classList.remove("show");
+        ui.brightnessFloatVal.hidden = true;
+      }, delayMs);
+    }
+
+    function updateBrightnessUi(showFloat = false) {
+      const min = Number(ui.brightnessRange.min || 0);
+      const max = Number(ui.brightnessRange.max || 15);
+      const value = clamp(ui.brightnessRange.value, min, max, 8);
+      const percent = max > min ? (value - min) / (max - min) : 0;
+      const thumb = 22;
+      const usable = Math.max(0, ui.brightnessRange.clientWidth - thumb);
+      const x = (thumb / 2) + (usable * percent);
+
+      ui.brightnessFloatVal.textContent = String(value);
+      ui.brightnessFloatVal.style.left = `${x}px`;
+
+      if (showFloat) {
+        ui.brightnessFloatVal.hidden = false;
+        ui.brightnessFloatVal.classList.add("show");
+        scheduleBrightnessFloatHide();
+      }
+    }
+
+    function applyTheme(themeKey, persist = true) {
+      const theme = THEMES.find((x) => x.key === themeKey) || THEMES[0];
+      currentTheme = theme.key;
+
+      const classes = THEMES.filter((x) => x.key !== "rose").map((x) => `theme-${x.key}`);
+      document.body.classList.remove(...classes);
+      if (theme.key !== "rose") {
+        document.body.classList.add(`theme-${theme.key}`);
+      }
+
+      ui.themeMeta.textContent = `Tema: ${theme.label}`;
+      if (persist) localStorage.setItem(THEME_STORAGE_KEY, theme.key);
+    }
+
+    function cycleTheme() {
+      const idx = THEMES.findIndex((x) => x.key === currentTheme);
+      const next = THEMES[(idx + 1 + THEMES.length) % THEMES.length];
+      applyTheme(next.key, true);
+    }
+
+    function initTheme() {
+      const saved = localStorage.getItem(THEME_STORAGE_KEY);
+      const valid = THEMES.some((x) => x.key === saved) ? saved : "rose";
+      applyTheme(valid, false);
+    }
+
+    function gridToRows() {
+      const rows = [];
+      for (let r = 0; r < 8; r++) {
+        let value = 0;
+        for (let c = 0; c < 8; c++) {
+          if (grid[r][c]) value |= (1 << (7 - c));
+        }
+        rows.push(value);
+      }
+      return rows;
+    }
+
+    function reverseByte8(v) {
+      let x = v & 0xff;
+      x = ((x & 0xf0) >> 4) | ((x & 0x0f) << 4);
+      x = ((x & 0xcc) >> 2) | ((x & 0x33) << 2);
+      x = ((x & 0xaa) >> 1) | ((x & 0x55) << 1);
+      return x;
+    }
+
+    function mirrorRowsForDevice(rows) {
+      return rows.map((v) => reverseByte8(v));
+    }
+
+    function rowsSignature(rows) {
+      return rows.map(byteHex).join("");
+    }
+
+    const FONT_5X7 = {
+      " ": ["00000","00000","00000","00000","00000","00000","00000"],
+      "?": ["01110","10001","00010","00100","00100","00000","00100"],
+      "!": ["00100","00100","00100","00100","00100","00000","00100"],
+      ".": ["00000","00000","00000","00000","00000","00000","00100"],
+      ",": ["00000","00000","00000","00000","00000","00100","01000"],
+      "-": ["00000","00000","00000","11111","00000","00000","00000"],
+      "0": ["01110","10001","10011","10101","11001","10001","01110"],
+      "1": ["00100","01100","00100","00100","00100","00100","01110"],
+      "2": ["01110","10001","00001","00010","00100","01000","11111"],
+      "3": ["11110","00001","00001","01110","00001","00001","11110"],
+      "4": ["00010","00110","01010","10010","11111","00010","00010"],
+      "5": ["11111","10000","11110","00001","00001","10001","01110"],
+      "6": ["00110","01000","10000","11110","10001","10001","01110"],
+      "7": ["11111","00001","00010","00100","01000","01000","01000"],
+      "8": ["01110","10001","10001","01110","10001","10001","01110"],
+      "9": ["01110","10001","10001","01111","00001","00010","11100"],
+      "A": ["01110","10001","10001","11111","10001","10001","10001"],
+      "B": ["11110","10001","10001","11110","10001","10001","11110"],
+      "C": ["01110","10001","10000","10000","10000","10001","01110"],
+      "D": ["11100","10010","10001","10001","10001","10010","11100"],
+      "E": ["11111","10000","10000","11110","10000","10000","11111"],
+      "F": ["11111","10000","10000","11110","10000","10000","10000"],
+      "G": ["01110","10001","10000","10111","10001","10001","01110"],
+      "H": ["10001","10001","10001","11111","10001","10001","10001"],
+      "I": ["01110","00100","00100","00100","00100","00100","01110"],
+      "J": ["00001","00001","00001","00001","10001","10001","01110"],
+      "K": ["10001","10010","10100","11000","10100","10010","10001"],
+      "L": ["10000","10000","10000","10000","10000","10000","11111"],
+      "M": ["10001","11011","10101","10001","10001","10001","10001"],
+      "N": ["10001","10001","11001","10101","10011","10001","10001"],
+      "O": ["01110","10001","10001","10001","10001","10001","01110"],
+      "P": ["11110","10001","10001","11110","10000","10000","10000"],
+      "Q": ["01110","10001","10001","10001","10101","10010","01101"],
+      "R": ["11110","10001","10001","11110","10100","10010","10001"],
+      "S": ["01111","10000","10000","01110","00001","00001","11110"],
+      "T": ["11111","00100","00100","00100","00100","00100","00100"],
+      "U": ["10001","10001","10001","10001","10001","10001","01110"],
+      "V": ["10001","10001","10001","10001","10001","01010","00100"],
+      "W": ["10001","10001","10001","10001","10101","11011","10001"],
+      "X": ["10001","10001","01010","00100","01010","10001","10001"],
+      "Y": ["10001","10001","01010","00100","00100","00100","00100"],
+      "Z": ["11111","00001","00010","00100","01000","10000","11111"],
+    };
+
+    function normalizeTextForFont(text) {
+      // Türkçe büyük/küçük harf dönüşümünü doğru yap.
+      return text
+        .toLocaleUpperCase("tr-TR")
+        .replace(/Ğ/g, "G")
+        .replace(/Ü/g, "U")
+        .replace(/Ş/g, "S")
+        .replace(/İ/g, "I")
+        .replace(/I/g, "I")
+        .replace(/Ö/g, "O")
+        .replace(/Ç/g, "C")
+        .replace(/[^ A-Z0-9!?.,-]/g, "?");
+    }
+
+    function glyphToColumns(glyphRows) {
+      const cols = [];
+      for (let c = 0; c < 5; c++) {
+        let colBits = 0;
+        for (let r = 0; r < 7; r++) {
+          if (glyphRows[r][c] === "1") {
+            colBits |= (1 << r);
+          }
+        }
+        cols.push(colBits);
+      }
+      return cols;
+    }
+
+    function columnsToRows(columns) {
+      const rows = Array(8).fill(0);
+      for (let c = 0; c < 8; c++) {
+        const colBits = columns[c] || 0;
+        for (let r = 0; r < 8; r++) {
+          if ((colBits >> r) & 1) {
+            rows[r] |= (1 << (7 - c));
+          }
+        }
+      }
+      return rows;
+    }
+
+    function rotateRowsCCW(rows) {
+      const out = Array(8).fill(0);
+      for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+          if (((rows[r] >> (7 - c)) & 1) !== 1) continue;
+          const nr = 7 - c;
+          const nc = r;
+          out[nr] |= (1 << (7 - nc));
+        }
+      }
+      return out;
+    }
+
+    function buildTextScrollFrames(rawText, speedMs, scrollRight, rotate90) {
+      const text = normalizeTextForFont(rawText);
+      const columns = [0, 0, 0, 0, 0, 0, 0, 0];
+      for (const ch of text) {
+        const glyph = FONT_5X7[ch] || FONT_5X7["?"];
+        columns.push(...glyphToColumns(glyph), 0);
+      }
+      columns.push(0, 0, 0, 0, 0, 0, 0, 0);
+
+      const brightness = clamp(ui.brightnessRange.value, 0, 15, 8);
+      const framesOut = [];
+      for (let i = 0; i <= columns.length - 8; i++) {
+        let rows = columnsToRows(columns.slice(i, i + 8));
+        if (rotate90) rows = rotateRowsCCW(rows);
+        framesOut.push({
+          rows,
+          duration: speedMs,
+          brightness,
+        });
+      }
+
+      if (scrollRight) framesOut.reverse();
+      if (framesOut.length > MAX_FRAMES) return framesOut.slice(0, MAX_FRAMES);
+      return framesOut;
+    }
+
+    function rowsToGrid(rows) {
+      for (let r = 0; r < 8; r++) {
+        const v = rows[r] || 0;
+        for (let c = 0; c < 8; c++) {
+          grid[r][c] = ((v >> (7 - c)) & 1) === 1;
+        }
+      }
+      renderGrid();
+    }
+
+    function createGrid() {
+      ui.pixelGrid.innerHTML = "";
+      for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+          const cell = document.createElement("button");
+          cell.type = "button";
+          cell.className = "px";
+          cell.dataset.r = String(r);
+          cell.dataset.c = String(c);
+
+          cell.addEventListener("pointerdown", (ev) => {
+            ev.preventDefault();
+            drawActive = true;
+            drawValue = !grid[r][c];
+            grid[r][c] = drawValue;
+            lastPaintedKey = `${r},${c}`;
+            ui.pixelGrid.setPointerCapture?.(ev.pointerId);
+            renderGrid();
+          });
+
+          cell.addEventListener("pointerenter", () => {
+            if (!drawActive) return;
+            grid[r][c] = drawValue;
+            renderGrid();
+          });
+
+          ui.pixelGrid.appendChild(cell);
+        }
+      }
+
+      window.addEventListener("pointerup", () => {
+        drawActive = false;
+        lastPaintedKey = "";
+      });
+
+      ui.pixelGrid.addEventListener("pointermove", (ev) => {
+        if (!drawActive) return;
+        const target = document.elementFromPoint(ev.clientX, ev.clientY);
+        if (!(target instanceof HTMLElement) || !target.classList.contains("px")) return;
+
+        const r = Number(target.dataset.r);
+        const c = Number(target.dataset.c);
+        if (!Number.isInteger(r) || !Number.isInteger(c)) return;
+
+        const key = `${r},${c}`;
+        if (key === lastPaintedKey) return;
+        lastPaintedKey = key;
+
+        if (grid[r][c] !== drawValue) {
+          grid[r][c] = drawValue;
+          renderGrid();
+        }
+      });
+
+      ui.pixelGrid.addEventListener("pointerup", () => {
+        drawActive = false;
+        lastPaintedKey = "";
+      });
+
+      ui.pixelGrid.addEventListener("pointercancel", () => {
+        drawActive = false;
+        lastPaintedKey = "";
+      });
+
+      renderGrid();
+    }
+
+    function renderGrid() {
+      ui.pixelGrid.querySelectorAll(".px").forEach((cell) => {
+        const r = Number(cell.dataset.r);
+        const c = Number(cell.dataset.c);
+        cell.classList.toggle("on", grid[r][c]);
+      });
+      scheduleLivePreview();
+    }
+
+    function rotateCCW() {
+      const next = Array.from({ length: 8 }, () => Array(8).fill(false));
+      for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+          next[7 - c][r] = grid[r][c];
+        }
+      }
+      for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+          grid[r][c] = next[r][c];
+        }
+      }
+      renderGrid();
+    }
+
+    function currentDraftFrame() {
+      return {
+        rows: gridToRows(),
+        duration: clamp(ui.frameDurationInput.value, 1, 65535, 150),
+        brightness: clamp(ui.frameBrightnessInput.value, 0, 15, 8),
+      };
+    }
+
+    function markAnimationDirty() {
+      animationDirty = true;
+    }
+
+    function setLivePreview(enabled) {
+      livePreviewEnabled = enabled;
+      ui.previewBtn.classList.toggle("active", enabled);
+      ui.previewBtnLabel.textContent = enabled ? "Canlı Önizleme Açık" : "Canlı Önizleme";
+      if (!enabled) {
+        lastLivePreviewSignature = "";
+        if (livePreviewTimer) {
+          clearTimeout(livePreviewTimer);
+          livePreviewTimer = null;
+        }
+      }
+    }
+
+    async function pushPreviewFrame() {
+      if (!livePreviewEnabled || !rx) return;
+      const rows = gridToRows();
+      const signature = rowsSignature(rows);
+      if (signature === lastLivePreviewSignature) return;
+      lastLivePreviewSignature = signature;
+      try {
+        await enqueueBleSend(async () => {
+          if (!rx) throw new Error("Önce baglan.");
+          const deviceRows = mirrorRowsForDevice(rows);
+          await rx.writeValue(Uint8Array.from([PKT_PREVIEW, ...deviceRows]));
+        });
+      } catch (err) {
+        log(`Canlı önizleme hatası: ${err.message}`);
+        setLivePreview(false);
+      }
+    }
+
+    function scheduleLivePreview() {
+      if (!livePreviewEnabled || !rx) return;
+      if (livePreviewTimer) return;
+      livePreviewTimer = window.setTimeout(async () => {
+        livePreviewTimer = null;
+        await pushPreviewFrame();
+      }, 45);
+    }
+
+    function animationSignature() {
+      return JSON.stringify({
+        loop: Number(ui.loopSelect.value) ? 1 : 0,
+        frames,
+      });
+    }
+
+    function renderFrames() {
+      ui.frames.innerHTML = "";
+      frames.forEach((frame, idx) => {
+        const card = document.createElement("div");
+        card.className = `frame ${idx === selectedFrame ? "active" : ""}`;
+        card.addEventListener("click", () => {
+          selectedFrame = idx;
+          rowsToGrid(frame.rows);
+          ui.frameDurationInput.value = String(frame.duration);
+          ui.frameBrightnessInput.value = String(frame.brightness);
+          renderFrames();
+        });
+
+        const mini = document.createElement("div");
+        mini.className = "mini";
+        for (let r = 0; r < 8; r++) {
+          for (let c = 0; c < 8; c++) {
+            const dot = document.createElement("span");
+            if (((frame.rows[r] >> (7 - c)) & 1) === 1) dot.classList.add("on");
+            mini.appendChild(dot);
+          }
+        }
+
+        const meta = document.createElement("div");
+        meta.className = "small";
+        meta.textContent = `#${idx + 1} ${frame.duration}ms B${frame.brightness}`;
+
+        card.appendChild(mini);
+        card.appendChild(meta);
+        ui.frames.appendChild(card);
+      });
+
+      ui.frameInfo.textContent = `${frames.length} kare` + (selectedFrame >= 0 ? `, seçili: #${selectedFrame + 1}` : "");
+    }
+
+    function renderStatus(statusText) {
+      const parts = statusText.split(";");
+      const map = {};
+      for (const p of parts) {
+        const i = p.indexOf(":");
+        if (i <= 0) continue;
+        map[p.slice(0, i)] = p.slice(i + 1);
+      }
+
+      ui.statusKv.innerHTML = "";
+      const order = ["MODE", "BRT", "FRAMES", "LOOP", "PAUSED", "UPLOADING", "UP_EXP", "UP_RX", "TEXT"];
+      for (const key of order) {
+        if (!(key in map)) continue;
+        const item = document.createElement("div");
+        item.textContent = `${key}: ${map[key]}`;
+        ui.statusKv.appendChild(item);
+      }
+    }
+
+    function failWaiters(reason) {
+      while (waiters.length) {
+        const w = waiters.pop();
+        clearTimeout(w.timer);
+        w.reject(new Error(reason));
+      }
+    }
+
+    function resolveWaiters(msg) {
+      for (let i = waiters.length - 1; i >= 0; i--) {
+        const w = waiters[i];
+        if (!w.match(msg)) continue;
+        waiters.splice(i, 1);
+        clearTimeout(w.timer);
+        w.resolve(msg);
+      }
+    }
+
+    function waitReply(match, timeoutMs = 2600) {
+      if (!notifications) {
+        return Promise.reject(new Error("Bildirim acik degil."));
+      }
+      return new Promise((resolve, reject) => {
+        const timer = window.setTimeout(() => {
+          const index = waiters.findIndex((w) => w.timer === timer);
+          if (index >= 0) waiters.splice(index, 1);
+          reject(new Error("Yanıt zaman asimi."));
+        }, timeoutMs);
+        waiters.push({ match, resolve, reject, timer });
+      });
+    }
+
+    async function connectBle() {
+      if (!navigator.bluetooth) {
+        alert("Bu tarayici Web Bluetooth desteklemiyor.");
+        return;
+      }
+      try {
+        device = await navigator.bluetooth.requestDevice({
+          filters: [{ namePrefix: "LUMI" }],
+          optionalServices: [SERVICE_UUID],
+        });
+
+        device.addEventListener("gattserverdisconnected", onDisconnected);
+        const gatt = await device.gatt.connect();
+        const service = await gatt.getPrimaryService(SERVICE_UUID);
+        rx = await service.getCharacteristic(RX_UUID);
+        tx = await service.getCharacteristic(TX_UUID);
+
+        await tx.startNotifications();
+        notifications = true;
+
+        tx.addEventListener("characteristicvaluechanged", (ev) => {
+          const msg = new TextDecoder().decode(ev.target.value).trim();
+          log(`ESP -> ${msg}`);
+          if (msg.startsWith("MODE:")) renderStatus(msg);
+          resolveWaiters(msg);
+        });
+
+        setStatus(`Bağlı: ${device.name || "LUMI"}`, true);
+        log("Bağlantı kuruldu.");
+      } catch (err) {
+        log(`Bağlantı hatası: ${err.message}`);
+      }
+    }
+
+    function onDisconnected() {
+      setStatus("Bağlı Değil", false);
+      rx = null;
+      tx = null;
+      notifications = false;
+      setLivePreview(false);
+      failWaiters("Bağlantı koptu.");
+      log("Bağlantı koptu.");
+    }
+
+    async function writeText(command) {
+      if (!rx) throw new Error("Önce baglan.");
+      await rx.writeValue(new TextEncoder().encode(command));
+      log(`APP -> ${command}`);
+    }
+
+    async function writeBin(bytes) {
+      if (!rx) throw new Error("Önce baglan.");
+      await rx.writeValue(bytes);
+      log(`APP -> BIN[${Array.from(bytes).map(byteHex).join(" ")}]`);
+    }
+
+    async function sendTextAck(command, okPrefix, timeoutMs = 2600) {
+      return enqueueBleSend(async () => {
+        const wait = waitReply((msg) => msg.startsWith(okPrefix) || msg.startsWith("ERR:"), timeoutMs);
+        await writeText(command);
+        const reply = await wait;
+        if (reply.startsWith("ERR:")) throw new Error(reply);
+        return reply;
+      });
+    }
+
+    async function sendBinAck(bytes, okPrefix, timeoutMs = 2800) {
+      return enqueueBleSend(async () => {
+        const wait = waitReply((msg) => msg.startsWith(okPrefix) || msg.startsWith("ERR:"), timeoutMs);
+        await writeBin(bytes);
+        const reply = await wait;
+        if (reply.startsWith("ERR:")) throw new Error(reply);
+        return reply;
+      });
+    }
+
+    async function sendImage(type, okPrefix) {
+      const bytes = Uint8Array.from([type, ...mirrorRowsForDevice(gridToRows())]);
+      await sendBinAck(bytes, okPrefix);
+    }
+
+    async function uploadFrameSet(frameSet, loopValue) {
+      if (!frameSet.length) throw new Error("Gönderilecek kare yok.");
+      if (frameSet.length > MAX_FRAMES) throw new Error(`Maksimum ${MAX_FRAMES} kare.`);
+
+      const begin = Uint8Array.from([
+        PKT_ANIM_BEGIN,
+        frameSet.length & 0xff,
+        (frameSet.length >> 8) & 0xff,
+        loopValue ? 1 : 0,
+        0x00,
+      ]);
+      await sendBinAck(begin, "OK:BEGIN");
+
+      const chunks = chunkFrames(frameSet, UPLOAD_CHUNK_FRAMES);
+      for (const chunk of chunks) {
+        const body = [
+          PKT_ANIM_CHUNK,
+          chunk.start & 0xff,
+          (chunk.start >> 8) & 0xff,
+          chunk.data.length,
+        ];
+
+        for (const frame of chunk.data) {
+          const deviceRows = mirrorRowsForDevice(frame.rows);
+          body.push(
+            frame.duration & 0xff,
+            (frame.duration >> 8) & 0xff,
+            frame.brightness & 0xff,
+            ...deviceRows
+          );
+        }
+
+        await sendBinAck(Uint8Array.from(body), "OK:CHUNK", 3200);
+      }
+
+      await sendBinAck(Uint8Array.from([PKT_ANIM_END]), "OK:END");
+    }
+
+    function chunkFrames(list, chunkSize) {
+      const chunks = [];
+      for (let i = 0; i < list.length; i += chunkSize) {
+        chunks.push({ start: i, data: list.slice(i, i + chunkSize) });
+      }
+      return chunks;
+    }
+
+    async function uploadAnimationIfNeeded(force = false) {
+      if (!frames.length) throw new Error("Animasyon icin en az bir kare ekle.");
+      if (frames.length > MAX_FRAMES) throw new Error(`Maksimum ${MAX_FRAMES} kare.`);
+
+      const signature = animationSignature();
+      if (!force && !animationDirty && signature === lastUploadedSignature) {
+        return false;
+      }
+
+      const loop = Number(ui.loopSelect.value) ? 1 : 0;
+      await uploadFrameSet(frames, loop);
+
+      lastUploadedSignature = signature;
+      animationDirty = false;
+      return true;
+    }
+
+    async function smartPlayAnimation() {
+      const uploaded = await uploadAnimationIfNeeded(false);
+      if (uploaded) {
+        log("Animasyon guncellendi.");
+      }
+      await sendTextAck("PLAY:ANIM", "OK:PLAY_ANIM");
+    }
+
+    function bindUi() {
+      ui.connectionMenuBtn.addEventListener("click", async () => {
+        if (device?.gatt?.connected) {
+          const ok = window.confirm("Bağlantıyı kesmek istiyor musun?");
+          if (!ok) return;
+          try {
+            device.gatt.disconnect();
+          } catch (err) {
+            log(`Kesme hatası: ${err.message}`);
+          }
+          return;
+        }
+        await connectBle();
+      });
+
+      ui.tabs.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          setActiveTab(btn.dataset.tab);
+        });
+      });
+
+      ui.clearGridBtn.addEventListener("click", () => {
+        for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) grid[r][c] = false;
+        renderGrid();
+      });
+
+      ui.fillGridBtn.addEventListener("click", () => {
+        for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) grid[r][c] = true;
+        renderGrid();
+      });
+
+      ui.invertGridBtn.addEventListener("click", () => {
+        for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) grid[r][c] = !grid[r][c];
+        renderGrid();
+      });
+
+      ui.rotateBtn.addEventListener("click", rotateCCW);
+
+      ui.previewBtn.addEventListener("click", async () => {
+        if (!livePreviewEnabled) {
+          if (!rx) {
+            log("Canlı önizleme için önce bağlan.");
+            return;
+          }
+          setLivePreview(true);
+          await pushPreviewFrame();
+        } else {
+          setLivePreview(false);
+        }
+      });
+
+      ui.sendImgBtn.addEventListener("click", async () => {
+        try {
+          await sendImage(PKT_IMG, "OK:IMG_BIN");
+        } catch (err) {
+          log(`Göster hatası: ${err.message}`);
+        }
+      });
+
+      ui.addFrameBtn.addEventListener("click", () => {
+        if (frames.length >= MAX_FRAMES) {
+          alert(`Maksimum ${MAX_FRAMES} kare.`);
+          return;
+        }
+        frames.push(currentDraftFrame());
+        selectedFrame = frames.length - 1;
+        markAnimationDirty();
+        renderFrames();
+        log(`Kare eklendi (#${frames.length}).`);
+      });
+
+      ui.updateFrameBtn.addEventListener("click", () => {
+        if (selectedFrame < 0 || !frames[selectedFrame]) {
+          alert("Önce bir kare sec.");
+          return;
+        }
+        frames[selectedFrame] = currentDraftFrame();
+        markAnimationDirty();
+        renderFrames();
+        log(`Kare guncellendi (#${selectedFrame + 1}).`);
+      });
+
+      ui.deleteFrameBtn.addEventListener("click", () => {
+        if (selectedFrame < 0) return;
+        frames.splice(selectedFrame, 1);
+        selectedFrame = frames.length ? Math.min(selectedFrame, frames.length - 1) : -1;
+        markAnimationDirty();
+        if (selectedFrame >= 0) {
+          const f = frames[selectedFrame];
+          rowsToGrid(f.rows);
+          ui.frameDurationInput.value = String(f.duration);
+          ui.frameBrightnessInput.value = String(f.brightness);
+        }
+        renderFrames();
+      });
+
+      ui.clearFramesBtn.addEventListener("click", () => {
+        frames = [];
+        selectedFrame = -1;
+        markAnimationDirty();
+        renderFrames();
+      });
+
+      ui.loopSelect.addEventListener("change", markAnimationDirty);
+
+      ui.brightnessRange.addEventListener("input", () => {
+        updateBrightnessUi(true);
+        ui.frameBrightnessInput.value = ui.brightnessRange.value;
+      });
+
+      ui.brightnessRange.addEventListener("pointerdown", () => {
+        updateBrightnessUi(true);
+      });
+      ui.brightnessRange.addEventListener("change", () => {
+        scheduleBrightnessFloatHide(250);
+      });
+      ui.brightnessRange.addEventListener("blur", () => {
+        scheduleBrightnessFloatHide(120);
+      });
+
+      window.addEventListener("resize", () => updateBrightnessUi(false));
+
+      ui.sendBrightnessBtn.addEventListener("click", async () => {
+        try {
+          const v = clamp(ui.brightnessRange.value, 0, 15, 8);
+          await sendTextAck(`BRT:${v}`, "OK:BRT");
+        } catch (err) {
+          log(`Parlaklık hatası: ${err.message}`);
+        }
+      });
+
+      ui.themeBtn.addEventListener("click", () => {
+        cycleTheme();
+      });
+
+      ui.dirLeftBtn.addEventListener("click", () => {
+        textDirection = "left";
+        ui.dirLeftBtn.classList.add("active");
+        ui.dirRightBtn.classList.remove("active");
+      });
+
+      ui.dirRightBtn.addEventListener("click", () => {
+        textDirection = "right";
+        ui.dirRightBtn.classList.add("active");
+        ui.dirLeftBtn.classList.remove("active");
+      });
+
+      ui.txtSendBtn.addEventListener("click", async () => {
+        try {
+          const txt = ui.textInput.value.trim();
+          if (!txt) return alert("Mesaj yaz.");
+          const speed = clamp(ui.textSpeedInput.value, 1, 65535, 90);
+          const generated = buildTextScrollFrames(txt, speed, textDirection === "right", true);
+          if (!generated.length) throw new Error("Yazı karesi üretilemedi.");
+          await uploadFrameSet(generated, 1);
+          await sendTextAck("PLAY:ANIM", "OK:PLAY_ANIM");
+          log("Yazı 90° çevrilip oynatildi.");
+        } catch (err) {
+          log(`Yazı hatası: ${err.message}`);
+        }
+      });
+
+      ui.playAnimBtn.addEventListener("click", async () => {
+        try {
+          await smartPlayAnimation();
+        } catch (err) {
+          log(`Play hatası: ${err.message}`);
+        }
+      });
+
+      ui.aniPauseBtn.addEventListener("click", async () => {
+        try {
+          await sendTextAck("ANIPAUSE", "OK:ANIPAUSE");
+        } catch (err) {
+          log(`Pause hatası: ${err.message}`);
+        }
+      });
+
+      ui.aniResumeBtn.addEventListener("click", async () => {
+        try {
+          await sendTextAck("ANIRESUME", "OK:ANIRESUME");
+        } catch (err) {
+          log(`Resume hatası: ${err.message}`);
+        }
+      });
+
+      ui.aniStopBtn.addEventListener("click", async () => {
+        try {
+          await sendTextAck("ANISTOP", "OK:ANISTOP");
+        } catch (err) {
+          log(`Stop anim hatası: ${err.message}`);
+        }
+      });
+
+      ui.pingBtn.addEventListener("click", async () => {
+        try {
+          await sendTextAck("PING", "PONG");
+        } catch (err) {
+          log(`Ping hatası: ${err.message}`);
+        }
+      });
+
+      ui.statusBtn.addEventListener("click", async () => {
+        try {
+          const status = await sendTextAck("STATUS", "MODE:");
+          renderStatus(status);
+        } catch (err) {
+          log(`Durum hatası: ${err.message}`);
+        }
+      });
+
+      ui.helpBtn.addEventListener("click", async () => {
+        try {
+          await sendTextAck("HELP", "OK:HELP");
+        } catch (err) {
+          log(`Help hatası: ${err.message}`);
+        }
+      });
+
+      ui.clearDeviceBtn.addEventListener("click", async () => {
+        try {
+          await sendTextAck("CLEAR", "OK:CLEAR");
+        } catch (err) {
+          log(`Clear hatası: ${err.message}`);
+        }
+      });
+
+      ui.stopBtn.addEventListener("click", async () => {
+        try {
+          await sendTextAck("STOP", "OK:STOP");
+        } catch (err) {
+          log(`Stop hatası: ${err.message}`);
+        }
+      });
+    }
+
+    function loadStarterFrames() {
+      frames = [
+        { rows: [0x00, 0x66, 0xff, 0xff, 0x7e, 0x3c, 0x18, 0x00], duration: 180, brightness: 8 },
+        { rows: [0x66, 0xff, 0xff, 0xff, 0xff, 0x7e, 0x3c, 0x18], duration: 180, brightness: 9 },
+      ];
+      selectedFrame = 0;
+      rowsToGrid(frames[0].rows);
+      ui.frameDurationInput.value = String(frames[0].duration);
+      ui.frameBrightnessInput.value = String(frames[0].brightness);
+      animationDirty = true;
+      renderFrames();
+    }
+
+    createGrid();
+    bindUi();
+    initTheme();
+    ui.dirLeftBtn.classList.add("active");
+    loadStarterFrames();
+    updateBrightnessUi();
+    setActiveTab("draw");
+    log("Hazır. LUMI'den selam.");
+  </script>
+</body>
+</html>
