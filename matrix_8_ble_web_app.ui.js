@@ -17,6 +17,15 @@ let brightnessAutoTimer = null;
 let brightnessPendingValue = null;
 let brightnessLastSentValue = null;
 
+export function resetBrightnessSyncState() {
+  brightnessPendingValue = null;
+  brightnessLastSentValue = null;
+  if (brightnessAutoTimer) {
+    clearTimeout(brightnessAutoTimer);
+    brightnessAutoTimer = null;
+  }
+}
+
 export function setUiHooks(next) {
   if (next && typeof next.scheduleLivePreview === "function") {
     hooks.scheduleLivePreview = next.scheduleLivePreview;

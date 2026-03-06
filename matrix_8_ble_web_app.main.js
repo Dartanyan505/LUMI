@@ -16,13 +16,17 @@ import {
   createGrid,
   initTheme,
   loadStarterFrames,
+  resetBrightnessSyncState,
   setActiveTab,
   setUiHooks,
   updateBrightnessUi,
 } from "./matrix_8_ble_web_app.ui.js";
 
 setUiHooks({ scheduleLivePreview, renderFrames });
-setOnDisconnectedCleanup(() => setLivePreview(false));
+setOnDisconnectedCleanup(() => {
+  setLivePreview(false);
+  resetBrightnessSyncState();
+});
 
 createGrid();
 bindUi({
