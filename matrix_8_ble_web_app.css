@@ -352,7 +352,7 @@
       max-width: 560px;
       margin: 0 auto;
       min-height: 100vh;
-      padding: 16px 12px 92px;
+      padding: calc(16px + env(safe-area-inset-top)) 12px 92px;
     }
 
     .hero {
