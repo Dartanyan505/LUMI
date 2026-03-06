@@ -13,6 +13,12 @@ const hooks = {
   scheduleLivePreview: () => {},
   renderFrames: () => {},
 };
+const THEME_CHROME_COLORS = {
+  rose: "#ef6ea2",
+  sky: "#5e93ff",
+  mint: "#4cbf9f",
+  sunset: "#f08b61",
+};
 let brightnessAutoTimer = null;
 let brightnessPendingValue = null;
 let brightnessLastSentValue = null;
@@ -117,6 +123,11 @@ function applyTheme(themeKey, persist = true) {
   }
 
   ui.themeMeta.textContent = `Tema: ${theme.label}`;
+  const themeColor = THEME_CHROME_COLORS[theme.key] || THEME_CHROME_COLORS.rose;
+  const themeMeta = document.querySelector('meta[name="theme-color"]');
+  if (themeMeta) {
+    themeMeta.setAttribute("content", themeColor);
+  }
   if (persist) localStorage.setItem(THEME_STORAGE_KEY, theme.key);
 }
 
