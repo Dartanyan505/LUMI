@@ -425,7 +425,7 @@ export function bindUi(actions) {
       const txt = ui.textInput.value.trim();
       if (!txt) return alert("Mesaj yaz.");
       const speed = clamp(ui.textSpeedInput.value, 1, 65535, 90);
-      const result = actions.buildTextScrollFrames(txt, speed, state.textDirection === "left", true);
+      const result = actions.buildTextScrollFrames(txt, speed, state.textDirection === "right", false);
       if (!result.frames.length) throw new Error("Yazı karesi üretilemedi.");
       if (result.truncated) {
         alert(`Mesaj uzun olduğu için ilk ${MAX_FRAMES} kare gönderildi.`);
@@ -433,7 +433,7 @@ export function bindUi(actions) {
       }
       await actions.uploadFrameSet(result.frames, 1);
       await actions.sendTextAck("PLAY:ANIM", "OK:PLAY_ANIM");
-      log("Yazı 90° çevrilip oynatildi.");
+      log("Yazı yatay akışta oynatıldı.");
     } catch (err) {
       log(`Yazı hatası: ${err.message}`);
     }
