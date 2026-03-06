@@ -443,56 +443,6 @@
       white-space: nowrap;
     }
 
-    .menu {
-      position: absolute;
-      top: calc(100% + 8px);
-      right: 0;
-      left: auto;
-      width: min(220px, calc(100vw - 28px));
-      background: var(--menu-bg);
-      border: 1px solid var(--menu-border);
-      border-radius: 12px;
-      box-shadow: var(--menu-shadow);
-      padding: 10px;
-      z-index: 25;
-      transform-origin: top right;
-    }
-
-    .menu[hidden] { display: none; }
-
-    .menu-status {
-      font-size: 0.74rem;
-      padding: 7px 9px;
-      border-radius: 10px;
-      border: 1px solid var(--soft-border);
-      background: var(--soft-bg);
-      color: var(--soft-text);
-      margin-bottom: 8px;
-    }
-
-    .menu-status.connected {
-      border-color: var(--connected-border);
-      background: var(--connected-bg);
-      color: var(--connected-text);
-    }
-
-    .menu-btn {
-      width: 100%;
-      justify-content: flex-start;
-      box-shadow: none;
-      border-radius: 10px;
-      padding: 9px 10px;
-      margin-top: 6px;
-      font-size: 0.82rem;
-    }
-
-    .menu-btn:first-of-type { margin-top: 0; }
-
-    .menu-btn.secondary {
-      background: var(--soft-bg-2);
-      color: var(--soft-text-2);
-      border: 1px solid var(--soft-border-2);
-    }
 
     button, input, select, textarea { font: inherit; }
 
