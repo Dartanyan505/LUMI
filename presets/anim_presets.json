@@ -1,0 +1,42 @@
+{
+  "presets": [
+    {
+      "name": "Nokta Saga",
+      "loop": 1,
+      "frames": [
+        { "rows": [128, 0, 0, 0, 0, 0, 0, 0], "duration": 120, "brightness": 10 },
+        { "rows": [64, 0, 0, 0, 0, 0, 0, 0], "duration": 120, "brightness": 10 },
+        { "rows": [32, 0, 0, 0, 0, 0, 0, 0], "duration": 120, "brightness": 10 },
+        { "rows": [16, 0, 0, 0, 0, 0, 0, 0], "duration": 120, "brightness": 10 },
+        { "rows": [8, 0, 0, 0, 0, 0, 0, 0], "duration": 120, "brightness": 10 },
+        { "rows": [4, 0, 0, 0, 0, 0, 0, 0], "duration": 120, "brightness": 10 },
+        { "rows": [2, 0, 0, 0, 0, 0, 0, 0], "duration": 120, "brightness": 10 },
+        { "rows": [1, 0, 0, 0, 0, 0, 0, 0], "duration": 120, "brightness": 10 }
+      ]
+    },
+    {
+      "name": "Nefes",
+      "loop": 1,
+      "frames": [
+        { "rows": [0, 24, 60, 60, 60, 24, 0, 0], "duration": 160, "brightness": 4 },
+        { "rows": [24, 60, 126, 126, 126, 60, 24, 0], "duration": 160, "brightness": 8 },
+        { "rows": [60, 126, 255, 255, 255, 126, 60, 0], "duration": 160, "brightness": 12 },
+        { "rows": [24, 60, 126, 126, 126, 60, 24, 0], "duration": 160, "brightness": 8 }
+      ]
+    },
+    {
+      "name": "Tarayici",
+      "loop": 1,
+      "frames": [
+        { "rows": [255, 0, 0, 0, 0, 0, 0, 0], "duration": 90, "brightness": 9 },
+        { "rows": [0, 255, 0, 0, 0, 0, 0, 0], "duration": 90, "brightness": 9 },
+        { "rows": [0, 0, 255, 0, 0, 0, 0, 0], "duration": 90, "brightness": 9 },
+        { "rows": [0, 0, 0, 255, 0, 0, 0, 0], "duration": 90, "brightness": 9 },
+        { "rows": [0, 0, 0, 0, 255, 0, 0, 0], "duration": 90, "brightness": 9 },
+        { "rows": [0, 0, 0, 0, 0, 255, 0, 0], "duration": 90, "brightness": 9 },
+        { "rows": [0, 0, 0, 0, 0, 0, 255, 0], "duration": 90, "brightness": 9 },
+        { "rows": [0, 0, 0, 0, 0, 0, 0, 255], "duration": 90, "brightness": 9 }
+      ]
+    }
+  ]
+}

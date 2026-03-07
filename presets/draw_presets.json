@@ -1,0 +1,24 @@
+{
+  "presets": [
+    {
+      "name": "Kalp",
+      "rows": [0, 102, 255, 255, 126, 60, 24, 0],
+      "brightness": 10
+    },
+    {
+      "name": "Gulumseme",
+      "rows": [0, 36, 0, 0, 129, 66, 60, 0],
+      "brightness": 8
+    },
+    {
+      "name": "Ok Yukari",
+      "rows": [16, 56, 124, 16, 16, 16, 16, 0],
+      "brightness": 9
+    },
+    {
+      "name": "Cerceve",
+      "rows": [255, 129, 129, 129, 129, 129, 255, 0],
+      "brightness": 7
+    }
+  ]
+}

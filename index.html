@@ -90,7 +90,6 @@
             <span>Gönder</span>
           </button>
         </div>
-
         <div class="stack" style="margin-top:10px;">
           <div class="field brightness-shell">
             <div class="text-speed-head">
@@ -102,6 +101,14 @@
                 <input id="brightnessRange" class="brightness-slider" type="range" min="0" max="15" value="8" />
               </div>
             </div>
+          </div>
+          <div class="text-card draw-presets-shell">
+            <div class="draw-preset-create">
+              <input id="drawPresetNameInput" type="text" maxlength="40" placeholder="Çizim adı" aria-label="Çizim adı" />
+              <button id="drawPresetSaveBtn" class="secondary" type="button">Kaydet</button>
+            </div>
+            <div id="drawPresetInfo" class="small" style="margin-top:8px;">Henüz kayıt yok.</div>
+            <div id="drawPresets" class="frames draw-presets"></div>
           </div>
         </div>
       </section>
@@ -210,6 +217,14 @@
             <span>Yeni Kare Ekle</span>
           </button>
         </div>
+        <div class="text-card anim-presets-shell" style="margin-top:10px;">
+          <div class="draw-preset-create">
+            <input id="animPresetNameInput" type="text" maxlength="40" placeholder="Animasyon adı" aria-label="Animasyon adı" />
+            <button id="animPresetSaveBtn" class="secondary" type="button">Kaydet</button>
+          </div>
+          <div id="animPresetInfo" class="small" style="margin-top:8px;">Henüz kayıt yok.</div>
+          <div id="animPresets" class="frames draw-presets"></div>
+        </div>
 
         <div id="frameInfo" class="small" style="margin-top:10px;">0 kare</div>
         <div id="frames" class="frames"></div>
@@ -255,6 +270,89 @@
     </svg>
     <span id="animToggleLabel">Oynat</span>
   </button>
+
+  <div id="drawPresetModal" class="frame-editor-modal" hidden>
+    <div class="frame-editor-card" role="dialog" aria-modal="true" aria-labelledby="drawPresetModalTitle">
+      <button id="drawPresetModalCloseBtn" class="modal-close-btn" type="button" aria-label="Kapat">×</button>
+      <div class="draw-preset-title-row">
+        <h2 id="drawPresetModalTitle" class="frame-editor-title" contenteditable="true" spellcheck="false"></h2>
+        <button id="drawPresetRenameBtn" class="frame-edit-btn draw-preset-rename-btn" type="button" aria-label="Adı düzenle" title="Adı düzenle">
+          <svg viewBox="0 0 24 24"><path d="M5 19h14v2H5zM14.7 5.3l4 4L10 18H6v-4z"/></svg>
+        </button>
+      </div>
+      <div id="drawPresetGrid" class="pixel-grid frame-editor-grid" aria-label="8x8 çizim düzenleyici"></div>
+      <div class="quick-grid">
+        <button id="drawPresetClearBtn" class="tool-btn" type="button">
+          <svg viewBox="0 0 24 24"><path d="M6 7h12l-1 14H7zm3-4h6l1 2H8z"/></svg>
+          <span>Temizle</span>
+        </button>
+        <button id="drawPresetFillBtn" class="tool-btn" type="button">
+          <svg viewBox="0 0 24 24"><path d="M7 3h10v18H7z"/></svg>
+          <span>Doldur</span>
+        </button>
+        <button id="drawPresetInvertBtn" class="tool-btn" type="button">
+          <svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18V3z"/></svg>
+          <span>Tersle</span>
+        </button>
+        <button id="drawPresetRotateBtn" class="tool-btn" type="button">
+          <svg viewBox="0 0 24 24"><path d="M12 4V1L7 6l5 5V7a5 5 0 1 1-5 5H5a7 7 0 1 0 7-8z"/></svg>
+          <span>Döndür</span>
+        </button>
+      </div>
+      <div class="stack">
+        <div class="field brightness-shell">
+          <div class="text-speed-head">
+            <label for="drawPresetBrightnessInput">Parlaklık</label>
+            <span id="drawPresetBrightnessVal" class="text-speed-val">8</span>
+          </div>
+          <div class="text-speed-slider-wrap">
+            <input
+              id="drawPresetBrightnessInput"
+              class="brightness-slider"
+              type="range"
+              min="0"
+              max="15"
+              step="1"
+              value="8"
+            />
+          </div>
+        </div>
+      </div>
+      <div class="frame-editor-actions draw-preset-editor-actions">
+        <button id="drawPresetModalDeleteBtn" class="tool-btn warn" type="button">
+          <svg viewBox="0 0 24 24"><path d="M6 7h12l-1 14H7zm3-4h6l1 2H8z"/></svg>
+          <span>Sil</span>
+        </button>
+        <button id="drawPresetModalSaveBtn" class="tool-btn primary" type="button">
+          <svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5 1.4-1.4L9 14.2 18.6 4.6z"/></svg>
+          <span>Kaydet</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="animPresetModal" class="frame-editor-modal" hidden>
+    <div class="frame-editor-card" role="dialog" aria-modal="true" aria-labelledby="animPresetModalTitle">
+      <button id="animPresetModalCloseBtn" class="modal-close-btn" type="button" aria-label="Kapat">×</button>
+      <div class="draw-preset-title-row">
+        <h2 id="animPresetModalTitle" class="frame-editor-title" contenteditable="true" spellcheck="false"></h2>
+        <button id="animPresetRenameBtn" class="frame-edit-btn draw-preset-rename-btn" type="button" aria-label="Adı düzenle" title="Adı düzenle">
+          <svg viewBox="0 0 24 24"><path d="M5 19h14v2H5zM14.7 5.3l4 4L10 18H6v-4z"/></svg>
+        </button>
+      </div>
+      <div id="animPresetModalMeta" class="small" style="text-align:left;">Mevcut animasyon ile güncellenir.</div>
+      <div class="frame-editor-actions draw-preset-editor-actions">
+        <button id="animPresetModalDeleteBtn" class="tool-btn warn" type="button">
+          <svg viewBox="0 0 24 24"><path d="M6 7h12l-1 14H7zm3-4h6l1 2H8z"/></svg>
+          <span>Sil</span>
+        </button>
+        <button id="animPresetModalSaveBtn" class="tool-btn primary" type="button">
+          <svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5 1.4-1.4L9 14.2 18.6 4.6z"/></svg>
+          <span>Kaydet</span>
+        </button>
+      </div>
+    </div>
+  </div>
 
   <div id="addFrameModal" class="frame-editor-modal" hidden>
     <div class="frame-editor-card" role="dialog" aria-modal="true" aria-labelledby="addFrameTitle">

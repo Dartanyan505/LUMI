@@ -12,6 +12,8 @@ export const MAX_FRAMES = 256;
 export const UPLOAD_CHUNK_FRAMES = 1;
 
 export const THEME_STORAGE_KEY = "lumi_theme";
+export const DRAW_PRESETS_STORAGE_KEY = "lumi_draw_presets_v1";
+export const ANIM_PRESETS_STORAGE_KEY = "lumi_anim_presets_v1";
 export const THEMES = [
   { key: "rose", label: "Pembe" },
   { key: "sky", label: "Mavi" },
@@ -66,6 +68,10 @@ export const ui = {
   previewBtn: document.getElementById("previewBtn"),
   previewBtnLabel: document.getElementById("previewBtnLabel"),
   sendImgBtn: document.getElementById("sendImgBtn"),
+  drawPresetNameInput: document.getElementById("drawPresetNameInput"),
+  drawPresetSaveBtn: document.getElementById("drawPresetSaveBtn"),
+  drawPresetInfo: document.getElementById("drawPresetInfo"),
+  drawPresets: document.getElementById("drawPresets"),
   addFrameBtn: document.getElementById("addFrameBtn"),
 
   brightnessRange: document.getElementById("brightnessRange"),
@@ -89,12 +95,36 @@ export const ui = {
   updateFrameBtn: document.getElementById("updateFrameBtn"),
   deleteFrameBtn: document.getElementById("deleteFrameBtn"),
   clearFramesBtn: document.getElementById("clearFramesBtn"),
+  animPresetNameInput: document.getElementById("animPresetNameInput"),
+  animPresetSaveBtn: document.getElementById("animPresetSaveBtn"),
+  animPresetInfo: document.getElementById("animPresetInfo"),
+  animPresets: document.getElementById("animPresets"),
   animToggleBtn: document.getElementById("animToggleBtn"),
   animToggleIcon: document.getElementById("animToggleIcon"),
   animToggleLabel: document.getElementById("animToggleLabel"),
 
   frameInfo: document.getElementById("frameInfo"),
   frames: document.getElementById("frames"),
+  drawPresetModal: document.getElementById("drawPresetModal"),
+  drawPresetModalTitle: document.getElementById("drawPresetModalTitle"),
+  drawPresetRenameBtn: document.getElementById("drawPresetRenameBtn"),
+  drawPresetGrid: document.getElementById("drawPresetGrid"),
+  drawPresetClearBtn: document.getElementById("drawPresetClearBtn"),
+  drawPresetFillBtn: document.getElementById("drawPresetFillBtn"),
+  drawPresetInvertBtn: document.getElementById("drawPresetInvertBtn"),
+  drawPresetRotateBtn: document.getElementById("drawPresetRotateBtn"),
+  drawPresetBrightnessInput: document.getElementById("drawPresetBrightnessInput"),
+  drawPresetBrightnessVal: document.getElementById("drawPresetBrightnessVal"),
+  drawPresetModalCloseBtn: document.getElementById("drawPresetModalCloseBtn"),
+  drawPresetModalDeleteBtn: document.getElementById("drawPresetModalDeleteBtn"),
+  drawPresetModalSaveBtn: document.getElementById("drawPresetModalSaveBtn"),
+  animPresetModal: document.getElementById("animPresetModal"),
+  animPresetModalTitle: document.getElementById("animPresetModalTitle"),
+  animPresetModalMeta: document.getElementById("animPresetModalMeta"),
+  animPresetModalCloseBtn: document.getElementById("animPresetModalCloseBtn"),
+  animPresetRenameBtn: document.getElementById("animPresetRenameBtn"),
+  animPresetModalDeleteBtn: document.getElementById("animPresetModalDeleteBtn"),
+  animPresetModalSaveBtn: document.getElementById("animPresetModalSaveBtn"),
   animPreviewGrid: document.getElementById("animPreviewGrid"),
   animPreviewHint: document.getElementById("animPreviewHint"),
   addFrameModal: document.getElementById("addFrameModal"),

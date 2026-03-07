@@ -1148,6 +1148,51 @@
       fill: currentColor;
     }
 
+    .draw-presets-shell {
+      padding-top: 10px;
+    }
+
+    .draw-preset-create {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .draw-preset-create .secondary {
+      min-height: 40px;
+      padding: 0 14px;
+      border-radius: 10px;
+      font-size: 0.76rem;
+      font-weight: 700;
+    }
+
+    .draw-presets {
+      margin-top: 8px;
+      max-height: 180px;
+    }
+
+    .draw-preset-actions {
+      margin-top: 6px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 6px;
+    }
+
+    .draw-preset-actions .secondary,
+    .draw-preset-actions .warn {
+      min-height: 30px;
+      padding: 0 10px;
+      border-radius: 8px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      box-shadow: none;
+    }
+
+    .draw-preset-name {
+      text-align: center;
+    }
+
     .mini {
       display: grid;
       grid-template-columns: repeat(8, 8px);
@@ -1233,6 +1278,26 @@
       padding: 12px;
       display: grid;
       gap: 10px;
+      position: relative;
+    }
+
+    .modal-close-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      border: 1px solid var(--tool-border);
+      background: var(--tool-bg);
+      color: var(--tool-text);
+      display: grid;
+      place-items: center;
+      padding: 0;
+      box-shadow: none;
+      font-size: 1rem;
+      line-height: 1;
+      z-index: 1;
     }
 
     .frame-editor-title {
@@ -1270,6 +1335,43 @@
       gap: 8px;
       font-size: 0.74rem;
     }
+
+    .draw-preset-editor-actions {
+      justify-content: space-between;
+      width: 100%;
+    }
+
+    .draw-preset-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 8px;
+      min-height: 30px;
+    }
+
+    .draw-preset-title-row .frame-editor-title {
+      text-align: left;
+    }
+
+    .draw-preset-rename-btn {
+      position: static;
+      width: auto;
+      height: auto;
+      min-width: 0;
+      min-height: 0;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      box-shadow: none;
+      color: var(--tool-text);
+      border-radius: 0;
+    }
+
+    .draw-preset-rename-btn:hover {
+      transform: none;
+      filter: none;
+    }
+
 
     .pill {
       padding: 4px 9px;

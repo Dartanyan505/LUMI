@@ -1,4 +1,6 @@
 import {
+  ANIM_PRESETS_STORAGE_KEY,
+  DRAW_PRESETS_STORAGE_KEY,
   MAX_FRAMES,
   PKT_IMG,
   THEME_STORAGE_KEY,
@@ -13,6 +15,7 @@ const hooks = {
   scheduleLivePreview: () => {},
   renderFrames: () => {},
 };
+let boundActions = null;
 const THEME_CHROME_COLORS = {
   rose: "#ef6ea2",
   sky: "#5e93ff",
@@ -31,6 +34,7 @@ let animPreviewIndex = 0;
 let animToggleState = "idle";
 const drawCells = Array.from({ length: 8 }, () => Array(8).fill(null));
 const addFrameEditorCells = Array.from({ length: 8 }, () => Array(8).fill(null));
+const drawPresetEditorCells = Array.from({ length: 8 }, () => Array(8).fill(null));
 const addFrameEditorState = {
   grid: Array.from({ length: 8 }, () => Array(8).fill(false)),
   drawActive: false,
@@ -39,6 +43,106 @@ const addFrameEditorState = {
   open: false,
   editIndex: -1,
 };
+const drawPresetEditorState = {
+  grid: Array.from({ length: 8 }, () => Array(8).fill(false)),
+  drawActive: false,
+  drawValue: true,
+  lastPaintedKey: "",
+};
+const MAX_LOCAL_PRESETS = 64;
+const DRAW_PRESETS_REMOTE_URL = "./presets/draw_presets.json";
+const ANIM_PRESETS_REMOTE_URL = "./presets/anim_presets.json";
+let drawPresetSelectedName = "";
+let remoteDrawPresets = [];
+let remoteAnimPresets = [];
+let remoteDrawPresetsPromise = null;
+let remoteAnimPresetsPromise = null;
+let drawPresetEditorName = "";
+let drawPresetEditorOpen = false;
+let animPresetSelectedName = "";
+let animPresetEditorName = "";
+let animPresetEditorOpen = false;
+let animPresetPreviewTimer = null;
+let animPresetPreviewCards = [];
+
+function readPresetStore(storageKey) {
+  try {
+    const raw = localStorage.getItem(storageKey);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function writePresetStore(storageKey, presets) {
+  const safe = Array.isArray(presets) ? presets.slice(0, MAX_LOCAL_PRESETS) : [];
+  localStorage.setItem(storageKey, JSON.stringify(safe));
+}
+
+function askPresetName(actionLabel, presets) {
+  const existing = presets.map((x) => String(x?.name || "").trim()).filter(Boolean);
+  const hint = existing.length ? `\nKayıtlar: ${existing.join(", ")}` : "";
+  const raw = window.prompt(`${actionLabel} için isim gir.${hint}`);
+  const name = String(raw || "").trim();
+  return name;
+}
+
+function upsertPresetByName(storageKey, name, data) {
+  const presets = readPresetStore(storageKey);
+  const next = presets.filter((x) => String(x?.name || "").trim() !== name);
+  next.unshift({ name, ...data, savedAt: Date.now() });
+  writePresetStore(storageKey, next);
+}
+
+function pickPresetByName(storageKey, actionLabel) {
+  const presets = readPresetStore(storageKey);
+  if (!presets.length) {
+    alert("Kayıt bulunamadı.");
+    return null;
+  }
+  const name = askPresetName(actionLabel, presets);
+  if (!name) return null;
+  const found = presets.find((x) => String(x?.name || "").trim() === name);
+  if (!found) {
+    alert(`"${name}" bulunamadı.`);
+    return null;
+  }
+  return found;
+}
+
+function pickPresetFromList(presets, actionLabel) {
+  if (!presets.length) {
+    alert("Kayıt bulunamadı.");
+    return null;
+  }
+  const name = askPresetName(actionLabel, presets);
+  if (!name) return null;
+  const found = presets.find((x) => String(x?.name || "").trim() === name);
+  if (!found) {
+    alert(`"${name}" bulunamadı.`);
+    return null;
+  }
+  return found;
+}
+
+function normalizePresetName(name) {
+  return String(name || "").trim();
+}
+
+function parsePresetPayload(raw) {
+  if (Array.isArray(raw)) return raw;
+  if (raw && Array.isArray(raw.presets)) return raw.presets;
+  return [];
+}
+
+async function fetchRemotePresetArray(url) {
+  const res = await fetch(url, { cache: "no-store" });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const json = await res.json();
+  return parsePresetPayload(json);
+}
 
 function emptyRows8() {
   return Array(8).fill(0);
@@ -169,6 +273,158 @@ function closeAddFrameEditor() {
   addFrameEditorState.lastPaintedKey = "";
   addFrameEditorState.editIndex = -1;
   addFrameEditorState.open = false;
+}
+
+function closeDrawPresetEditor() {
+  if (!ui.drawPresetModal) return;
+  ui.drawPresetModal.hidden = true;
+  document.body.classList.remove("modal-open");
+  drawPresetEditorState.drawActive = false;
+  drawPresetEditorState.lastPaintedKey = "";
+  drawPresetEditorName = "";
+  drawPresetEditorOpen = false;
+}
+
+function rowsToDrawPresetEditor(rows) {
+  for (let r = 0; r < 8; r++) {
+    const row = rows[r] || 0;
+    for (let c = 0; c < 8; c++) {
+      drawPresetEditorState.grid[r][c] = ((row >> (7 - c)) & 1) === 1;
+    }
+  }
+}
+
+function drawPresetEditorToRows() {
+  const rows = [];
+  for (let r = 0; r < 8; r++) {
+    let row = 0;
+    for (let c = 0; c < 8; c++) {
+      if (drawPresetEditorState.grid[r][c]) row |= (1 << (7 - c));
+    }
+    rows.push(row);
+  }
+  return rows;
+}
+
+function rotateDrawPresetEditorCCW() {
+  const next = Array.from({ length: 8 }, () => Array(8).fill(false));
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      next[7 - c][r] = drawPresetEditorState.grid[r][c];
+    }
+  }
+  drawPresetEditorState.grid = next;
+}
+
+function renderDrawPresetEditorGrid() {
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      const cell = drawPresetEditorCells[r][c];
+      if (!cell) continue;
+      cell.classList.toggle("on", drawPresetEditorState.grid[r][c]);
+    }
+  }
+}
+
+function renderDrawPresetEditorCell(r, c) {
+  const cell = drawPresetEditorCells[r][c];
+  if (!cell) return;
+  cell.classList.toggle("on", drawPresetEditorState.grid[r][c]);
+}
+
+function createDrawPresetEditorGrid() {
+  if (!ui.drawPresetGrid) return;
+  if (ui.drawPresetGrid.childElementCount === 64) return;
+
+  ui.drawPresetGrid.innerHTML = "";
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      const cell = document.createElement("button");
+      cell.type = "button";
+      cell.className = "px";
+      cell.dataset.r = String(r);
+      cell.dataset.c = String(c);
+      drawPresetEditorCells[r][c] = cell;
+
+      cell.addEventListener("pointerdown", (ev) => {
+        ev.preventDefault();
+        drawPresetEditorState.drawActive = true;
+        drawPresetEditorState.drawValue = !drawPresetEditorState.grid[r][c];
+        drawPresetEditorState.grid[r][c] = drawPresetEditorState.drawValue;
+        drawPresetEditorState.lastPaintedKey = `${r},${c}`;
+        ui.drawPresetGrid.setPointerCapture?.(ev.pointerId);
+        renderDrawPresetEditorCell(r, c);
+      });
+
+      cell.addEventListener("pointerenter", () => {
+        if (!drawPresetEditorState.drawActive) return;
+        if (drawPresetEditorState.grid[r][c] === drawPresetEditorState.drawValue) return;
+        drawPresetEditorState.grid[r][c] = drawPresetEditorState.drawValue;
+        renderDrawPresetEditorCell(r, c);
+      });
+
+      ui.drawPresetGrid.appendChild(cell);
+    }
+  }
+
+  ui.drawPresetGrid.addEventListener("pointermove", (ev) => {
+    if (!drawPresetEditorState.drawActive) return;
+    const target = document.elementFromPoint(ev.clientX, ev.clientY);
+    if (!(target instanceof HTMLElement) || !target.classList.contains("px")) return;
+
+    const r = Number(target.dataset.r);
+    const c = Number(target.dataset.c);
+    if (!Number.isInteger(r) || !Number.isInteger(c)) return;
+
+    const key = `${r},${c}`;
+    if (key === drawPresetEditorState.lastPaintedKey) return;
+    drawPresetEditorState.lastPaintedKey = key;
+
+    if (drawPresetEditorState.grid[r][c] !== drawPresetEditorState.drawValue) {
+      drawPresetEditorState.grid[r][c] = drawPresetEditorState.drawValue;
+      renderDrawPresetEditorCell(r, c);
+    }
+  });
+
+  ui.drawPresetGrid.addEventListener("pointerup", () => {
+    drawPresetEditorState.drawActive = false;
+    drawPresetEditorState.lastPaintedKey = "";
+  });
+
+  ui.drawPresetGrid.addEventListener("pointercancel", () => {
+    drawPresetEditorState.drawActive = false;
+    drawPresetEditorState.lastPaintedKey = "";
+  });
+
+  window.addEventListener("pointerup", () => {
+    drawPresetEditorState.drawActive = false;
+    drawPresetEditorState.lastPaintedKey = "";
+  });
+}
+
+function updateDrawPresetEditorMeta() {
+  if (!ui.drawPresetBrightnessInput || !ui.drawPresetBrightnessVal) return;
+  const brightness = clamp(ui.drawPresetBrightnessInput.value, 0, 15, 8);
+  ui.drawPresetBrightnessInput.value = String(brightness);
+  ui.drawPresetBrightnessVal.textContent = String(brightness);
+}
+
+function openDrawPresetEditor(name) {
+  const preset = drawPresetList().find((item) => item.name === name);
+  if (!preset || preset.source !== "local" || !ui.drawPresetModal) return;
+  createDrawPresetEditorGrid();
+  rowsToDrawPresetEditor(preset.rows || emptyRows8());
+  renderDrawPresetEditorGrid();
+  if (ui.drawPresetBrightnessInput) {
+    ui.drawPresetBrightnessInput.value = String(clamp(preset.brightness, 0, 15, 8));
+    updateDrawPresetEditorMeta();
+  }
+  drawPresetEditorName = preset.name;
+  drawPresetEditorOpen = true;
+  if (ui.drawPresetModalTitle) ui.drawPresetModalTitle.textContent = preset.name;
+  ui.drawPresetModal.hidden = false;
+  document.body.classList.add("modal-open");
+  ui.drawPresetBrightnessInput?.focus();
 }
 
 function openAddFrameEditor(frameToEdit = null, editIndex = -1) {
@@ -610,6 +866,495 @@ export function rowsToGrid(rows) {
   renderGrid();
 }
 
+function sanitizeRows(rows) {
+  if (!Array.isArray(rows)) return emptyRows8();
+  return Array.from({ length: 8 }, (_, i) => clamp(rows[i], 0, 255, 0));
+}
+
+function sanitizeFrame(frame) {
+  return {
+    rows: sanitizeRows(frame?.rows),
+    duration: clamp(frame?.duration, 1, 65535, 150),
+    brightness: clamp(frame?.brightness, 0, 15, 8),
+  };
+}
+
+function localDrawPresetList() {
+  const presets = readPresetStore(DRAW_PRESETS_STORAGE_KEY);
+  return presets
+    .map((item) => ({
+      name: normalizePresetName(item?.name),
+      rows: sanitizeRows(item?.rows),
+      brightness: clamp(item?.brightness, 0, 15, 8),
+      savedAt: Number(item?.savedAt) || 0,
+      source: "local",
+    }))
+    .filter((item) => Boolean(item.name));
+}
+
+function serverDrawPresetList() {
+  return remoteDrawPresets
+    .map((item) => ({
+      name: normalizePresetName(item?.name),
+      rows: sanitizeRows(item?.rows),
+      brightness: clamp(item?.brightness, 0, 15, 8),
+      savedAt: Number(item?.savedAt) || 0,
+      source: "server",
+    }))
+    .filter((item) => Boolean(item.name));
+}
+
+function drawPresetList() {
+  const local = localDrawPresetList();
+  const remote = serverDrawPresetList();
+  const names = new Set(local.map((item) => item.name));
+  return [...local, ...remote.filter((item) => !names.has(item.name))];
+}
+
+function localAnimationPresetList() {
+  const presets = readPresetStore(ANIM_PRESETS_STORAGE_KEY);
+  return presets
+    .map((item) => ({
+      name: normalizePresetName(item?.name),
+      loop: Number(item?.loop) ? 1 : 0,
+      frames: Array.isArray(item?.frames) ? item.frames.map((f) => sanitizeFrame(f)) : [],
+      savedAt: Number(item?.savedAt) || 0,
+      source: "local",
+    }))
+    .filter((item) => Boolean(item.name));
+}
+
+function serverAnimationPresetList() {
+  return remoteAnimPresets
+    .map((item) => ({
+      name: normalizePresetName(item?.name),
+      loop: Number(item?.loop) ? 1 : 0,
+      frames: Array.isArray(item?.frames) ? item.frames.map((f) => sanitizeFrame(f)) : [],
+      savedAt: Number(item?.savedAt) || 0,
+      source: "server",
+    }))
+    .filter((item) => Boolean(item.name));
+}
+
+function animationPresetList() {
+  const local = localAnimationPresetList();
+  const remote = serverAnimationPresetList();
+  const names = new Set(local.map((item) => item.name));
+  return [...local, ...remote.filter((item) => !names.has(item.name))];
+}
+
+function isRemoteAnimationName(name) {
+  const n = normalizePresetName(name);
+  return serverAnimationPresetList().some((item) => item.name === n);
+}
+
+async function ensureRemoteDrawPresets() {
+  if (remoteDrawPresetsPromise) return remoteDrawPresetsPromise;
+  remoteDrawPresetsPromise = (async () => {
+    try {
+      remoteDrawPresets = await fetchRemotePresetArray(DRAW_PRESETS_REMOTE_URL);
+    } catch {
+      remoteDrawPresets = [];
+    } finally {
+      remoteDrawPresetsPromise = null;
+    }
+  })();
+  return remoteDrawPresetsPromise;
+}
+
+async function ensureRemoteAnimPresets() {
+  if (remoteAnimPresetsPromise) return remoteAnimPresetsPromise;
+  remoteAnimPresetsPromise = (async () => {
+    try {
+      remoteAnimPresets = await fetchRemotePresetArray(ANIM_PRESETS_REMOTE_URL);
+    } catch {
+      remoteAnimPresets = [];
+    } finally {
+      remoteAnimPresetsPromise = null;
+    }
+  })();
+  return remoteAnimPresetsPromise;
+}
+
+async function loadRemotePresets() {
+  await Promise.all([ensureRemoteDrawPresets(), ensureRemoteAnimPresets()]);
+  renderDrawPresets();
+  renderAnimationPresets();
+}
+
+function renderMiniRows(host, rows) {
+  const mini = document.createElement("div");
+  mini.className = "mini";
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      const dot = document.createElement("span");
+      if (((rows[r] >> (7 - c)) & 1) === 1) dot.classList.add("on");
+      mini.appendChild(dot);
+    }
+  }
+  host.appendChild(mini);
+}
+
+function drawMiniRowsToDots(dots, rows) {
+  for (let r = 0; r < 8; r++) {
+    const row = rows[r] || 0;
+    for (let c = 0; c < 8; c++) {
+      const on = ((row >> (7 - c)) & 1) === 1;
+      dots[r * 8 + c].classList.toggle("on", on);
+    }
+  }
+}
+
+function stopAnimationPresetMiniPreview() {
+  if (animPresetPreviewTimer) {
+    clearInterval(animPresetPreviewTimer);
+    animPresetPreviewTimer = null;
+  }
+  animPresetPreviewCards = [];
+}
+
+function startAnimationPresetMiniPreview() {
+  stopAnimationPresetMiniPreview();
+  const animated = animPresetPreviewCards.filter((item) => item.frames.length > 1);
+  if (!animated.length) return;
+  animPresetPreviewTimer = window.setInterval(() => {
+    for (const item of animated) {
+      item.index = (item.index + 1) % item.frames.length;
+      drawMiniRowsToDots(item.dots, item.frames[item.index].rows);
+    }
+  }, 140);
+}
+
+function loadDrawPresetByName(name) {
+  const found = drawPresetList().find((item) => item.name === name);
+  if (!found) return;
+  rowsToGrid(found.rows);
+  if (ui.brightnessRange) {
+    ui.brightnessRange.value = String(found.brightness);
+    updateBrightnessUi();
+  }
+  drawPresetSelectedName = found.name;
+  renderDrawPresets();
+  log(`Çizim yüklendi: ${found.name}`);
+}
+
+function saveDrawPresetFromInput() {
+  const name = normalizePresetName(ui.drawPresetNameInput?.value);
+  if (!name) {
+    alert("Çizim adı gir.");
+    ui.drawPresetNameInput?.focus();
+    return;
+  }
+
+  const payload = {
+    name,
+    rows: gridToRows(),
+    brightness: clamp(ui.brightnessRange?.value, 0, 15, 8),
+    savedAt: Date.now(),
+  };
+  const next = localDrawPresetList().filter((item) => item.name !== name);
+  next.unshift(payload);
+  writePresetStore(DRAW_PRESETS_STORAGE_KEY, next);
+
+  drawPresetSelectedName = name;
+  if (ui.drawPresetNameInput) ui.drawPresetNameInput.value = "";
+  renderDrawPresets();
+  log(`Çizim kaydedildi: ${name}`);
+}
+
+function deleteDrawPresetByName(name) {
+  const target = drawPresetList().find((item) => item.name === name);
+  if (!target) return;
+  if (target.source === "server") {
+    alert("Sunucu kaydı silinemez.");
+    return;
+  }
+  const next = localDrawPresetList().filter((item) => item.name !== name);
+  writePresetStore(DRAW_PRESETS_STORAGE_KEY, next);
+  if (drawPresetSelectedName === name) drawPresetSelectedName = "";
+  if (drawPresetEditorName === name) closeDrawPresetEditor();
+  renderDrawPresets();
+  log(`Çizim silindi: ${name}`);
+}
+
+function saveDrawPresetEditor() {
+  if (!drawPresetEditorName) return;
+  const nextName = normalizePresetName(ui.drawPresetModalTitle?.textContent);
+  if (!nextName) {
+    alert("Ad boş olamaz.");
+    ui.drawPresetModalTitle?.focus();
+    return;
+  }
+
+  const local = localDrawPresetList();
+  const idx = local.findIndex((item) => item.name === drawPresetEditorName);
+  if (idx < 0) return;
+  const exists = drawPresetList().some((item) => item.name === nextName && item.name !== drawPresetEditorName);
+  if (exists) {
+    alert("Bu adda kayıt zaten var.");
+    ui.drawPresetModalTitle?.focus();
+    return;
+  }
+
+  const updated = {
+    ...local[idx],
+    name: nextName,
+    rows: drawPresetEditorToRows(),
+    brightness: clamp(ui.drawPresetBrightnessInput?.value, 0, 15, 8),
+    savedAt: Date.now(),
+  };
+  local[idx] = updated;
+  writePresetStore(DRAW_PRESETS_STORAGE_KEY, local);
+
+  drawPresetEditorName = nextName;
+  drawPresetSelectedName = updated.name;
+  rowsToGrid(updated.rows);
+  if (ui.brightnessRange) {
+    ui.brightnessRange.value = String(updated.brightness);
+    updateBrightnessUi();
+  }
+  renderDrawPresets();
+  closeDrawPresetEditor();
+  log(`Çizim güncellendi: ${updated.name}`);
+}
+
+function renderDrawPresets() {
+  if (!ui.drawPresets || !ui.drawPresetInfo) return;
+  const presets = drawPresetList();
+  ui.drawPresets.innerHTML = "";
+  ui.drawPresetInfo.textContent = presets.length
+    ? `${presets.length} çizim kaydı`
+    : "Henüz kayıt yok.";
+
+  presets.forEach((preset) => {
+    const card = document.createElement("div");
+    card.className = `frame ${preset.name === drawPresetSelectedName ? "active" : ""}`;
+    card.addEventListener("click", () => {
+      loadDrawPresetByName(preset.name);
+    });
+
+    if (preset.source === "local") {
+      const editBtn = document.createElement("button");
+      editBtn.type = "button";
+      editBtn.className = "frame-edit-btn";
+      editBtn.title = "Kaydı düzenle";
+      editBtn.setAttribute("aria-label", "Kaydı düzenle");
+      editBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M5 19h14v2H5zM14.7 5.3l4 4L10 18H6v-4z"/></svg>';
+      editBtn.addEventListener("click", (ev) => {
+        ev.stopPropagation();
+        openDrawPresetEditor(preset.name);
+      });
+      card.appendChild(editBtn);
+    }
+
+    renderMiniRows(card, preset.rows);
+
+    const meta = document.createElement("div");
+    meta.className = "small draw-preset-name";
+    meta.textContent = preset.name;
+    card.appendChild(meta);
+
+    ui.drawPresets.appendChild(card);
+  });
+}
+
+function applyAnimationPreset(preset) {
+  const frames = Array.isArray(preset?.frames) ? preset.frames.map((f) => sanitizeFrame(f)) : [];
+  state.frames = frames.slice(0, MAX_FRAMES);
+  state.selectedFrame = state.frames.length ? 0 : -1;
+
+  if (ui.loopSelect) ui.loopSelect.value = Number(preset?.loop) ? "1" : "0";
+  if (state.selectedFrame >= 0) {
+    const f = state.frames[0];
+    rowsToGrid(f.rows);
+    if (ui.frameDurationInput) ui.frameDurationInput.value = String(f.duration);
+    if (ui.frameBrightnessInput) ui.frameBrightnessInput.value = String(f.brightness);
+  } else {
+    rowsToGrid(emptyRows8());
+  }
+
+  if (boundActions?.markAnimationDirty) {
+    boundActions.markAnimationDirty();
+  } else {
+    state.animationDirty = true;
+  }
+  hooks.renderFrames();
+  refreshAnimPreview();
+  setAnimToggleState("idle");
+}
+
+function loadAnimationPresetByName(name) {
+  const found = animationPresetList().find((item) => item.name === name);
+  if (!found) return;
+  applyAnimationPreset(found);
+  animPresetSelectedName = found.name;
+  renderAnimationPresets();
+  log(`Animasyon yüklendi: ${found.name}`);
+}
+
+function saveAnimationPresetFromInput() {
+  if (!state.frames.length) {
+    alert("Kaydetmek için en az bir kare ekle.");
+    return;
+  }
+  const name = normalizePresetName(ui.animPresetNameInput?.value);
+  if (!name) {
+    alert("Animasyon adı gir.");
+    ui.animPresetNameInput?.focus();
+    return;
+  }
+
+  const payload = {
+    name,
+    loop: Number(ui.loopSelect?.value || 0) ? 1 : 0,
+    frames: state.frames.map((f) => sanitizeFrame(f)),
+    savedAt: Date.now(),
+  };
+  const next = localAnimationPresetList().filter((item) => item.name !== name);
+  next.unshift(payload);
+  writePresetStore(ANIM_PRESETS_STORAGE_KEY, next);
+
+  animPresetSelectedName = name;
+  if (ui.animPresetNameInput) ui.animPresetNameInput.value = "";
+  renderAnimationPresets();
+  log(`Animasyon kaydedildi: ${name}`);
+}
+
+function deleteAnimationPresetByName(name) {
+  const target = animationPresetList().find((item) => item.name === name);
+  if (!target) return;
+  if (target.source === "server" || isRemoteAnimationName(name)) {
+    alert("Sunucu kaydı silinemez.");
+    return;
+  }
+  const next = localAnimationPresetList().filter((item) => item.name !== name);
+  writePresetStore(ANIM_PRESETS_STORAGE_KEY, next);
+  if (animPresetSelectedName === name) animPresetSelectedName = "";
+  if (animPresetEditorName === name) closeAnimationPresetEditor();
+  renderAnimationPresets();
+  log(`Animasyon silindi: ${name}`);
+}
+
+function closeAnimationPresetEditor() {
+  if (!ui.animPresetModal) return;
+  ui.animPresetModal.hidden = true;
+  document.body.classList.remove("modal-open");
+  animPresetEditorName = "";
+  animPresetEditorOpen = false;
+}
+
+function openAnimationPresetEditor(name) {
+  const preset = animationPresetList().find((item) => item.name === name);
+  if (!preset || preset.source !== "local" || isRemoteAnimationName(name) || !ui.animPresetModal) return;
+  animPresetEditorName = preset.name;
+  animPresetEditorOpen = true;
+  if (ui.animPresetModalTitle) ui.animPresetModalTitle.textContent = preset.name;
+  if (ui.animPresetModalMeta) {
+    ui.animPresetModalMeta.textContent = `${preset.frames.length} kare · Loop ${preset.loop ? "Açık" : "Kapalı"}`;
+  }
+  ui.animPresetModal.hidden = false;
+  document.body.classList.add("modal-open");
+}
+
+function saveAnimationPresetEditor() {
+  if (!animPresetEditorName) return;
+  const nextName = normalizePresetName(ui.animPresetModalTitle?.textContent);
+  if (!nextName) {
+    alert("Ad boş olamaz.");
+    ui.animPresetModalTitle?.focus();
+    return;
+  }
+  const exists = animationPresetList().some((item) => item.name === nextName && item.name !== animPresetEditorName);
+  if (exists) {
+    alert("Bu adda kayıt zaten var.");
+    ui.animPresetModalTitle?.focus();
+    return;
+  }
+  if (!state.frames.length) {
+    alert("Kaydetmek için en az bir kare ekle.");
+    return;
+  }
+
+  const local = localAnimationPresetList();
+  const idx = local.findIndex((item) => item.name === animPresetEditorName);
+  if (idx < 0) return;
+  if (isRemoteAnimationName(animPresetEditorName)) {
+    alert("Sunucu kaydı düzenlenemez.");
+    return;
+  }
+
+  const updated = {
+    ...local[idx],
+    name: nextName,
+    loop: Number(ui.loopSelect?.value || 0) ? 1 : 0,
+    frames: state.frames.map((f) => sanitizeFrame(f)),
+    savedAt: Date.now(),
+  };
+  local[idx] = updated;
+  writePresetStore(ANIM_PRESETS_STORAGE_KEY, local);
+
+  animPresetEditorName = nextName;
+  animPresetSelectedName = nextName;
+  renderAnimationPresets();
+  closeAnimationPresetEditor();
+  log(`Animasyon güncellendi: ${nextName}`);
+}
+
+function renderAnimationPresets() {
+  if (!ui.animPresets || !ui.animPresetInfo) return;
+  stopAnimationPresetMiniPreview();
+  const presets = animationPresetList();
+  ui.animPresets.innerHTML = "";
+  ui.animPresetInfo.textContent = presets.length
+    ? `${presets.length} animasyon kaydı`
+    : "Henüz kayıt yok.";
+
+  presets.forEach((preset) => {
+    const card = document.createElement("div");
+    card.className = `frame ${preset.name === animPresetSelectedName ? "active" : ""}`;
+    card.addEventListener("click", () => {
+      loadAnimationPresetByName(preset.name);
+    });
+
+    if (preset.source === "local" && !isRemoteAnimationName(preset.name)) {
+      const editBtn = document.createElement("button");
+      editBtn.type = "button";
+      editBtn.className = "frame-edit-btn";
+      editBtn.title = "Kaydı düzenle";
+      editBtn.setAttribute("aria-label", "Kaydı düzenle");
+      editBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M5 19h14v2H5zM14.7 5.3l4 4L10 18H6v-4z"/></svg>';
+      editBtn.addEventListener("click", (ev) => {
+        ev.stopPropagation();
+        openAnimationPresetEditor(preset.name);
+      });
+      card.appendChild(editBtn);
+    }
+
+    const mini = document.createElement("div");
+    mini.className = "mini";
+    const dots = [];
+    for (let i = 0; i < 64; i++) {
+      const dot = document.createElement("span");
+      mini.appendChild(dot);
+      dots.push(dot);
+    }
+    const frames = Array.isArray(preset.frames) && preset.frames.length
+      ? preset.frames.map((f) => ({ rows: sanitizeRows(f.rows) }))
+      : [{ rows: emptyRows8() }];
+    drawMiniRowsToDots(dots, frames[0].rows);
+    card.appendChild(mini);
+    animPresetPreviewCards.push({ dots, frames, index: 0 });
+
+    const meta = document.createElement("div");
+    meta.className = "small draw-preset-name";
+    meta.textContent = preset.name;
+    card.appendChild(meta);
+
+    ui.animPresets.appendChild(card);
+  });
+  startAnimationPresetMiniPreview();
+}
+
 export function createGrid() {
   ui.pixelGrid.innerHTML = "";
   for (let r = 0; r < 8; r++) {
@@ -740,6 +1485,7 @@ export function renderStatus(statusText) {
 }
 
 export function bindUi(actions) {
+  boundActions = actions;
   ui.connectionMenuBtn.addEventListener("click", async () => {
     if (state.device?.gatt?.connected) {
       const ok = window.confirm("Bağlantıyı kesmek istiyor musun?");
@@ -808,6 +1554,149 @@ export function bindUi(actions) {
       } catch (err) {
         log(`Göster hatası: ${err.message}`);
       }
+    });
+  }
+
+  if (ui.drawPresetSaveBtn) {
+    ui.drawPresetSaveBtn.addEventListener("click", () => {
+      saveDrawPresetFromInput();
+    });
+  }
+  if (ui.drawPresetNameInput) {
+    ui.drawPresetNameInput.addEventListener("keydown", (ev) => {
+      if (ev.key !== "Enter") return;
+      ev.preventDefault();
+      saveDrawPresetFromInput();
+    });
+  }
+  if (ui.animPresetSaveBtn) {
+    ui.animPresetSaveBtn.addEventListener("click", () => {
+      saveAnimationPresetFromInput();
+    });
+  }
+  if (ui.animPresetNameInput) {
+    ui.animPresetNameInput.addEventListener("keydown", (ev) => {
+      if (ev.key !== "Enter") return;
+      ev.preventDefault();
+      saveAnimationPresetFromInput();
+    });
+  }
+  if (ui.drawPresetModal) {
+    ui.drawPresetModal.addEventListener("click", (ev) => {
+      if (ev.target === ui.drawPresetModal) {
+        closeDrawPresetEditor();
+      }
+    });
+  }
+  if (ui.drawPresetModalCloseBtn) {
+    ui.drawPresetModalCloseBtn.addEventListener("click", () => {
+      closeDrawPresetEditor();
+    });
+  }
+  if (ui.drawPresetRenameBtn) {
+    ui.drawPresetRenameBtn.addEventListener("click", () => {
+      if (!drawPresetEditorName) return;
+      if (!ui.drawPresetModalTitle) return;
+      ui.drawPresetModalTitle.focus();
+      const range = document.createRange();
+      range.selectNodeContents(ui.drawPresetModalTitle);
+      const sel = window.getSelection();
+      sel?.removeAllRanges();
+      sel?.addRange(range);
+    });
+  }
+  if (ui.drawPresetModalTitle) {
+    ui.drawPresetModalTitle.addEventListener("keydown", (ev) => {
+      if (ev.key !== "Enter") return;
+      ev.preventDefault();
+      ui.drawPresetModalSaveBtn?.focus();
+    });
+  }
+  if (ui.drawPresetModalDeleteBtn) {
+    ui.drawPresetModalDeleteBtn.addEventListener("click", () => {
+      if (!drawPresetEditorName) return;
+      deleteDrawPresetByName(drawPresetEditorName);
+      closeDrawPresetEditor();
+    });
+  }
+  if (ui.drawPresetModalSaveBtn) {
+    ui.drawPresetModalSaveBtn.addEventListener("click", () => {
+      saveDrawPresetEditor();
+    });
+  }
+  if (ui.drawPresetClearBtn) {
+    ui.drawPresetClearBtn.addEventListener("click", () => {
+      drawPresetEditorState.grid = Array.from({ length: 8 }, () => Array(8).fill(false));
+      renderDrawPresetEditorGrid();
+    });
+  }
+  if (ui.drawPresetFillBtn) {
+    ui.drawPresetFillBtn.addEventListener("click", () => {
+      drawPresetEditorState.grid = Array.from({ length: 8 }, () => Array(8).fill(true));
+      renderDrawPresetEditorGrid();
+    });
+  }
+  if (ui.drawPresetInvertBtn) {
+    ui.drawPresetInvertBtn.addEventListener("click", () => {
+      for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+          drawPresetEditorState.grid[r][c] = !drawPresetEditorState.grid[r][c];
+        }
+      }
+      renderDrawPresetEditorGrid();
+    });
+  }
+  if (ui.drawPresetRotateBtn) {
+    ui.drawPresetRotateBtn.addEventListener("click", () => {
+      rotateDrawPresetEditorCCW();
+      renderDrawPresetEditorGrid();
+    });
+  }
+  if (ui.drawPresetBrightnessInput) {
+    ui.drawPresetBrightnessInput.addEventListener("input", () => {
+      updateDrawPresetEditorMeta();
+    });
+  }
+  if (ui.animPresetModal) {
+    ui.animPresetModal.addEventListener("click", (ev) => {
+      if (ev.target === ui.animPresetModal) {
+        closeAnimationPresetEditor();
+      }
+    });
+  }
+  if (ui.animPresetModalCloseBtn) {
+    ui.animPresetModalCloseBtn.addEventListener("click", () => {
+      closeAnimationPresetEditor();
+    });
+  }
+  if (ui.animPresetRenameBtn) {
+    ui.animPresetRenameBtn.addEventListener("click", () => {
+      if (!animPresetEditorName || !ui.animPresetModalTitle) return;
+      ui.animPresetModalTitle.focus();
+      const range = document.createRange();
+      range.selectNodeContents(ui.animPresetModalTitle);
+      const sel = window.getSelection();
+      sel?.removeAllRanges();
+      sel?.addRange(range);
+    });
+  }
+  if (ui.animPresetModalTitle) {
+    ui.animPresetModalTitle.addEventListener("keydown", (ev) => {
+      if (ev.key !== "Enter") return;
+      ev.preventDefault();
+      ui.animPresetModalSaveBtn?.focus();
+    });
+  }
+  if (ui.animPresetModalDeleteBtn) {
+    ui.animPresetModalDeleteBtn.addEventListener("click", () => {
+      if (!animPresetEditorName) return;
+      deleteAnimationPresetByName(animPresetEditorName);
+      closeAnimationPresetEditor();
+    });
+  }
+  if (ui.animPresetModalSaveBtn) {
+    ui.animPresetModalSaveBtn.addEventListener("click", () => {
+      saveAnimationPresetEditor();
     });
   }
 
@@ -915,7 +1804,18 @@ export function bindUi(actions) {
   }
 
   window.addEventListener("keydown", (ev) => {
-    if (ev.key !== "Escape" || !addFrameEditorState.open) return;
+    if (ev.key !== "Escape") return;
+    if (drawPresetEditorOpen) {
+      ev.preventDefault();
+      closeDrawPresetEditor();
+      return;
+    }
+    if (animPresetEditorOpen) {
+      ev.preventDefault();
+      closeAnimationPresetEditor();
+      return;
+    }
+    if (!addFrameEditorState.open) return;
     ev.preventDefault();
     closeAddFrameEditor();
   });
@@ -1102,6 +2002,9 @@ export function bindUi(actions) {
 
   refreshTextPreview(actions);
   refreshAnimPreview();
+  renderDrawPresets();
+  renderAnimationPresets();
+  void loadRemotePresets();
   updateTextSpeedUi();
   updateTextBrightnessUi();
   updateTextSendButtonState();
