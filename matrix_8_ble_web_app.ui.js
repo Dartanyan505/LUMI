@@ -29,6 +29,8 @@ let textPreviewIndex = 0;
 let animPreviewTimer = null;
 let animPreviewIndex = 0;
 let animToggleState = "idle";
+const drawCells = Array.from({ length: 8 }, () => Array(8).fill(null));
+const addFrameEditorCells = Array.from({ length: 8 }, () => Array(8).fill(null));
 const addFrameEditorState = {
   grid: Array.from({ length: 8 }, () => Array(8).fill(false)),
   drawActive: false,
@@ -74,12 +76,19 @@ function rotateAddFrameEditorCCW() {
 }
 
 function renderAddFrameEditorGrid() {
-  if (!ui.addFrameGrid) return;
-  ui.addFrameGrid.querySelectorAll(".px").forEach((cell) => {
-    const r = Number(cell.dataset.r);
-    const c = Number(cell.dataset.c);
-    cell.classList.toggle("on", addFrameEditorState.grid[r][c]);
-  });
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      const cell = addFrameEditorCells[r][c];
+      if (!cell) continue;
+      cell.classList.toggle("on", addFrameEditorState.grid[r][c]);
+    }
+  }
+}
+
+function renderAddFrameEditorCell(r, c) {
+  const cell = addFrameEditorCells[r][c];
+  if (!cell) return;
+  cell.classList.toggle("on", addFrameEditorState.grid[r][c]);
 }
 
 function createAddFrameEditorGrid() {
@@ -94,6 +103,7 @@ function createAddFrameEditorGrid() {
       cell.className = "px";
       cell.dataset.r = String(r);
       cell.dataset.c = String(c);
+      addFrameEditorCells[r][c] = cell;
 
       cell.addEventListener("pointerdown", (ev) => {
         ev.preventDefault();
@@ -102,13 +112,14 @@ function createAddFrameEditorGrid() {
         addFrameEditorState.grid[r][c] = addFrameEditorState.drawValue;
         addFrameEditorState.lastPaintedKey = `${r},${c}`;
         ui.addFrameGrid.setPointerCapture?.(ev.pointerId);
-        renderAddFrameEditorGrid();
+        renderAddFrameEditorCell(r, c);
       });
 
       cell.addEventListener("pointerenter", () => {
         if (!addFrameEditorState.drawActive) return;
+        if (addFrameEditorState.grid[r][c] === addFrameEditorState.drawValue) return;
         addFrameEditorState.grid[r][c] = addFrameEditorState.drawValue;
-        renderAddFrameEditorGrid();
+        renderAddFrameEditorCell(r, c);
       });
 
       ui.addFrameGrid.appendChild(cell);
@@ -130,7 +141,7 @@ function createAddFrameEditorGrid() {
 
     if (addFrameEditorState.grid[r][c] !== addFrameEditorState.drawValue) {
       addFrameEditorState.grid[r][c] = addFrameEditorState.drawValue;
-      renderAddFrameEditorGrid();
+      renderAddFrameEditorCell(r, c);
     }
   });
 
@@ -615,6 +626,7 @@ export function createGrid() {
       cell.className = "px";
       cell.dataset.r = String(r);
       cell.dataset.c = String(c);
+      drawCells[r][c] = cell;
 
       cell.addEventListener("pointerdown", (ev) => {
         ev.preventDefault();
@@ -623,13 +635,16 @@ export function createGrid() {
         state.grid[r][c] = state.drawValue;
         state.lastPaintedKey = `${r},${c}`;
         ui.pixelGrid.setPointerCapture?.(ev.pointerId);
-        renderGrid();
+        renderGridCell(r, c);
+        afterGridMutation();
       });
 
       cell.addEventListener("pointerenter", () => {
         if (!state.drawActive) return;
+        if (state.grid[r][c] === state.drawValue) return;
         state.grid[r][c] = state.drawValue;
-        renderGrid();
+        renderGridCell(r, c);
+        afterGridMutation();
       });
 
       ui.pixelGrid.appendChild(cell);
@@ -659,7 +674,8 @@ export function createGrid() {
 
     if (state.grid[r][c] !== state.drawValue) {
       state.grid[r][c] = state.drawValue;
-      renderGrid();
+      renderGridCell(r, c);
+      afterGridMutation();
     }
   });
 
@@ -676,14 +692,24 @@ export function createGrid() {
   renderGrid();
 }
 
-export function renderGrid() {
-  ui.pixelGrid.querySelectorAll(".px").forEach((cell) => {
-    const r = Number(cell.dataset.r);
-    const c = Number(cell.dataset.c);
-    cell.classList.toggle("on", state.grid[r][c]);
-  });
+function renderGridCell(r, c) {
+  const cell = drawCells[r][c];
+  if (!cell) return;
+  cell.classList.toggle("on", state.grid[r][c]);
+}
+
+function afterGridMutation() {
   updateSendImageButtonState();
   hooks.scheduleLivePreview();
+}
+
+export function renderGrid() {
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      renderGridCell(r, c);
+    }
+  }
+  afterGridMutation();
 }
 
 function rotateCCW() {
