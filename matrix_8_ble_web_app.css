@@ -776,6 +776,7 @@
     .text-card-message input {
       font-weight: 700;
       letter-spacing: 0.01em;
+      text-transform: none;
     }
 
     .text-preview-shell {

@@ -109,8 +109,17 @@
       <section id="tab-text" class="panel" hidden>
         <div class="text-studio">
           <div class="text-card text-card-message">
-            <label for="textInput">Mesaj</label>
-            <input id="textInput" type="text" maxlength="120" placeholder="Merhaba dunya" />
+            <input
+              id="textInput"
+              type="text"
+              maxlength="120"
+              placeholder="Menti girin..."
+              aria-label="Mesaj"
+              autocapitalize="off"
+              autocomplete="off"
+              autocorrect="off"
+              spellcheck="false"
+            />
           </div>
 
           <div class="text-card text-preview-shell">
@@ -122,9 +131,6 @@
               <button id="dirRightBtn" class="chip-toggle text-dir-btn text-dir-side" aria-label="Sağa">
                 <svg viewBox="0 0 24 24"><path d="m10 17 5-5-5-5v10z"/></svg>
               </button>
-            </div>
-            <div id="textPreviewHint" class="text-preview-hint">
-              Mesaj yazınca akış burada görünecek.
             </div>
           </div>
 

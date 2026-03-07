@@ -79,7 +79,6 @@ export const ui = {
   textBrightnessInput: document.getElementById("textBrightnessInput"),
   textBrightnessVal: document.getElementById("textBrightnessVal"),
   textPreviewGrid: document.getElementById("textPreviewGrid"),
-  textPreviewHint: document.getElementById("textPreviewHint"),
   dirLeftBtn: document.getElementById("dirLeftBtn"),
   dirRightBtn: document.getElementById("dirRightBtn"),
   txtSendBtn: document.getElementById("txtSendBtn"),

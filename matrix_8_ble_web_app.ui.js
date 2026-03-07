@@ -274,7 +274,6 @@ function refreshTextPreview(actions) {
   const txt = ui.textInput.value.trim();
   if (!txt) {
     stopTextPreview(true);
-    if (ui.textPreviewHint) ui.textPreviewHint.textContent = "Mesaj yazınca akış burada görünecek.";
     return;
   }
 
@@ -286,7 +285,6 @@ function refreshTextPreview(actions) {
 
   if (!textPreviewFrames.length) {
     stopTextPreview(true);
-    if (ui.textPreviewHint) ui.textPreviewHint.textContent = "Önizleme üretilemedi.";
     return;
   }
 
@@ -296,11 +294,6 @@ function refreshTextPreview(actions) {
   }
   drawTextPreviewRows(textPreviewFrames[0].rows);
   stepTextPreview(frameMs);
-  if (ui.textPreviewHint) {
-    ui.textPreviewHint.textContent = result.truncated
-      ? `Önizleme: ilk ${MAX_FRAMES} kare`
-      : `Önizleme: ${textPreviewFrames.length} kare`;
-  }
 }
 
 function ensureAnimPreviewGrid() {
@@ -1116,14 +1109,11 @@ export function bindUi(actions) {
 }
 
 export function loadStarterFrames() {
-  state.frames = [
-    { rows: [0x00, 0x66, 0xff, 0xff, 0x7e, 0x3c, 0x18, 0x00], duration: 180, brightness: 8 },
-    { rows: [0x66, 0xff, 0xff, 0xff, 0xff, 0x7e, 0x3c, 0x18], duration: 180, brightness: 9 },
-  ];
-  state.selectedFrame = 0;
-  rowsToGrid(state.frames[0].rows);
-  if (ui.frameDurationInput) ui.frameDurationInput.value = String(state.frames[0].duration);
-  if (ui.frameBrightnessInput) ui.frameBrightnessInput.value = String(state.frames[0].brightness);
+  state.frames = [];
+  state.selectedFrame = -1;
+  rowsToGrid(emptyRows8());
+  if (ui.frameDurationInput) ui.frameDurationInput.value = "150";
+  if (ui.frameBrightnessInput) ui.frameBrightnessInput.value = "8";
   state.animationDirty = true;
   hooks.renderFrames();
   refreshAnimPreview();
