@@ -1001,16 +1001,14 @@ export function bindUi(actions) {
       if (!txt) return alert("Mesaj yaz.");
       const frameMs = textLettersPerSecToFrameMs();
       const textBrightness = clamp(ui.textBrightnessInput?.value, 0, 15, 8);
-      const result = actions.buildTextScrollFrames(txt, frameMs, state.textDirection === "right", false, textBrightness);
-      if (!result.frames.length) throw new Error("Yazı karesi üretilemedi.");
-      if (result.truncated) {
-        alert(`Mesaj uzun olduğu için ilk ${MAX_FRAMES} kare gönderildi.`);
-        log(`Yazı kareleri ${MAX_FRAMES} ile sınırlandı.`);
-      }
-      await actions.uploadFrameSet(result.frames, 1);
-      await actions.sendTextAck("PLAY:ANIM", "OK:PLAY_ANIM");
+      await actions.sendTextAck(`BRT:${textBrightness}`, "OK:BRT");
+      const command = state.textDirection === "right"
+        ? `TXT_R:${frameMs},${txt}`
+        : `TXT:${frameMs},${txt}`;
+      const okPrefix = state.textDirection === "right" ? "OK:TXT_R" : "OK:TXT";
+      await actions.sendTextAck(command, okPrefix, 4200);
       markCurrentTextAsSent();
-      log("Yazı yatay akışta oynatıldı.");
+      log("Yazı doğrudan cihazda oynatıldı.");
     } catch (err) {
       log(`Yazı hatası: ${err.message}`);
     }
