@@ -98,7 +98,7 @@ function rotateRowsCCW(rows) {
   return out;
 }
 
-export function buildTextScrollFrames(rawText, speedMs, scrollRight, rotate90) {
+export function buildTextScrollFrames(rawText, speedMs, scrollRight, rotate90, brightnessOverride = null) {
   const text = normalizeTextForFont(rawText);
   const columns = [0, 0, 0, 0, 0, 0, 0, 0];
   for (const ch of text) {
@@ -107,7 +107,7 @@ export function buildTextScrollFrames(rawText, speedMs, scrollRight, rotate90) {
   }
   columns.push(0, 0, 0, 0, 0, 0, 0, 0);
 
-  const brightness = clamp(ui.brightnessRange.value, 0, 15, 8);
+  const brightness = clamp(brightnessOverride ?? ui.brightnessRange.value, 0, 15, 8);
   const framesOut = [];
   for (let i = 0; i <= columns.length - 8; i++) {
     let rows = columnsToRows(columns.slice(i, i + 8));

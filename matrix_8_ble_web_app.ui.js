@@ -28,9 +28,161 @@ let textPreviewFrames = [];
 let textPreviewIndex = 0;
 let animPreviewTimer = null;
 let animPreviewIndex = 0;
+const addFrameEditorState = {
+  grid: Array.from({ length: 8 }, () => Array(8).fill(false)),
+  drawActive: false,
+  drawValue: true,
+  lastPaintedKey: "",
+  open: false,
+};
 
 function emptyRows8() {
   return Array(8).fill(0);
+}
+
+function rowsToAddFrameEditor(rows) {
+  for (let r = 0; r < 8; r++) {
+    const row = rows[r] || 0;
+    for (let c = 0; c < 8; c++) {
+      addFrameEditorState.grid[r][c] = ((row >> (7 - c)) & 1) === 1;
+    }
+  }
+}
+
+function addFrameEditorToRows() {
+  const rows = [];
+  for (let r = 0; r < 8; r++) {
+    let row = 0;
+    for (let c = 0; c < 8; c++) {
+      if (addFrameEditorState.grid[r][c]) row |= (1 << (7 - c));
+    }
+    rows.push(row);
+  }
+  return rows;
+}
+
+function renderAddFrameEditorGrid() {
+  if (!ui.addFrameGrid) return;
+  ui.addFrameGrid.querySelectorAll(".px").forEach((cell) => {
+    const r = Number(cell.dataset.r);
+    const c = Number(cell.dataset.c);
+    cell.classList.toggle("on", addFrameEditorState.grid[r][c]);
+  });
+}
+
+function createAddFrameEditorGrid() {
+  if (!ui.addFrameGrid) return;
+  if (ui.addFrameGrid.childElementCount === 64) return;
+
+  ui.addFrameGrid.innerHTML = "";
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      const cell = document.createElement("button");
+      cell.type = "button";
+      cell.className = "px";
+      cell.dataset.r = String(r);
+      cell.dataset.c = String(c);
+
+      cell.addEventListener("pointerdown", (ev) => {
+        ev.preventDefault();
+        addFrameEditorState.drawActive = true;
+        addFrameEditorState.drawValue = !addFrameEditorState.grid[r][c];
+        addFrameEditorState.grid[r][c] = addFrameEditorState.drawValue;
+        addFrameEditorState.lastPaintedKey = `${r},${c}`;
+        ui.addFrameGrid.setPointerCapture?.(ev.pointerId);
+        renderAddFrameEditorGrid();
+      });
+
+      cell.addEventListener("pointerenter", () => {
+        if (!addFrameEditorState.drawActive) return;
+        addFrameEditorState.grid[r][c] = addFrameEditorState.drawValue;
+        renderAddFrameEditorGrid();
+      });
+
+      ui.addFrameGrid.appendChild(cell);
+    }
+  }
+
+  ui.addFrameGrid.addEventListener("pointermove", (ev) => {
+    if (!addFrameEditorState.drawActive) return;
+    const target = document.elementFromPoint(ev.clientX, ev.clientY);
+    if (!(target instanceof HTMLElement) || !target.classList.contains("px")) return;
+
+    const r = Number(target.dataset.r);
+    const c = Number(target.dataset.c);
+    if (!Number.isInteger(r) || !Number.isInteger(c)) return;
+
+    const key = `${r},${c}`;
+    if (key === addFrameEditorState.lastPaintedKey) return;
+    addFrameEditorState.lastPaintedKey = key;
+
+    if (addFrameEditorState.grid[r][c] !== addFrameEditorState.drawValue) {
+      addFrameEditorState.grid[r][c] = addFrameEditorState.drawValue;
+      renderAddFrameEditorGrid();
+    }
+  });
+
+  ui.addFrameGrid.addEventListener("pointerup", () => {
+    addFrameEditorState.drawActive = false;
+    addFrameEditorState.lastPaintedKey = "";
+  });
+
+  ui.addFrameGrid.addEventListener("pointercancel", () => {
+    addFrameEditorState.drawActive = false;
+    addFrameEditorState.lastPaintedKey = "";
+  });
+
+  window.addEventListener("pointerup", () => {
+    addFrameEditorState.drawActive = false;
+    addFrameEditorState.lastPaintedKey = "";
+  });
+}
+
+function closeAddFrameEditor() {
+  if (!ui.addFrameModal) return;
+  ui.addFrameModal.hidden = true;
+  document.body.classList.remove("modal-open");
+  addFrameEditorState.drawActive = false;
+  addFrameEditorState.lastPaintedKey = "";
+  addFrameEditorState.open = false;
+}
+
+function openAddFrameEditor() {
+  if (!ui.addFrameModal || !ui.addFrameGrid) return;
+  if (state.frames.length >= MAX_FRAMES) {
+    alert(`Maksimum ${MAX_FRAMES} kare.`);
+    return;
+  }
+
+  createAddFrameEditorGrid();
+  rowsToAddFrameEditor(gridToRows());
+  renderAddFrameEditorGrid();
+
+  if (ui.addFrameDurationInput) {
+    ui.addFrameDurationInput.value = String(clamp(ui.frameDurationInput.value, 40, 1200, 150));
+  }
+  if (ui.addFrameBrightnessInput) {
+    ui.addFrameBrightnessInput.value = String(clamp(ui.frameBrightnessInput.value, 0, 15, 8));
+  }
+  updateAddFrameEditorSliderMeta();
+
+  ui.addFrameModal.hidden = false;
+  document.body.classList.add("modal-open");
+  addFrameEditorState.open = true;
+  ui.addFrameDurationInput?.focus();
+}
+
+function updateAddFrameEditorSliderMeta() {
+  if (ui.addFrameDurationInput && ui.addFrameDurationVal) {
+    const duration = clamp(ui.addFrameDurationInput.value, 40, 1200, 150);
+    ui.addFrameDurationInput.value = String(duration);
+    ui.addFrameDurationVal.textContent = `${duration} ms`;
+  }
+  if (ui.addFrameBrightnessInput && ui.addFrameBrightnessVal) {
+    const brightness = clamp(ui.addFrameBrightnessInput.value, 0, 15, 8);
+    ui.addFrameBrightnessInput.value = String(brightness);
+    ui.addFrameBrightnessVal.textContent = String(brightness);
+  }
 }
 
 function ensureTextPreviewGrid() {
@@ -86,7 +238,8 @@ function refreshTextPreview(actions) {
   }
 
   const frameMs = textLettersPerSecToFrameMs();
-  const result = actions.buildTextScrollFrames(txt, frameMs, state.textDirection === "right", false);
+  const textBrightness = clamp(ui.textBrightnessInput?.value, 0, 15, 8);
+  const result = actions.buildTextScrollFrames(txt, frameMs, state.textDirection === "right", false, textBrightness);
   textPreviewFrames = result.frames;
   textPreviewIndex = 0;
 
@@ -225,18 +378,17 @@ export function setActiveTab(name) {
   if (name !== "anim") stopAnimPreview(false);
 }
 
-function scheduleBrightnessFloatHide(delayMs = 650) {
-  if (state.brightnessFloatHideTimer) clearTimeout(state.brightnessFloatHideTimer);
-  state.brightnessFloatHideTimer = window.setTimeout(() => {
-    ui.brightnessFloatVal.classList.remove("show");
-    ui.brightnessFloatVal.hidden = true;
-  }, delayMs);
-}
-
 function updateTextSpeedUi() {
   if (!ui.textSpeedInput || !ui.textSpeedVal) return;
   const lettersPerSec = textLettersPerSec();
   ui.textSpeedVal.textContent = `${lettersPerSec.toFixed(1)} harf/s`;
+}
+
+function updateTextBrightnessUi() {
+  if (!ui.textBrightnessInput || !ui.textBrightnessVal) return;
+  const value = clamp(ui.textBrightnessInput.value, 0, 15, 8);
+  ui.textBrightnessInput.value = String(value);
+  ui.textBrightnessVal.textContent = String(value);
 }
 
 function textLettersPerSec() {
@@ -253,23 +405,53 @@ function textLettersPerSecToFrameMs() {
   return clamp(ms, 30, 2000, 90);
 }
 
-export function updateBrightnessUi(showFloat = false) {
+export function updateBrightnessUi() {
   const min = Number(ui.brightnessRange.min || 0);
   const max = Number(ui.brightnessRange.max || 15);
   const value = clamp(ui.brightnessRange.value, min, max, 8);
-  const percent = max > min ? (value - min) / (max - min) : 0;
-  const thumb = 22;
-  const usable = Math.max(0, ui.brightnessRange.clientWidth - thumb);
-  const x = (thumb / 2) + (usable * percent);
-
   ui.brightnessFloatVal.textContent = String(value);
-  ui.brightnessFloatVal.style.left = `${x}px`;
+  updateSendImageButtonState();
+}
 
-  if (showFloat) {
-    ui.brightnessFloatVal.hidden = false;
-    ui.brightnessFloatVal.classList.add("show");
-    scheduleBrightnessFloatHide();
-  }
+function currentDrawSendSignature() {
+  const rows = gridToRows();
+  const brightness = clamp(ui.brightnessRange.value, 0, 15, 8);
+  return `${rowsSignature(rows)}|${brightness}`;
+}
+
+function currentTextSendSignature() {
+  const text = ui.textInput?.value?.trim() || "";
+  if (!text) return "";
+  const speedRaw = clamp(ui.textSpeedInput?.value, 5, 600, 90);
+  const brightness = clamp(ui.textBrightnessInput?.value, 0, 15, 8);
+  return `${text}|${speedRaw}|${brightness}|${state.textDirection}`;
+}
+
+function updateSendImageButtonState() {
+  if (!ui.sendImgBtn) return;
+  const pending = currentDrawSendSignature() !== state.lastSentDrawSignature;
+  ui.sendImgBtn.classList.toggle("pending-soft", pending);
+}
+
+function markCurrentDrawAsSent() {
+  state.lastSentDrawSignature = currentDrawSendSignature();
+  updateSendImageButtonState();
+}
+
+export function initSendImageButtonState() {
+  markCurrentDrawAsSent();
+}
+
+function updateTextSendButtonState() {
+  if (!ui.txtSendBtn) return;
+  const signature = currentTextSendSignature();
+  const pending = Boolean(signature) && signature !== state.lastSentTextSignature;
+  ui.txtSendBtn.classList.toggle("pending-soft", pending);
+}
+
+function markCurrentTextAsSent() {
+  state.lastSentTextSignature = currentTextSendSignature();
+  updateTextSendButtonState();
 }
 
 function scheduleAutoBrightnessSet(actions, immediate = false) {
@@ -440,6 +622,7 @@ export function renderGrid() {
     const c = Number(cell.dataset.c);
     cell.classList.toggle("on", state.grid[r][c]);
   });
+  updateSendImageButtonState();
   hooks.scheduleLivePreview();
 }
 
@@ -542,6 +725,7 @@ export function bindUi(actions) {
           }
         }
         await actions.sendImage(PKT_IMG, "OK:IMG_BIN");
+        markCurrentDrawAsSent();
       } catch (err) {
         log(`Göster hatası: ${err.message}`);
       }
@@ -550,30 +734,79 @@ export function bindUi(actions) {
 
   if (ui.addFrameBtn) {
     ui.addFrameBtn.addEventListener("click", () => {
+      openAddFrameEditor();
+    });
+  }
+
+  if (ui.addFrameModal) {
+    ui.addFrameModal.addEventListener("click", (ev) => {
+      if (ev.target === ui.addFrameModal) {
+        closeAddFrameEditor();
+      }
+    });
+  }
+
+  if (ui.addFrameCancelBtn) {
+    ui.addFrameCancelBtn.addEventListener("click", () => {
+      closeAddFrameEditor();
+    });
+  }
+
+  if (ui.addFrameSaveBtn) {
+    ui.addFrameSaveBtn.addEventListener("click", () => {
       if (state.frames.length >= MAX_FRAMES) {
         alert(`Maksimum ${MAX_FRAMES} kare.`);
         return;
       }
-      state.frames.push(actions.currentDraftFrame());
+      const frame = {
+        rows: addFrameEditorToRows(),
+        duration: clamp(ui.addFrameDurationInput?.value, 1, 65535, 150),
+        brightness: clamp(ui.addFrameBrightnessInput?.value, 0, 15, 8),
+      };
+      state.frames.push(frame);
       state.selectedFrame = state.frames.length - 1;
       actions.markAnimationDirty();
       hooks.renderFrames();
       refreshAnimPreview();
+      rowsToGrid(frame.rows);
+      ui.frameDurationInput.value = String(frame.duration);
+      ui.frameBrightnessInput.value = String(frame.brightness);
+      closeAddFrameEditor();
       log(`Kare eklendi (#${state.frames.length}).`);
     });
   }
 
-  ui.updateFrameBtn.addEventListener("click", () => {
-    if (state.selectedFrame < 0 || !state.frames[state.selectedFrame]) {
-      alert("Önce bir kare sec.");
-      return;
-    }
-    state.frames[state.selectedFrame] = actions.currentDraftFrame();
-    actions.markAnimationDirty();
-    hooks.renderFrames();
-    refreshAnimPreview();
-    log(`Kare guncellendi (#${state.selectedFrame + 1}).`);
+  if (ui.addFrameDurationInput) {
+    ui.addFrameDurationInput.addEventListener("input", () => {
+      updateAddFrameEditorSliderMeta();
+    });
+  }
+
+  if (ui.addFrameBrightnessInput) {
+    ui.addFrameBrightnessInput.addEventListener("input", () => {
+      updateAddFrameEditorSliderMeta();
+    });
+  }
+
+  window.addEventListener("keydown", (ev) => {
+    if (ev.key !== "Escape" || !addFrameEditorState.open) return;
+    ev.preventDefault();
+    closeAddFrameEditor();
   });
+
+  if (ui.updateFrameBtn) {
+    ui.updateFrameBtn.addEventListener("click", () => {
+      if (state.selectedFrame < 0 || !state.frames[state.selectedFrame]) {
+        alert("Önce bir kare sec.");
+        return;
+      }
+      state.frames[state.selectedFrame] = actions.currentDraftFrame();
+      actions.markAnimationDirty();
+      hooks.renderFrames();
+      refreshAnimPreview();
+      log(`Kare guncellendi (#${state.selectedFrame + 1}).`);
+    });
+  }
 
   ui.deleteFrameBtn.addEventListener("click", () => {
     if (state.selectedFrame < 0) return;
@@ -604,23 +837,16 @@ export function bindUi(actions) {
   });
 
   ui.brightnessRange.addEventListener("input", () => {
-    updateBrightnessUi(true);
+    updateBrightnessUi();
     ui.frameBrightnessInput.value = ui.brightnessRange.value;
     scheduleAutoBrightnessSet(actions, false);
   });
 
-  ui.brightnessRange.addEventListener("pointerdown", () => {
-    updateBrightnessUi(true);
-  });
   ui.brightnessRange.addEventListener("change", () => {
-    scheduleBrightnessFloatHide(250);
     scheduleAutoBrightnessSet(actions, true);
   });
-  ui.brightnessRange.addEventListener("blur", () => {
-    scheduleBrightnessFloatHide(120);
-  });
 
-  window.addEventListener("resize", () => updateBrightnessUi(false));
+  window.addEventListener("resize", () => updateBrightnessUi());
 
   ui.themeBtn.addEventListener("click", () => {
     cycleTheme();
@@ -631,6 +857,7 @@ export function bindUi(actions) {
     ui.dirLeftBtn.classList.add("active");
     ui.dirRightBtn.classList.remove("active");
     refreshTextPreview(actions);
+    updateTextSendButtonState();
   });
 
   ui.dirRightBtn.addEventListener("click", () => {
@@ -638,23 +865,35 @@ export function bindUi(actions) {
     ui.dirRightBtn.classList.add("active");
     ui.dirLeftBtn.classList.remove("active");
     refreshTextPreview(actions);
+    updateTextSendButtonState();
   });
 
   ui.textInput.addEventListener("input", () => {
     refreshTextPreview(actions);
+    updateTextSendButtonState();
   });
 
   ui.textSpeedInput.addEventListener("input", () => {
     updateTextSpeedUi();
     refreshTextPreview(actions);
+    updateTextSendButtonState();
   });
+
+  if (ui.textBrightnessInput) {
+    ui.textBrightnessInput.addEventListener("input", () => {
+      updateTextBrightnessUi();
+      refreshTextPreview(actions);
+      updateTextSendButtonState();
+    });
+  }
 
   ui.txtSendBtn.addEventListener("click", async () => {
     try {
       const txt = ui.textInput.value.trim();
       if (!txt) return alert("Mesaj yaz.");
       const frameMs = textLettersPerSecToFrameMs();
-      const result = actions.buildTextScrollFrames(txt, frameMs, state.textDirection === "right", false);
+      const textBrightness = clamp(ui.textBrightnessInput?.value, 0, 15, 8);
+      const result = actions.buildTextScrollFrames(txt, frameMs, state.textDirection === "right", false, textBrightness);
       if (!result.frames.length) throw new Error("Yazı karesi üretilemedi.");
       if (result.truncated) {
         alert(`Mesaj uzun olduğu için ilk ${MAX_FRAMES} kare gönderildi.`);
@@ -662,6 +901,7 @@ export function bindUi(actions) {
       }
       await actions.uploadFrameSet(result.frames, 1);
       await actions.sendTextAck("PLAY:ANIM", "OK:PLAY_ANIM");
+      markCurrentTextAsSent();
       log("Yazı yatay akışta oynatıldı.");
     } catch (err) {
       log(`Yazı hatası: ${err.message}`);
@@ -744,6 +984,8 @@ export function bindUi(actions) {
   refreshTextPreview(actions);
   refreshAnimPreview();
   updateTextSpeedUi();
+  updateTextBrightnessUi();
+  updateTextSendButtonState();
 }
 
 export function loadStarterFrames() {

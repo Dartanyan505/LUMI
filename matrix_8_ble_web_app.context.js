@@ -39,6 +39,8 @@ export const state = {
 
   animationDirty: true,
   lastUploadedSignature: "",
+  lastSentDrawSignature: "",
+  lastSentTextSignature: "",
   brightnessFloatHideTimer: null,
   currentTheme: "rose",
 
@@ -74,6 +76,8 @@ export const ui = {
   textInput: document.getElementById("textInput"),
   textSpeedInput: document.getElementById("textSpeedInput"),
   textSpeedVal: document.getElementById("textSpeedVal"),
+  textBrightnessInput: document.getElementById("textBrightnessInput"),
+  textBrightnessVal: document.getElementById("textBrightnessVal"),
   textPreviewGrid: document.getElementById("textPreviewGrid"),
   textPreviewHint: document.getElementById("textPreviewHint"),
   dirLeftBtn: document.getElementById("dirLeftBtn"),
@@ -95,6 +99,14 @@ export const ui = {
   frames: document.getElementById("frames"),
   animPreviewGrid: document.getElementById("animPreviewGrid"),
   animPreviewHint: document.getElementById("animPreviewHint"),
+  addFrameModal: document.getElementById("addFrameModal"),
+  addFrameGrid: document.getElementById("addFrameGrid"),
+  addFrameDurationInput: document.getElementById("addFrameDurationInput"),
+  addFrameDurationVal: document.getElementById("addFrameDurationVal"),
+  addFrameBrightnessInput: document.getElementById("addFrameBrightnessInput"),
+  addFrameBrightnessVal: document.getElementById("addFrameBrightnessVal"),
+  addFrameCancelBtn: document.getElementById("addFrameCancelBtn"),
+  addFrameSaveBtn: document.getElementById("addFrameSaveBtn"),
 
   pingBtn: document.getElementById("pingBtn"),
   statusBtn: document.getElementById("statusBtn"),

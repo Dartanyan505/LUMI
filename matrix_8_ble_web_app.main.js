@@ -14,6 +14,7 @@ import { buildTextScrollFrames } from "./matrix_8_ble_web_app.text.js";
 import {
   bindUi,
   createGrid,
+  initSendImageButtonState,
   initTheme,
   loadStarterFrames,
   resetBrightnessSyncState,
@@ -45,5 +46,6 @@ initTheme();
 ui.dirLeftBtn.classList.add("active");
 loadStarterFrames();
 updateBrightnessUi();
+initSendImageButtonState();
 setActiveTab("draw");
 log("Hazır. LUMI'den selam.");

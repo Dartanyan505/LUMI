@@ -677,6 +677,13 @@
       color: var(--tool-active-text);
     }
 
+    .tool-btn.pending-soft {
+      background: var(--tool-active-a);
+      border-color: var(--tool-active-border);
+      color: var(--tool-active-text);
+      box-shadow: none;
+    }
+
     .tool-btn.warn {
       background: var(--warn-bg);
       border-color: var(--warn-border);
@@ -842,19 +849,25 @@
       min-height: 48px;
       min-width: 180px;
       padding: 0 16px;
-      border: 0;
+      border: 1px solid var(--tool-border);
       border-radius: 14px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
-      background: linear-gradient(135deg, var(--brand), var(--brand-2));
-      color: #fff;
-      box-shadow: var(--button-shadow);
+      background: var(--tool-bg);
+      color: var(--tool-text);
+      box-shadow: none;
       font-size: 0.82rem;
       font-weight: 800;
       letter-spacing: 0.02em;
       text-transform: uppercase;
+    }
+
+    .text-send-btn.pending-soft {
+      background: var(--tool-active-a);
+      border-color: var(--tool-active-border);
+      color: var(--tool-active-text);
     }
 
     .text-send-btn svg {
@@ -1120,6 +1133,73 @@
       text-align: center;
       font-size: 0.73rem;
       color: var(--muted);
+    }
+
+    body.modal-open {
+      overflow: hidden;
+    }
+
+    .frame-editor-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(34, 24, 30, 0.5);
+      display: grid;
+      place-items: center;
+      padding: 16px;
+      z-index: 60;
+      backdrop-filter: blur(2px);
+      -webkit-backdrop-filter: blur(2px);
+    }
+
+    .frame-editor-modal[hidden] {
+      display: none;
+    }
+
+    .frame-editor-card {
+      width: min(440px, 100%);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: linear-gradient(180deg, var(--panel) 0%, var(--panel-end) 100%);
+      box-shadow: var(--shadow);
+      padding: 12px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .frame-editor-title {
+      margin: 0;
+      font-size: 0.95rem;
+      letter-spacing: 0.01em;
+      color: var(--title);
+      text-align: center;
+    }
+
+    .frame-editor-grid {
+      max-width: 320px;
+      margin: 0 auto;
+    }
+
+    .frame-editor-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .frame-editor-actions .secondary {
+      min-height: 42px;
+      padding: 0 14px;
+    }
+
+    .frame-editor-actions .tool-btn {
+      min-height: 42px;
+      min-width: 132px;
+      padding: 0 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 0.74rem;
     }
 
     .pill {
