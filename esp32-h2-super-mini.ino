@@ -157,10 +157,12 @@ void startText(const char* txt, uint16_t speedMs, bool scrollRight) {
 
   display.displayClear();
 
+  // Panel fiziksel yönünden dolayı Parola'nın yatay yönleri görselde dikey akar.
+  // Sağ/sol görsel akışı için scroll efektini UP/DOWN'a remap ediyoruz.
   if (scrollRight) {
-    display.displayScroll(textBuffer, PA_RIGHT, PA_SCROLL_RIGHT, speedMs);
+    display.displayScroll(textBuffer, PA_RIGHT, PA_SCROLL_DOWN, speedMs);
   } else {
-    display.displayScroll(textBuffer, PA_LEFT, PA_SCROLL_LEFT, speedMs);
+    display.displayScroll(textBuffer, PA_LEFT, PA_SCROLL_UP, speedMs);
   }
 }
 
