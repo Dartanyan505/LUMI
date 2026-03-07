@@ -17,6 +17,7 @@ import {
   initSendImageButtonState,
   initTheme,
   loadStarterFrames,
+  resetAnimToggleState,
   resetBrightnessSyncState,
   setActiveTab,
   setUiHooks,
@@ -27,6 +28,7 @@ setUiHooks({ scheduleLivePreview, renderFrames });
 setOnDisconnectedCleanup(() => {
   setLivePreview(false);
   resetBrightnessSyncState();
+  resetAnimToggleState();
 });
 
 createGrid();

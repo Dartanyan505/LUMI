@@ -176,16 +176,6 @@
 
       <section id="tab-anim" class="panel" hidden>
         <div class="row">
-          <div class="field" style="flex:1 1 110px;">
-            <label for="frameDurationInput">Süre</label>
-            <input id="frameDurationInput" type="number" min="1" max="65535" value="150" />
-          </div>
-          <div class="field" style="flex:1 1 110px;">
-            <label for="frameBrightnessInput">Parlaklık</label>
-            <input id="frameBrightnessInput" type="number" min="0" max="15" value="8" />
-          </div>
-        </div>
-        <div class="row">
           <div class="field" style="flex:1 1 100px;">
             <label for="loopSelect">Loop</label>
             <select id="loopSelect">
@@ -213,22 +203,6 @@
             <svg viewBox="0 0 24 24"><path d="M11 4h2v7h7v2h-7v7h-2v-7H4v-2h7z"/></svg>
             <span>Yeni Kare Ekle</span>
           </button>
-        </div>
-
-        <div class="row" style="margin-top:10px;">
-          <button id="playAnimBtn" class="icon-btn" title="Play" aria-label="Play">
-            <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-          </button>
-          <button id="aniPauseBtn" class="icon-btn" title="Pause" aria-label="Pause">
-            <svg viewBox="0 0 24 24"><path d="M7 5h4v14H7zm6 0h4v14h-4z"/></svg>
-          </button>
-          <button id="aniResumeBtn" class="icon-btn" title="Resume" aria-label="Resume">
-            <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-          </button>
-          <button id="aniStopBtn" class="icon-btn" title="Stop" aria-label="Stop">
-            <svg viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></svg>
-          </button>
-          <span class="small">Play: değişim varsa otomatik yükler.</span>
         </div>
 
         <div id="frameInfo" class="small" style="margin-top:10px;">0 kare</div>
@@ -269,10 +243,35 @@
     </div>
   </main>
 
+  <button id="animToggleBtn" class="anim-fab" type="button" hidden>
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path id="animToggleIcon" d="M8 5v14l11-7z"></path>
+    </svg>
+    <span id="animToggleLabel">Oynat</span>
+  </button>
+
   <div id="addFrameModal" class="frame-editor-modal" hidden>
     <div class="frame-editor-card" role="dialog" aria-modal="true" aria-labelledby="addFrameTitle">
       <h2 id="addFrameTitle" class="frame-editor-title">Yeni Kare Ekle</h2>
       <div id="addFrameGrid" class="pixel-grid frame-editor-grid" aria-label="8x8 kare editörü"></div>
+      <div class="quick-grid">
+        <button id="addFrameClearBtn" class="tool-btn" type="button">
+          <svg viewBox="0 0 24 24"><path d="M6 7h12l-1 14H7zm3-4h6l1 2H8z"/></svg>
+          <span>Temizle</span>
+        </button>
+        <button id="addFrameFillBtn" class="tool-btn" type="button">
+          <svg viewBox="0 0 24 24"><path d="M7 3h10v18H7z"/></svg>
+          <span>Doldur</span>
+        </button>
+        <button id="addFrameInvertBtn" class="tool-btn" type="button">
+          <svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18V3z"/></svg>
+          <span>Tersle</span>
+        </button>
+        <button id="addFrameRotateBtn" class="tool-btn" type="button">
+          <svg viewBox="0 0 24 24"><path d="M12 4V1L7 6l5 5V7a5 5 0 1 1-5 5H5a7 7 0 1 0 7-8z"/></svg>
+          <span>Döndür</span>
+        </button>
+      </div>
       <div class="stack">
         <div class="field brightness-shell">
           <div class="text-speed-head">

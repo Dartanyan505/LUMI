@@ -639,6 +639,50 @@
       fill: currentColor;
     }
 
+    .anim-fab {
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: calc(76px + env(safe-area-inset-bottom));
+      min-height: 48px;
+      min-width: 170px;
+      padding: 0 18px;
+      border-radius: 999px;
+      border: 1px solid var(--tool-border);
+      background: var(--tool-bg);
+      color: var(--tool-text);
+      box-shadow: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      z-index: 35;
+    }
+
+    .anim-fab[hidden] {
+      display: none;
+    }
+
+    .anim-fab svg {
+      width: 18px;
+      height: 18px;
+      fill: currentColor;
+    }
+
+    .anim-fab:hover {
+      transform: translateX(-50%) translateY(-1px);
+    }
+
+    .anim-fab:active {
+      transform: translateX(-50%);
+    }
+
+    .anim-fab.pending-soft {
+      background: var(--tool-active-a);
+      border-color: var(--tool-active-border);
+      color: var(--tool-active-text);
+    }
+
     .quick-grid {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1066,6 +1110,7 @@
       background: linear-gradient(180deg, var(--frame-bg-a) 0%, var(--frame-bg-b) 100%);
       border-radius: 12px;
       padding: 8px;
+      position: relative;
       cursor: pointer;
       transition: transform 110ms ease, border-color 110ms ease;
     }
@@ -1077,6 +1122,29 @@
     .frame.active {
       border-color: var(--frame-active);
       box-shadow: inset 0 0 0 1px var(--frame-active);
+    }
+
+    .frame-edit-btn {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      width: 24px;
+      height: 24px;
+      border-radius: 8px;
+      border: 1px solid var(--tool-border);
+      background: var(--tool-bg);
+      color: var(--tool-text);
+      padding: 0;
+      display: grid;
+      place-items: center;
+      box-shadow: none;
+      z-index: 1;
+    }
+
+    .frame-edit-btn svg {
+      width: 12px;
+      height: 12px;
+      fill: currentColor;
     }
 
     .mini {
@@ -1261,5 +1329,9 @@
 
       .panel[data-wide="1"] {
         grid-column: 1 / -1;
+      }
+
+      .anim-fab {
+        bottom: 18px;
       }
     }

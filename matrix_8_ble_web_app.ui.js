@@ -28,12 +28,14 @@ let textPreviewFrames = [];
 let textPreviewIndex = 0;
 let animPreviewTimer = null;
 let animPreviewIndex = 0;
+let animToggleState = "idle";
 const addFrameEditorState = {
   grid: Array.from({ length: 8 }, () => Array(8).fill(false)),
   drawActive: false,
   drawValue: true,
   lastPaintedKey: "",
   open: false,
+  editIndex: -1,
 };
 
 function emptyRows8() {
@@ -59,6 +61,16 @@ function addFrameEditorToRows() {
     rows.push(row);
   }
   return rows;
+}
+
+function rotateAddFrameEditorCCW() {
+  const next = Array.from({ length: 8 }, () => Array(8).fill(false));
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      next[7 - c][r] = addFrameEditorState.grid[r][c];
+    }
+  }
+  addFrameEditorState.grid = next;
 }
 
 function renderAddFrameEditorGrid() {
@@ -144,26 +156,44 @@ function closeAddFrameEditor() {
   document.body.classList.remove("modal-open");
   addFrameEditorState.drawActive = false;
   addFrameEditorState.lastPaintedKey = "";
+  addFrameEditorState.editIndex = -1;
   addFrameEditorState.open = false;
 }
 
-function openAddFrameEditor() {
+function openAddFrameEditor(frameToEdit = null, editIndex = -1) {
   if (!ui.addFrameModal || !ui.addFrameGrid) return;
-  if (state.frames.length >= MAX_FRAMES) {
+  const isEdit = editIndex >= 0 && frameToEdit;
+  if (!isEdit && state.frames.length >= MAX_FRAMES) {
     alert(`Maksimum ${MAX_FRAMES} kare.`);
     return;
   }
 
   createAddFrameEditorGrid();
-  rowsToAddFrameEditor(gridToRows());
+  if (isEdit) {
+    rowsToAddFrameEditor(frameToEdit.rows || emptyRows8());
+  } else {
+    rowsToAddFrameEditor(gridToRows());
+  }
   renderAddFrameEditorGrid();
 
   if (ui.addFrameDurationInput) {
-    ui.addFrameDurationInput.value = String(clamp(ui.frameDurationInput.value, 40, 1200, 150));
+    const durationValue = isEdit ? frameToEdit.duration : ui.frameDurationInput?.value;
+    ui.addFrameDurationInput.value = String(clamp(durationValue, 40, 1200, 150));
   }
   if (ui.addFrameBrightnessInput) {
-    ui.addFrameBrightnessInput.value = String(clamp(ui.frameBrightnessInput.value, 0, 15, 8));
+    const brightnessValue = isEdit
+      ? frameToEdit.brightness
+      : (ui.frameBrightnessInput?.value ?? ui.brightnessRange?.value);
+    ui.addFrameBrightnessInput.value = String(clamp(brightnessValue, 0, 15, 8));
   }
+  if (ui.addFrameSaveBtn) {
+    const label = ui.addFrameSaveBtn.querySelector("span");
+    if (label) label.textContent = isEdit ? "Kareyi Güncelle" : "Kareyi Ekle";
+  }
+  if (ui.addFrameTitle) {
+    ui.addFrameTitle.textContent = isEdit ? "Kare Düzenle" : "Yeni Kare Ekle";
+  }
+  addFrameEditorState.editIndex = isEdit ? editIndex : -1;
   updateAddFrameEditorSliderMeta();
 
   ui.addFrameModal.hidden = false;
@@ -320,6 +350,7 @@ function stepAnimPreview() {
 
 function refreshAnimPreview() {
   ensureAnimPreviewGrid();
+  updateAnimToggleUi();
   if (!ui.animPreviewGrid) return;
   if (ui.tabAnim?.hidden) {
     stopAnimPreview(false);
@@ -376,6 +407,35 @@ export function setActiveTab(name) {
   });
   if (name !== "text") stopTextPreview(false);
   if (name !== "anim") stopAnimPreview(false);
+  updateAnimToggleUi();
+}
+
+function updateAnimToggleUi() {
+  if (!ui.animToggleBtn) return;
+  const onAnimTab = !ui.tabAnim?.hidden;
+  ui.animToggleBtn.hidden = !onAnimTab;
+  const pending = state.frames.length > 0 && state.animationDirty;
+  ui.animToggleBtn.classList.toggle("pending-soft", pending);
+  if (!onAnimTab) return;
+
+  if (animToggleState === "playing") {
+    ui.animToggleIcon?.setAttribute("d", "M7 5h4v14H7zm6 0h4v14h-4z");
+    if (ui.animToggleLabel) ui.animToggleLabel.textContent = "Duraklat";
+    return;
+  }
+  ui.animToggleIcon?.setAttribute("d", "M8 5v14l11-7z");
+  if (ui.animToggleLabel) {
+    ui.animToggleLabel.textContent = animToggleState === "paused" ? "Devam Et" : "Oynat";
+  }
+}
+
+function setAnimToggleState(next) {
+  animToggleState = next;
+  updateAnimToggleUi();
+}
+
+export function resetAnimToggleState() {
+  setAnimToggleState("idle");
 }
 
 function updateTextSpeedUi() {
@@ -754,7 +814,8 @@ export function bindUi(actions) {
 
   if (ui.addFrameSaveBtn) {
     ui.addFrameSaveBtn.addEventListener("click", () => {
-      if (state.frames.length >= MAX_FRAMES) {
+      const isEdit = addFrameEditorState.editIndex >= 0;
+      if (!isEdit && state.frames.length >= MAX_FRAMES) {
         alert(`Maksimum ${MAX_FRAMES} kare.`);
         return;
       }
@@ -763,16 +824,62 @@ export function bindUi(actions) {
         duration: clamp(ui.addFrameDurationInput?.value, 1, 65535, 150),
         brightness: clamp(ui.addFrameBrightnessInput?.value, 0, 15, 8),
       };
-      state.frames.push(frame);
-      state.selectedFrame = state.frames.length - 1;
+      if (isEdit && state.frames[addFrameEditorState.editIndex]) {
+        state.frames[addFrameEditorState.editIndex] = frame;
+        state.selectedFrame = addFrameEditorState.editIndex;
+      } else {
+        state.frames.push(frame);
+        state.selectedFrame = state.frames.length - 1;
+      }
       actions.markAnimationDirty();
       hooks.renderFrames();
       refreshAnimPreview();
       rowsToGrid(frame.rows);
-      ui.frameDurationInput.value = String(frame.duration);
-      ui.frameBrightnessInput.value = String(frame.brightness);
+      if (ui.frameDurationInput) ui.frameDurationInput.value = String(frame.duration);
+      if (ui.frameBrightnessInput) ui.frameBrightnessInput.value = String(frame.brightness);
+      const msg = isEdit
+        ? `Kare güncellendi (#${state.selectedFrame + 1}).`
+        : `Kare eklendi (#${state.frames.length}).`;
       closeAddFrameEditor();
-      log(`Kare eklendi (#${state.frames.length}).`);
+      log(msg);
+    });
+  }
+
+  window.addEventListener("lumi:edit-frame", (ev) => {
+    const index = Number(ev?.detail?.index);
+    if (!Number.isInteger(index) || index < 0 || index >= state.frames.length) return;
+    openAddFrameEditor(state.frames[index], index);
+  });
+
+  if (ui.addFrameClearBtn) {
+    ui.addFrameClearBtn.addEventListener("click", () => {
+      addFrameEditorState.grid = Array.from({ length: 8 }, () => Array(8).fill(false));
+      renderAddFrameEditorGrid();
+    });
+  }
+
+  if (ui.addFrameFillBtn) {
+    ui.addFrameFillBtn.addEventListener("click", () => {
+      addFrameEditorState.grid = Array.from({ length: 8 }, () => Array(8).fill(true));
+      renderAddFrameEditorGrid();
+    });
+  }
+
+  if (ui.addFrameInvertBtn) {
+    ui.addFrameInvertBtn.addEventListener("click", () => {
+      for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+          addFrameEditorState.grid[r][c] = !addFrameEditorState.grid[r][c];
+        }
+      }
+      renderAddFrameEditorGrid();
+    });
+  }
+
+  if (ui.addFrameRotateBtn) {
+    ui.addFrameRotateBtn.addEventListener("click", () => {
+      rotateAddFrameEditorCCW();
+      renderAddFrameEditorGrid();
     });
   }
 
@@ -816,8 +923,8 @@ export function bindUi(actions) {
     if (state.selectedFrame >= 0) {
       const f = state.frames[state.selectedFrame];
       rowsToGrid(f.rows);
-      ui.frameDurationInput.value = String(f.duration);
-      ui.frameBrightnessInput.value = String(f.brightness);
+      if (ui.frameDurationInput) ui.frameDurationInput.value = String(f.duration);
+      if (ui.frameBrightnessInput) ui.frameBrightnessInput.value = String(f.brightness);
     }
     hooks.renderFrames();
     refreshAnimPreview();
@@ -829,6 +936,7 @@ export function bindUi(actions) {
     actions.markAnimationDirty();
     hooks.renderFrames();
     refreshAnimPreview();
+    setAnimToggleState("idle");
   });
 
   ui.loopSelect.addEventListener("change", () => {
@@ -838,7 +946,7 @@ export function bindUi(actions) {
 
   ui.brightnessRange.addEventListener("input", () => {
     updateBrightnessUi();
-    ui.frameBrightnessInput.value = ui.brightnessRange.value;
+    if (ui.frameBrightnessInput) ui.frameBrightnessInput.value = ui.brightnessRange.value;
     scheduleAutoBrightnessSet(actions, false);
   });
 
@@ -908,37 +1016,30 @@ export function bindUi(actions) {
     }
   });
 
-  ui.playAnimBtn.addEventListener("click", async () => {
-    try {
-      await actions.smartPlayAnimation();
-    } catch (err) {
-      log(`Play hatası: ${err.message}`);
-    }
-  });
-
-  ui.aniPauseBtn.addEventListener("click", async () => {
-    try {
-      await actions.sendTextAck("ANIPAUSE", "OK:ANIPAUSE");
-    } catch (err) {
-      log(`Pause hatası: ${err.message}`);
-    }
-  });
-
-  ui.aniResumeBtn.addEventListener("click", async () => {
-    try {
-      await actions.sendTextAck("ANIRESUME", "OK:ANIRESUME");
-    } catch (err) {
-      log(`Resume hatası: ${err.message}`);
-    }
-  });
-
-  ui.aniStopBtn.addEventListener("click", async () => {
-    try {
-      await actions.sendTextAck("ANISTOP", "OK:ANISTOP");
-    } catch (err) {
-      log(`Stop anim hatası: ${err.message}`);
-    }
-  });
+  if (ui.animToggleBtn) {
+    ui.animToggleBtn.addEventListener("click", async () => {
+      try {
+        if (animToggleState === "playing") {
+          await actions.sendTextAck("ANIPAUSE", "OK:ANIPAUSE");
+          setAnimToggleState("paused");
+          return;
+        }
+        if (animToggleState === "paused") {
+          if (state.animationDirty) {
+            await actions.smartPlayAnimation();
+          } else {
+            await actions.sendTextAck("ANIRESUME", "OK:ANIRESUME");
+          }
+          setAnimToggleState("playing");
+          return;
+        }
+        await actions.smartPlayAnimation();
+        setAnimToggleState("playing");
+      } catch (err) {
+        log(`Anim kontrol hatası: ${err.message}`);
+      }
+    });
+  }
 
   ui.pingBtn.addEventListener("click", async () => {
     try {
@@ -976,6 +1077,7 @@ export function bindUi(actions) {
   ui.stopBtn.addEventListener("click", async () => {
     try {
       await actions.sendTextAck("STOP", "OK:STOP");
+      setAnimToggleState("idle");
     } catch (err) {
       log(`Stop hatası: ${err.message}`);
     }
@@ -986,6 +1088,7 @@ export function bindUi(actions) {
   updateTextSpeedUi();
   updateTextBrightnessUi();
   updateTextSendButtonState();
+  updateAnimToggleUi();
 }
 
 export function loadStarterFrames() {
@@ -995,8 +1098,8 @@ export function loadStarterFrames() {
   ];
   state.selectedFrame = 0;
   rowsToGrid(state.frames[0].rows);
-  ui.frameDurationInput.value = String(state.frames[0].duration);
-  ui.frameBrightnessInput.value = String(state.frames[0].brightness);
+  if (ui.frameDurationInput) ui.frameDurationInput.value = String(state.frames[0].duration);
+  if (ui.frameBrightnessInput) ui.frameBrightnessInput.value = String(state.frames[0].brightness);
   state.animationDirty = true;
   hooks.renderFrames();
   refreshAnimPreview();

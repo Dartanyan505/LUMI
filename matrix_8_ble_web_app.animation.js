@@ -15,10 +15,11 @@ import { gridToRows, mirrorRowsForDevice, rowsSignature, rowsToGrid } from "./ma
 import { sendBinAck, sendTextAck } from "./matrix_8_ble_web_app.ble.js";
 
 export function currentDraftFrame() {
+  const selected = state.frames[state.selectedFrame] || {};
   return {
     rows: gridToRows(),
-    duration: clamp(ui.frameDurationInput.value, 1, 65535, 150),
-    brightness: clamp(ui.frameBrightnessInput.value, 0, 15, 8),
+    duration: clamp(ui.frameDurationInput?.value ?? selected.duration, 1, 65535, 150),
+    brightness: clamp(ui.frameBrightnessInput?.value ?? selected.brightness ?? ui.brightnessRange?.value, 0, 15, 8),
   };
 }
 
@@ -81,9 +82,20 @@ export function renderFrames() {
     card.addEventListener("click", () => {
       state.selectedFrame = idx;
       rowsToGrid(frame.rows);
-      ui.frameDurationInput.value = String(frame.duration);
-      ui.frameBrightnessInput.value = String(frame.brightness);
+      if (ui.frameDurationInput) ui.frameDurationInput.value = String(frame.duration);
+      if (ui.frameBrightnessInput) ui.frameBrightnessInput.value = String(frame.brightness);
       renderFrames();
+    });
+
+    const editBtn = document.createElement("button");
+    editBtn.type = "button";
+    editBtn.className = "frame-edit-btn";
+    editBtn.title = "Kareyi düzenle";
+    editBtn.setAttribute("aria-label", "Kareyi düzenle");
+    editBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M5 19h14v2H5zM14.7 5.3l4 4L10 18H6v-4z"/></svg>';
+    editBtn.addEventListener("click", (ev) => {
+      ev.stopPropagation();
+      window.dispatchEvent(new CustomEvent("lumi:edit-frame", { detail: { index: idx } }));
     });
 
     const mini = document.createElement("div");
@@ -100,6 +112,7 @@ export function renderFrames() {
     meta.className = "small";
     meta.textContent = `#${idx + 1} ${frame.duration}ms B${frame.brightness}`;
 
+    card.appendChild(editBtn);
     card.appendChild(mini);
     card.appendChild(meta);
     ui.frames.appendChild(card);
