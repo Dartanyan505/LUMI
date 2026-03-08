@@ -1771,10 +1771,12 @@ export function bindUi(actions) {
     renderGrid(true);
   });
 
-  ui.fillGridBtn.addEventListener("click", () => {
-    for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) state.grid[r][c] = true;
-    renderGrid(true);
-  });
+  if (ui.fillGridBtn) {
+    ui.fillGridBtn.addEventListener("click", () => {
+      for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) state.grid[r][c] = true;
+      renderGrid(true);
+    });
+  }
 
   ui.invertGridBtn.addEventListener("click", () => {
     for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) state.grid[r][c] = !state.grid[r][c];
