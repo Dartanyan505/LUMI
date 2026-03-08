@@ -2,7 +2,6 @@ import {
   ANIM_PRESETS_STORAGE_KEY,
   DRAW_PRESETS_STORAGE_KEY,
   MAX_FRAMES,
-  PKT_IMG,
   THEME_STORAGE_KEY,
   THEMES,
   clamp,
@@ -59,6 +58,7 @@ let remoteDrawPresetsPromise = null;
 let remoteAnimPresetsPromise = null;
 let drawPresetEditorName = "";
 let drawPresetEditorOpen = false;
+let drawPresetEditorCreateMode = false;
 let animPresetSelectedName = "";
 let animPresetEditorName = "";
 let animPresetEditorOpen = false;
@@ -284,6 +284,7 @@ function closeDrawPresetEditor() {
   drawPresetEditorState.drawActive = false;
   drawPresetEditorState.lastPaintedKey = "";
   drawPresetEditorName = "";
+  drawPresetEditorCreateMode = false;
   drawPresetEditorOpen = false;
 }
 
@@ -404,29 +405,43 @@ function createDrawPresetEditorGrid() {
   });
 }
 
-function updateDrawPresetEditorMeta() {
-  if (!ui.drawPresetBrightnessInput || !ui.drawPresetBrightnessVal) return;
-  const brightness = clamp(ui.drawPresetBrightnessInput.value, 0, 15, 8);
-  ui.drawPresetBrightnessInput.value = String(brightness);
-  ui.drawPresetBrightnessVal.textContent = String(brightness);
-}
-
 function openDrawPresetEditor(name) {
   const preset = drawPresetList().find((item) => item.name === name);
   if (!preset || preset.source !== "local" || !ui.drawPresetModal) return;
+  drawPresetEditorCreateMode = false;
   createDrawPresetEditorGrid();
   rowsToDrawPresetEditor(preset.rows || emptyRows8());
   renderDrawPresetEditorGrid();
-  if (ui.drawPresetBrightnessInput) {
-    ui.drawPresetBrightnessInput.value = String(clamp(preset.brightness, 0, 15, 8));
-    updateDrawPresetEditorMeta();
-  }
   drawPresetEditorName = preset.name;
   drawPresetEditorOpen = true;
   if (ui.drawPresetModalTitle) ui.drawPresetModalTitle.textContent = preset.name;
+  if (ui.drawPresetModalDeleteBtn) ui.drawPresetModalDeleteBtn.hidden = false;
+  if (ui.drawPresetModalSaveBtn) {
+    const label = ui.drawPresetModalSaveBtn.querySelector("span");
+    if (label) label.textContent = "Kaydet";
+  }
   ui.drawPresetModal.hidden = false;
   document.body.classList.add("modal-open");
-  ui.drawPresetBrightnessInput?.focus();
+  ui.drawPresetModalTitle?.focus();
+}
+
+function openCreateDrawPresetEditor() {
+  if (!ui.drawPresetModal) return;
+  drawPresetEditorCreateMode = true;
+  drawPresetEditorName = "";
+  drawPresetEditorOpen = true;
+  createDrawPresetEditorGrid();
+  rowsToDrawPresetEditor(emptyRows8());
+  renderDrawPresetEditorGrid();
+  if (ui.drawPresetModalTitle) ui.drawPresetModalTitle.textContent = "Yeni Çizim";
+  if (ui.drawPresetModalDeleteBtn) ui.drawPresetModalDeleteBtn.hidden = true;
+  if (ui.drawPresetModalSaveBtn) {
+    const label = ui.drawPresetModalSaveBtn.querySelector("span");
+    if (label) label.textContent = "Oluştur";
+  }
+  ui.drawPresetModal.hidden = false;
+  document.body.classList.add("modal-open");
+  ui.drawPresetModalTitle?.focus();
 }
 
 function openAddFrameEditor(frameToEdit = null, editIndex = -1) {
@@ -746,13 +761,6 @@ export function updateBrightnessUi() {
   const max = Number(ui.brightnessRange.max || 15);
   const value = clamp(ui.brightnessRange.value, min, max, 8);
   ui.brightnessFloatVal.textContent = String(value);
-  updateSendImageButtonState();
-}
-
-function currentDrawSendSignature() {
-  const rows = gridToRows();
-  const brightness = clamp(ui.brightnessRange.value, 0, 15, 8);
-  return `${rowsSignature(rows)}|${brightness}`;
 }
 
 function currentTextSendSignature() {
@@ -763,19 +771,8 @@ function currentTextSendSignature() {
   return `${text}|${speedRaw}|${brightness}|${state.textDirection}`;
 }
 
-function updateSendImageButtonState() {
-  if (!ui.sendImgBtn) return;
-  const pending = currentDrawSendSignature() !== state.lastSentDrawSignature;
-  ui.sendImgBtn.classList.toggle("pending-soft", pending);
-}
-
-function markCurrentDrawAsSent() {
-  state.lastSentDrawSignature = currentDrawSendSignature();
-  updateSendImageButtonState();
-}
-
 export function initSendImageButtonState() {
-  markCurrentDrawAsSent();
+  // Göster butonu artık yalnızca canlı gösterim toggle durumu taşır.
 }
 
 function updateTextSendButtonState() {
@@ -901,7 +898,6 @@ function localDrawPresetList() {
     .map((item) => ({
       name: normalizePresetName(item?.name),
       rows: sanitizeRows(item?.rows),
-      brightness: clamp(item?.brightness, 0, 15, 8),
       savedAt: Number(item?.savedAt) || 0,
       source: "local",
     }))
@@ -913,7 +909,6 @@ function serverDrawPresetList() {
     .map((item) => ({
       name: normalizePresetName(item?.name),
       rows: sanitizeRows(item?.rows),
-      brightness: clamp(item?.brightness, 0, 15, 8),
       savedAt: Number(item?.savedAt) || 0,
       source: "server",
     }))
@@ -1045,37 +1040,9 @@ function loadDrawPresetByName(name) {
   const found = drawPresetList().find((item) => item.name === name);
   if (!found) return;
   rowsToGrid(found.rows);
-  if (ui.brightnessRange) {
-    ui.brightnessRange.value = String(found.brightness);
-    updateBrightnessUi();
-  }
   drawPresetSelectedName = found.name;
   renderDrawPresets();
   log(`Çizim yüklendi: ${found.name}`);
-}
-
-function saveDrawPresetFromInput() {
-  const name = normalizePresetName(ui.drawPresetNameInput?.value);
-  if (!name) {
-    alert("Çizim adı gir.");
-    ui.drawPresetNameInput?.focus();
-    return;
-  }
-
-  const payload = {
-    name,
-    rows: gridToRows(),
-    brightness: clamp(ui.brightnessRange?.value, 0, 15, 8),
-    savedAt: Date.now(),
-  };
-  const next = localDrawPresetList().filter((item) => item.name !== name);
-  next.unshift(payload);
-  writePresetStore(DRAW_PRESETS_STORAGE_KEY, next);
-
-  drawPresetSelectedName = name;
-  if (ui.drawPresetNameInput) ui.drawPresetNameInput.value = "";
-  renderDrawPresets();
-  log(`Çizim kaydedildi: ${name}`);
 }
 
 function deleteDrawPresetByName(name) {
@@ -1094,13 +1061,37 @@ function deleteDrawPresetByName(name) {
 }
 
 function saveDrawPresetEditor() {
-  if (!drawPresetEditorName) return;
   const nextName = normalizePresetName(ui.drawPresetModalTitle?.textContent);
   if (!nextName) {
     alert("Ad boş olamaz.");
     ui.drawPresetModalTitle?.focus();
     return;
   }
+
+  if (drawPresetEditorCreateMode) {
+    const exists = drawPresetList().some((item) => item.name === nextName);
+    if (exists) {
+      alert("Bu adda kayıt zaten var.");
+      ui.drawPresetModalTitle?.focus();
+      return;
+    }
+    const created = {
+      name: nextName,
+      rows: drawPresetEditorToRows(),
+      savedAt: Date.now(),
+    };
+    const next = localDrawPresetList().filter((item) => item.name !== nextName);
+    next.unshift(created);
+    writePresetStore(DRAW_PRESETS_STORAGE_KEY, next);
+    drawPresetSelectedName = created.name;
+    rowsToGrid(created.rows);
+    renderDrawPresets();
+    closeDrawPresetEditor();
+    log(`Çizim oluşturuldu: ${created.name}`);
+    return;
+  }
+
+  if (!drawPresetEditorName) return;
 
   const local = localDrawPresetList();
   const idx = local.findIndex((item) => item.name === drawPresetEditorName);
@@ -1116,7 +1107,6 @@ function saveDrawPresetEditor() {
     ...local[idx],
     name: nextName,
     rows: drawPresetEditorToRows(),
-    brightness: clamp(ui.drawPresetBrightnessInput?.value, 0, 15, 8),
     savedAt: Date.now(),
   };
   local[idx] = updated;
@@ -1125,10 +1115,6 @@ function saveDrawPresetEditor() {
   drawPresetEditorName = nextName;
   drawPresetSelectedName = updated.name;
   rowsToGrid(updated.rows);
-  if (ui.brightnessRange) {
-    ui.brightnessRange.value = String(updated.brightness);
-    updateBrightnessUi();
-  }
   renderDrawPresets();
   closeDrawPresetEditor();
   log(`Çizim güncellendi: ${updated.name}`);
@@ -1172,6 +1158,17 @@ function renderDrawPresets() {
 
     ui.drawPresets.appendChild(card);
   });
+
+  const addCard = document.createElement("button");
+  addCard.type = "button";
+  addCard.className = "draw-add-btn";
+  addCard.setAttribute("aria-label", "Yeni Çizim Ekle");
+  addCard.title = "Yeni Çizim Ekle";
+  addCard.textContent = "+";
+  addCard.addEventListener("click", () => {
+    openCreateDrawPresetEditor();
+  });
+  ui.drawPresets.appendChild(addCard);
 }
 
 function applyAnimationPreset(preset) {
@@ -1206,10 +1203,10 @@ function loadAnimationPresetByName(name) {
   }
   const found = animationPresetList().find((item) => item.name === name);
   if (!found) return;
-  applyAnimationPreset(found);
   animPresetSelectedName = found.name;
   state.activeAnimationName = found.name;
-  state.activeAnimationCanAddFrames = false;
+  state.activeAnimationCanAddFrames = found.source === "local" && !isRemoteAnimationName(found.name);
+  applyAnimationPreset(found);
   renderAnimationPresets();
   log(`Animasyon yüklendi: ${found.name}`);
 }
@@ -1230,6 +1227,20 @@ function createEmptyAnimationByName(name) {
   applyAnimationPreset(payload);
   renderAnimationPresets();
   log(`Animasyon oluşturuldu: ${name}`);
+}
+
+function persistActiveAnimationFrames() {
+  if (!state.activeAnimationCanAddFrames || !state.activeAnimationName) return;
+  const local = localAnimationPresetList();
+  const idx = local.findIndex((item) => item.name === state.activeAnimationName);
+  if (idx < 0) return;
+  local[idx] = {
+    ...local[idx],
+    loop: 1,
+    frames: state.frames.map((f) => sanitizeFrame(f)),
+    savedAt: Date.now(),
+  };
+  writePresetStore(ANIM_PRESETS_STORAGE_KEY, local);
 }
 
 function closeCreateAnimationModal(resultName = "") {
@@ -1422,6 +1433,17 @@ function renderAnimationPresets() {
 
     ui.animPresets.appendChild(card);
   });
+
+  const addCard = document.createElement("button");
+  addCard.type = "button";
+  addCard.className = "draw-add-btn";
+  addCard.setAttribute("aria-label", "Animasyon Oluştur");
+  addCard.title = "Animasyon Oluştur";
+  addCard.textContent = "+";
+  addCard.addEventListener("click", () => {
+    void createAnimationFromModal();
+  });
+  ui.animPresets.appendChild(addCard);
   startAnimationPresetMiniPreview();
 }
 
@@ -1507,7 +1529,6 @@ function renderGridCell(r, c) {
 }
 
 function afterGridMutation() {
-  updateSendImageButtonState();
   hooks.scheduleLivePreview();
 }
 
@@ -1595,50 +1616,26 @@ export function bindUi(actions) {
 
   ui.rotateBtn.addEventListener("click", rotateCCW);
 
-  ui.previewBtn.addEventListener("click", async () => {
-    if (!state.livePreviewEnabled) {
-      if (!state.rx) {
-        log("Canlı önizleme için önce bağlan.");
-        return;
-      }
-      actions.setLivePreview(true);
-      scheduleAutoBrightnessSet(actions, true);
-      await actions.pushPreviewFrame();
-    } else {
-      actions.setLivePreview(false);
-    }
-  });
-
   if (ui.sendImgBtn) {
     ui.sendImgBtn.addEventListener("click", async () => {
       try {
         if (!state.livePreviewEnabled) {
-          const brightness = clamp(ui.brightnessRange.value, 0, 15, 8);
-          if (brightness !== brightnessLastSentValue) {
-            await actions.sendTextAck(`BRT:${brightness}`, "OK:BRT");
-            brightnessLastSentValue = brightness;
+          if (!state.rx) {
+            log("Göster için önce bağlan.");
+            return;
           }
+          actions.setLivePreview(true);
+          scheduleAutoBrightnessSet(actions, true);
+          await actions.pushPreviewFrame();
+          return;
         }
-        await actions.sendImage(PKT_IMG, "OK:IMG_BIN");
-        markCurrentDrawAsSent();
+        actions.setLivePreview(false);
       } catch (err) {
-        log(`Göster hatası: ${err.message}`);
+        log(`Canlı gösterim hatası: ${err.message}`);
       }
     });
   }
 
-  if (ui.drawPresetSaveBtn) {
-    ui.drawPresetSaveBtn.addEventListener("click", () => {
-      saveDrawPresetFromInput();
-    });
-  }
-  if (ui.drawPresetNameInput) {
-    ui.drawPresetNameInput.addEventListener("keydown", (ev) => {
-      if (ev.key !== "Enter") return;
-      ev.preventDefault();
-      saveDrawPresetFromInput();
-    });
-  }
   if (ui.drawPresetModal) {
     ui.drawPresetModal.addEventListener("click", (ev) => {
       if (ev.target === ui.drawPresetModal) {
@@ -1653,7 +1650,7 @@ export function bindUi(actions) {
   }
   if (ui.drawPresetRenameBtn) {
     ui.drawPresetRenameBtn.addEventListener("click", () => {
-      if (!drawPresetEditorName) return;
+      if (!drawPresetEditorName && !drawPresetEditorCreateMode) return;
       if (!ui.drawPresetModalTitle) return;
       ui.drawPresetModalTitle.focus();
       const range = document.createRange();
@@ -1708,11 +1705,6 @@ export function bindUi(actions) {
     ui.drawPresetRotateBtn.addEventListener("click", () => {
       rotateDrawPresetEditorCCW();
       renderDrawPresetEditorGrid();
-    });
-  }
-  if (ui.drawPresetBrightnessInput) {
-    ui.drawPresetBrightnessInput.addEventListener("input", () => {
-      updateDrawPresetEditorMeta();
     });
   }
   if (ui.animPresetModal) {
@@ -1787,12 +1779,6 @@ export function bindUi(actions) {
     });
   }
 
-  if (ui.addFrameBtn) {
-    ui.addFrameBtn.addEventListener("click", async () => {
-      await createAnimationFromModal();
-    });
-  }
-
   window.addEventListener("lumi:add-frame", () => {
     if (!state.activeAnimationName || !state.activeAnimationCanAddFrames) return;
     openAddFrameEditor();
@@ -1831,6 +1817,7 @@ export function bindUi(actions) {
         state.frames.push(frame);
         state.selectedFrame = state.frames.length - 1;
       }
+      persistActiveAnimationFrames();
       actions.markAnimationDirty();
       hooks.renderFrames();
       refreshAnimPreview();
@@ -1846,6 +1833,7 @@ export function bindUi(actions) {
   }
 
   window.addEventListener("lumi:edit-frame", (ev) => {
+    if (!state.activeAnimationCanAddFrames) return;
     const index = Number(ev?.detail?.index);
     if (!Number.isInteger(index) || index < 0 || index >= state.frames.length) return;
     openAddFrameEditor(state.frames[index], index);
@@ -1935,6 +1923,7 @@ export function bindUi(actions) {
     if (state.selectedFrame < 0) return;
     state.frames.splice(state.selectedFrame, 1);
     state.selectedFrame = state.frames.length ? Math.min(state.selectedFrame, state.frames.length - 1) : -1;
+    persistActiveAnimationFrames();
     actions.markAnimationDirty();
     if (state.selectedFrame >= 0) {
       const f = state.frames[state.selectedFrame];
@@ -1949,6 +1938,7 @@ export function bindUi(actions) {
   ui.clearFramesBtn.addEventListener("click", () => {
     state.frames = [];
     state.selectedFrame = -1;
+    persistActiveAnimationFrames();
     actions.markAnimationDirty();
     hooks.renderFrames();
     refreshAnimPreview();

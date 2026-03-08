@@ -454,26 +454,32 @@
       filter: none;
     }
 
-    .mini-add {
+    .mini.mini-add {
       display: grid;
-      place-items: center;
+      place-items: start;
       grid-template-columns: 1fr;
       grid-template-rows: 1fr;
       min-height: 78px;
+      gap: 0;
+      justify-content: stretch;
+      margin-bottom: 6px;
     }
 
-    .mini-add .mini-add-icon {
+    .mini.mini-add > .mini-add-icon {
       width: 36px;
       height: 36px;
       border-radius: 10px;
-      display: grid;
-      place-items: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       font-size: 1.55rem;
-      line-height: 1;
+      line-height: 0;
       font-weight: 800;
       color: var(--tool-active-text);
       background: var(--panel);
       border: 1px solid var(--tool-active-border);
+      margin-top: 2px;
+      margin-left: 2px;
     }
 
     .frame-edit-btn {
@@ -542,6 +548,44 @@
 
     .draw-preset-name {
       text-align: center;
+    }
+
+    .draw-add-btn {
+      position: relative;
+      width: 100%;
+      min-height: 118px;
+      border: 1px solid transparent;
+      border-radius: 12px;
+      background: transparent;
+      box-shadow: none;
+      color: transparent;
+      padding: 0;
+      display: block;
+    }
+
+    .draw-add-btn:hover,
+    .draw-add-btn:active {
+      transform: none;
+      filter: none;
+    }
+
+    .draw-add-btn::before {
+      content: "+";
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 42px;
+      height: 42px;
+      border: 1px solid var(--tool-active-border);
+      border-radius: 10px;
+      background: var(--panel);
+      color: var(--tool-active-text);
+      font-size: 1.6rem;
+      font-weight: 700;
+      line-height: 1;
+      display: grid;
+      place-items: center;
     }
 
     .mini {

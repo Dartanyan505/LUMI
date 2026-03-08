@@ -29,8 +29,8 @@ export function markAnimationDirty() {
 
 export function setLivePreview(enabled) {
   state.livePreviewEnabled = enabled;
-  ui.previewBtn.classList.toggle("active", enabled);
-  ui.previewBtnLabel.textContent = enabled ? "Canlı Önizleme Açık" : "Canlı Önizleme";
+  if (ui.sendImgBtn) ui.sendImgBtn.classList.toggle("active", enabled);
+  if (ui.sendImgBtnLabel) ui.sendImgBtnLabel.textContent = enabled ? "Gösteriliyor" : "Göster";
   if (!enabled) {
     state.lastLivePreviewSignature = "";
     if (state.livePreviewTimer) {
@@ -87,16 +87,19 @@ export function renderFrames() {
       renderFrames();
     });
 
-    const editBtn = document.createElement("button");
-    editBtn.type = "button";
-    editBtn.className = "frame-edit-btn";
-    editBtn.title = "Kareyi düzenle";
-    editBtn.setAttribute("aria-label", "Kareyi düzenle");
-    editBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M5 19h14v2H5zM14.7 5.3l4 4L10 18H6v-4z"/></svg>';
-    editBtn.addEventListener("click", (ev) => {
-      ev.stopPropagation();
-      window.dispatchEvent(new CustomEvent("lumi:edit-frame", { detail: { index: idx } }));
-    });
+    let editBtn = null;
+    if (state.activeAnimationCanAddFrames) {
+      editBtn = document.createElement("button");
+      editBtn.type = "button";
+      editBtn.className = "frame-edit-btn";
+      editBtn.title = "Kareyi düzenle";
+      editBtn.setAttribute("aria-label", "Kareyi düzenle");
+      editBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M5 19h14v2H5zM14.7 5.3l4 4L10 18H6v-4z"/></svg>';
+      editBtn.addEventListener("click", (ev) => {
+        ev.stopPropagation();
+        window.dispatchEvent(new CustomEvent("lumi:edit-frame", { detail: { index: idx } }));
+      });
+    }
 
     const mini = document.createElement("div");
     mini.className = "mini";
@@ -112,7 +115,7 @@ export function renderFrames() {
     meta.className = "small";
     meta.textContent = `#${idx + 1} ${frame.duration}ms B${frame.brightness}`;
 
-    card.appendChild(editBtn);
+    if (editBtn) card.appendChild(editBtn);
     card.appendChild(mini);
     card.appendChild(meta);
     ui.frames.appendChild(card);

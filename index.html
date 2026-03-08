@@ -81,13 +81,9 @@
             <svg viewBox="0 0 24 24"><path d="M12 4V1L7 6l5 5V7a5 5 0 1 1-5 5H5a7 7 0 1 0 7-8z"/></svg>
             <span>Döndür</span>
           </button>
-          <button id="previewBtn" class="tool-btn">
-            <svg viewBox="0 0 24 24"><path d="M12 5c-6 0-9 7-9 7s3 7 9 7 9-7 9-7-3-7-9-7zm0 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8z"/></svg>
-            <span id="previewBtnLabel">Canlı Önizleme</span>
-          </button>
           <button id="sendImgBtn" class="tool-btn">
             <svg viewBox="0 0 24 24"><path d="M3 12h10v2H3zm8-6 10 7-10 7v-5H5v-4h6z"/></svg>
-            <span>Gönder</span>
+            <span id="sendImgBtnLabel">Göster</span>
           </button>
         </div>
         <div class="stack" style="margin-top:10px;">
@@ -103,10 +99,6 @@
             </div>
           </div>
           <div class="text-card draw-presets-shell">
-            <div class="draw-preset-create">
-              <input id="drawPresetNameInput" type="text" maxlength="40" placeholder="Çizim adı" aria-label="Çizim adı" />
-              <button id="drawPresetSaveBtn" class="secondary" type="button">Kaydet</button>
-            </div>
             <div id="drawPresetInfo" class="small" style="margin-top:8px;">Henüz kayıt yok.</div>
             <div id="drawPresets" class="frames draw-presets"></div>
           </div>
@@ -201,10 +193,6 @@
             <svg viewBox="0 0 24 24"><path d="M4 6h16v2H4zm2 4h12v10H6z"/></svg>
             <span>Hepsini Sil</span>
           </button>
-          <button id="addFrameBtn" class="tool-btn primary">
-            <svg viewBox="0 0 24 24"><path d="M11 4h2v7h7v2h-7v7h-2v-7H4v-2h7z"/></svg>
-            <span>Animasyon Oluştur</span>
-          </button>
         </div>
         <div class="text-card anim-presets-shell" style="margin-top:10px;">
           <div id="animPresetInfo" class="small" style="margin-top:8px;">Henüz kayıt yok.</div>
@@ -284,25 +272,6 @@
           <span>Döndür</span>
         </button>
       </div>
-      <div class="stack">
-        <div class="field brightness-shell">
-          <div class="text-speed-head">
-            <label for="drawPresetBrightnessInput">Parlaklık</label>
-            <span id="drawPresetBrightnessVal" class="text-speed-val">8</span>
-          </div>
-          <div class="text-speed-slider-wrap">
-            <input
-              id="drawPresetBrightnessInput"
-              class="brightness-slider"
-              type="range"
-              min="0"
-              max="15"
-              step="1"
-              value="8"
-            />
-          </div>
-        </div>
-      </div>
       <div class="frame-editor-actions draw-preset-editor-actions">
         <button id="drawPresetModalDeleteBtn" class="tool-btn warn" type="button">
           <svg viewBox="0 0 24 24"><path d="M6 7h12l-1 14H7zm3-4h6l1 2H8z"/></svg>
@@ -344,7 +313,6 @@
       <h2 id="createAnimTitle" class="frame-editor-title">Yeni Animasyon</h2>
       <div class="stack">
         <div class="field">
-          <label for="createAnimNameInput">Animasyon adı</label>
           <input
             id="createAnimNameInput"
             type="text"
