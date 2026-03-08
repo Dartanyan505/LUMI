@@ -64,6 +64,8 @@ let animPresetEditorName = "";
 let animPresetEditorOpen = false;
 let animPresetPreviewTimer = null;
 let animPresetPreviewCards = [];
+let animPresetModalPreviewTimer = null;
+let animPresetModalPreviewIndex = 0;
 let createAnimModalOpen = false;
 let createAnimModalResolve = null;
 
@@ -476,6 +478,9 @@ function openAddFrameEditor(frameToEdit = null, editIndex = -1) {
     const label = ui.addFrameSaveBtn.querySelector("span");
     if (label) label.textContent = isEdit ? "Kareyi Güncelle" : "Kareyi Ekle";
   }
+  if (ui.addFrameDeleteBtn) {
+    ui.addFrameDeleteBtn.hidden = !isEdit;
+  }
   if (ui.addFrameTitle) {
     ui.addFrameTitle.textContent = isEdit ? "Kare Düzenle" : "Yeni Kare Ekle";
   }
@@ -620,6 +625,76 @@ function stopAnimPreview(clearGrid = false) {
   }
   animPreviewIndex = 0;
   if (clearGrid) drawAnimPreviewRows(emptyRows8());
+}
+
+function ensureAnimPresetModalPreviewGrid() {
+  if (!ui.animPresetModalPreviewGrid) return;
+  if (ui.animPresetModalPreviewGrid.childElementCount === 64) return;
+  ui.animPresetModalPreviewGrid.innerHTML = "";
+  for (let i = 0; i < 64; i++) {
+    const dot = document.createElement("span");
+    dot.className = "text-preview-dot";
+    ui.animPresetModalPreviewGrid.appendChild(dot);
+  }
+}
+
+function drawAnimPresetModalPreviewRows(rows) {
+  if (!ui.animPresetModalPreviewGrid) return;
+  const dots = ui.animPresetModalPreviewGrid.querySelectorAll(".text-preview-dot");
+  if (dots.length !== 64) return;
+  for (let r = 0; r < 8; r++) {
+    const row = rows[r] || 0;
+    for (let c = 0; c < 8; c++) {
+      const on = ((row >> (7 - c)) & 1) === 1;
+      dots[r * 8 + c].classList.toggle("on", on);
+    }
+  }
+}
+
+function stopAnimPresetModalPreview(clearGrid = false) {
+  if (animPresetModalPreviewTimer) {
+    clearTimeout(animPresetModalPreviewTimer);
+    animPresetModalPreviewTimer = null;
+  }
+  animPresetModalPreviewIndex = 0;
+  if (clearGrid) drawAnimPresetModalPreviewRows(emptyRows8());
+}
+
+function stepAnimPresetModalPreview() {
+  if (!animPresetEditorOpen || !ui.animPresetModal || ui.animPresetModal.hidden) return;
+  if (!state.frames.length) return;
+  const frame = state.frames[animPresetModalPreviewIndex];
+  if (!frame) return;
+  drawAnimPresetModalPreviewRows(frame.rows || emptyRows8());
+  const delay = clamp(frame.duration, 40, 1200, 150);
+  animPresetModalPreviewTimer = window.setTimeout(() => {
+    if (!animPresetEditorOpen || !ui.animPresetModal || ui.animPresetModal.hidden) return;
+    if (!state.frames.length) return;
+    if (animPresetModalPreviewIndex >= state.frames.length - 1) {
+      animPresetModalPreviewIndex = 0;
+    } else {
+      animPresetModalPreviewIndex += 1;
+    }
+    stepAnimPresetModalPreview();
+  }, delay);
+}
+
+function refreshAnimPresetModalPreview() {
+  ensureAnimPresetModalPreviewGrid();
+  if (!ui.animPresetModalPreviewGrid) return;
+  if (!animPresetEditorOpen || !ui.animPresetModal || ui.animPresetModal.hidden) {
+    stopAnimPresetModalPreview(false);
+    return;
+  }
+  if (!state.frames.length) {
+    stopAnimPresetModalPreview(true);
+    return;
+  }
+  stopAnimPresetModalPreview(false);
+  animPresetModalPreviewIndex = state.selectedFrame >= 0
+    ? Math.min(state.selectedFrame, state.frames.length - 1)
+    : 0;
+  stepAnimPresetModalPreview();
 }
 
 function stepAnimPreview() {
@@ -1210,6 +1285,7 @@ function applyAnimationPreset(preset) {
   }
   hooks.renderFrames();
   refreshAnimPreview();
+  refreshAnimPresetModalPreview();
   setAnimToggleState("idle");
 }
 
@@ -1337,21 +1413,27 @@ function closeAnimationPresetEditor() {
   if (!ui.animPresetModal) return;
   ui.animPresetModal.hidden = true;
   document.body.classList.remove("modal-open");
+  stopAnimPresetModalPreview(true);
   animPresetEditorName = "";
   animPresetEditorOpen = false;
+  refreshAnimPreview();
 }
 
 function openAnimationPresetEditor(name) {
   const preset = animationPresetList().find((item) => item.name === name);
   if (!preset || preset.source !== "local" || isRemoteAnimationName(name) || !ui.animPresetModal) return;
+  applyAnimationPreset(preset);
+  animPresetSelectedName = preset.name;
+  state.activeAnimationName = preset.name;
+  state.activeAnimationCanAddFrames = true;
+  renderAnimationPresets();
   animPresetEditorName = preset.name;
   animPresetEditorOpen = true;
   if (ui.animPresetModalTitle) ui.animPresetModalTitle.textContent = preset.name;
-  if (ui.animPresetModalMeta) {
-    ui.animPresetModalMeta.textContent = `${preset.frames.length} kare · Loop Açık`;
-  }
   ui.animPresetModal.hidden = false;
   document.body.classList.add("modal-open");
+  stopAnimPreview(false);
+  refreshAnimPresetModalPreview();
 }
 
 function saveAnimationPresetEditor() {
@@ -1839,6 +1921,7 @@ export function bindUi(actions) {
       actions.markAnimationDirty();
       hooks.renderFrames();
       refreshAnimPreview();
+      refreshAnimPresetModalPreview();
       rowsToGrid(frame.rows);
       if (ui.frameDurationInput) ui.frameDurationInput.value = String(frame.duration);
       if (ui.frameBrightnessInput) ui.frameBrightnessInput.value = String(frame.brightness);
@@ -1847,6 +1930,30 @@ export function bindUi(actions) {
         : `Kare eklendi (#${state.frames.length}).`;
       closeAddFrameEditor();
       log(msg);
+    });
+  }
+
+  if (ui.addFrameDeleteBtn) {
+    ui.addFrameDeleteBtn.addEventListener("click", () => {
+      const index = addFrameEditorState.editIndex;
+      if (index < 0 || index >= state.frames.length) return;
+      state.frames.splice(index, 1);
+      state.selectedFrame = state.frames.length ? Math.min(index, state.frames.length - 1) : -1;
+      persistActiveAnimationFrames();
+      actions.markAnimationDirty();
+      hooks.renderFrames();
+      refreshAnimPreview();
+      refreshAnimPresetModalPreview();
+      if (state.selectedFrame >= 0) {
+        const f = state.frames[state.selectedFrame];
+        rowsToGrid(f.rows);
+        if (ui.frameDurationInput) ui.frameDurationInput.value = String(f.duration);
+        if (ui.frameBrightnessInput) ui.frameBrightnessInput.value = String(f.brightness);
+      } else {
+        rowsToGrid(emptyRows8());
+      }
+      closeAddFrameEditor();
+      log("Kare silindi.");
     });
   }
 
@@ -1933,35 +2040,10 @@ export function bindUi(actions) {
       actions.markAnimationDirty();
       hooks.renderFrames();
       refreshAnimPreview();
+      refreshAnimPresetModalPreview();
       log(`Kare guncellendi (#${state.selectedFrame + 1}).`);
     });
   }
-
-  ui.deleteFrameBtn.addEventListener("click", () => {
-    if (state.selectedFrame < 0) return;
-    state.frames.splice(state.selectedFrame, 1);
-    state.selectedFrame = state.frames.length ? Math.min(state.selectedFrame, state.frames.length - 1) : -1;
-    persistActiveAnimationFrames();
-    actions.markAnimationDirty();
-    if (state.selectedFrame >= 0) {
-      const f = state.frames[state.selectedFrame];
-      rowsToGrid(f.rows);
-      if (ui.frameDurationInput) ui.frameDurationInput.value = String(f.duration);
-      if (ui.frameBrightnessInput) ui.frameBrightnessInput.value = String(f.brightness);
-    }
-    hooks.renderFrames();
-    refreshAnimPreview();
-  });
-
-  ui.clearFramesBtn.addEventListener("click", () => {
-    state.frames = [];
-    state.selectedFrame = -1;
-    persistActiveAnimationFrames();
-    actions.markAnimationDirty();
-    hooks.renderFrames();
-    refreshAnimPreview();
-    setAnimToggleState("idle");
-  });
 
   ui.brightnessRange.addEventListener("input", () => {
     updateBrightnessUi();

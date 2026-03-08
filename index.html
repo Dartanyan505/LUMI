@@ -184,23 +184,10 @@
           <div id="animPreviewGrid" class="text-preview-grid" aria-label="8x8 animasyon önizleme"></div>
         </div>
 
-        <div class="quick-grid" style="margin-top:10px;">
-          <button id="deleteFrameBtn" class="tool-btn">
-            <svg viewBox="0 0 24 24"><path d="M6 7h12l-1 14H7zm3-4h6l1 2H8z"/></svg>
-            <span>Sil</span>
-          </button>
-          <button id="clearFramesBtn" class="tool-btn">
-            <svg viewBox="0 0 24 24"><path d="M4 6h16v2H4zm2 4h12v10H6z"/></svg>
-            <span>Hepsini Sil</span>
-          </button>
-        </div>
         <div class="text-card anim-presets-shell" style="margin-top:10px;">
           <div id="animPresetInfo" class="small" style="margin-top:8px;">Henüz kayıt yok.</div>
           <div id="animPresets" class="frames draw-presets"></div>
         </div>
-
-        <div id="frameInfo" class="small" style="margin-top:10px;">0 kare</div>
-        <div id="frames" class="frames"></div>
       </section>
 
       <section id="tab-device" class="panel" hidden>
@@ -294,7 +281,11 @@
           <svg viewBox="0 0 24 24"><path d="M5 19h14v2H5zM14.7 5.3l4 4L10 18H6v-4z"/></svg>
         </button>
       </div>
-      <div id="animPresetModalMeta" class="small" style="text-align:left;">Mevcut animasyon ile güncellenir.</div>
+      <div class="text-card anim-preview-shell" style="margin-top:6px;">
+        <div id="animPresetModalPreviewGrid" class="text-preview-grid" aria-label="Animasyon düzenleme önizleme"></div>
+      </div>
+      <div id="frameInfo" class="small" style="margin-top:10px;">0 kare</div>
+      <div id="frames" class="frames"></div>
       <div class="frame-editor-actions draw-preset-editor-actions">
         <button id="animPresetModalDeleteBtn" class="tool-btn warn" type="button">
           <svg viewBox="0 0 24 24"><path d="M6 7h12l-1 14H7zm3-4h6l1 2H8z"/></svg>
@@ -396,6 +387,10 @@
       </div>
       <div class="frame-editor-actions">
         <button id="addFrameCancelBtn" class="secondary" type="button">İptal</button>
+        <button id="addFrameDeleteBtn" class="tool-btn warn" type="button" hidden>
+          <svg viewBox="0 0 24 24"><path d="M6 7h12l-1 14H7zm3-4h6l1 2H8z"/></svg>
+          <span>Kareyi Sil</span>
+        </button>
         <button id="addFrameSaveBtn" class="tool-btn primary" type="button">
           <svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5 1.4-1.4L9 14.2 18.6 4.6z"/></svg>
           <span>Kareyi Ekle</span>
