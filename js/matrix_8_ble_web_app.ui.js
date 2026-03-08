@@ -49,8 +49,8 @@ const drawPresetEditorState = {
   lastPaintedKey: "",
 };
 const MAX_LOCAL_PRESETS = 64;
-const DRAW_PRESETS_REMOTE_URL = "../presets/draw_presets.json";
-const ANIM_PRESETS_REMOTE_URL = "../presets/anim_presets.json";
+const DRAW_PRESETS_REMOTE_URL = "./presets/draw_presets.json";
+const ANIM_PRESETS_REMOTE_URL = "./presets/anim_presets.json";
 const DEFAULT_NEW_DRAW_NAME_BASE = "Yeni Çizim";
 let drawPresetSelectedName = "";
 let remoteDrawPresets = [];
