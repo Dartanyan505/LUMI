@@ -269,6 +269,16 @@
       transform: scale(1.02);
     }
 
+    @media (pointer: coarse) {
+      .px {
+        transition: background 60ms ease, box-shadow 60ms ease;
+      }
+      .px.on {
+        transform: none;
+        box-shadow: none;
+      }
+    }
+
     .row {
       display: flex;
       flex-wrap: wrap;

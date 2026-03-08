@@ -31,6 +31,8 @@ let textPreviewIndex = 0;
 let animPreviewTimer = null;
 let animPreviewIndex = 0;
 let animToggleState = "idle";
+let drawPointerMoveRaf = null;
+let drawPointerMovePending = null;
 const drawCells = Array.from({ length: 8 }, () => Array(8).fill(null));
 const addFrameEditorCells = Array.from({ length: 8 }, () => Array(8).fill(null));
 const drawPresetEditorCells = Array.from({ length: 8 }, () => Array(8).fill(null));
@@ -1617,38 +1619,62 @@ export function createGrid() {
     window.addEventListener("pointerup", () => {
       state.drawActive = false;
       state.lastPaintedKey = "";
+      drawPointerMovePending = null;
+      if (drawPointerMoveRaf) {
+        cancelAnimationFrame(drawPointerMoveRaf);
+        drawPointerMoveRaf = null;
+      }
     });
     globalPointerUpBound = true;
   }
 
   ui.pixelGrid.addEventListener("pointermove", (ev) => {
     if (!state.drawActive) return;
-    const target = document.elementFromPoint(ev.clientX, ev.clientY);
-    if (!(target instanceof HTMLElement) || !target.classList.contains("px")) return;
+    drawPointerMovePending = { x: ev.clientX, y: ev.clientY };
+    if (drawPointerMoveRaf) return;
+    drawPointerMoveRaf = window.requestAnimationFrame(() => {
+      drawPointerMoveRaf = null;
+      const p = drawPointerMovePending;
+      drawPointerMovePending = null;
+      if (!p || !state.drawActive) return;
 
-    const r = Number(target.dataset.r);
-    const c = Number(target.dataset.c);
-    if (!Number.isInteger(r) || !Number.isInteger(c)) return;
+      const target = document.elementFromPoint(p.x, p.y);
+      if (!(target instanceof HTMLElement) || !target.classList.contains("px")) return;
 
-    const key = `${r},${c}`;
-    if (key === state.lastPaintedKey) return;
-    state.lastPaintedKey = key;
+      const r = Number(target.dataset.r);
+      const c = Number(target.dataset.c);
+      if (!Number.isInteger(r) || !Number.isInteger(c)) return;
 
-    if (state.grid[r][c] !== state.drawValue) {
-      state.grid[r][c] = state.drawValue;
-      renderGridCell(r, c);
-      afterGridMutation();
-    }
+      const key = `${r},${c}`;
+      if (key === state.lastPaintedKey) return;
+      state.lastPaintedKey = key;
+
+      if (state.grid[r][c] !== state.drawValue) {
+        state.grid[r][c] = state.drawValue;
+        renderGridCell(r, c);
+        afterGridMutation();
+      }
+    });
   });
 
   ui.pixelGrid.addEventListener("pointerup", () => {
     state.drawActive = false;
     state.lastPaintedKey = "";
+    drawPointerMovePending = null;
+    if (drawPointerMoveRaf) {
+      cancelAnimationFrame(drawPointerMoveRaf);
+      drawPointerMoveRaf = null;
+    }
   });
 
   ui.pixelGrid.addEventListener("pointercancel", () => {
     state.drawActive = false;
     state.lastPaintedKey = "";
+    drawPointerMovePending = null;
+    if (drawPointerMoveRaf) {
+      cancelAnimationFrame(drawPointerMoveRaf);
+      drawPointerMoveRaf = null;
+    }
   });
 
   renderGrid();
