@@ -809,11 +809,11 @@ function updateAnimToggleUi() {
   if (!onAnimTab) return;
 
   if (animToggleState === "playing") {
-    ui.animToggleIcon?.setAttribute("d", "M7 5h4v14H7zm6 0h4v14h-4z");
+    if (ui.animToggleIcon) ui.animToggleIcon.className = "bi bi-pause-fill";
     if (ui.animToggleLabel) ui.animToggleLabel.textContent = "Duraklat";
     return;
   }
-  ui.animToggleIcon?.setAttribute("d", "M8 5v14l11-7z");
+  if (ui.animToggleIcon) ui.animToggleIcon.className = "bi bi-play-fill";
   if (ui.animToggleLabel) {
     ui.animToggleLabel.textContent = animToggleState === "paused" ? "Devam Et" : "Oynat";
   }
@@ -1258,7 +1258,7 @@ function renderDrawPresets() {
       editBtn.className = "frame-edit-btn";
       editBtn.title = "Kaydı düzenle";
       editBtn.setAttribute("aria-label", "Kaydı düzenle");
-      editBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M5 19h14v2H5zM14.7 5.3l4 4L10 18H6v-4z"/></svg>';
+      editBtn.innerHTML = '<i class="bi bi-pencil-fill" aria-hidden="true"></i>';
       editBtn.addEventListener("click", (ev) => {
         ev.stopPropagation();
         openDrawPresetEditor(preset.name);
@@ -1535,7 +1535,7 @@ function renderAnimationPresets() {
       editBtn.className = "frame-edit-btn";
       editBtn.title = "Kaydı düzenle";
       editBtn.setAttribute("aria-label", "Kaydı düzenle");
-      editBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M5 19h14v2H5zM14.7 5.3l4 4L10 18H6v-4z"/></svg>';
+      editBtn.innerHTML = '<i class="bi bi-pencil-fill" aria-hidden="true"></i>';
       editBtn.addEventListener("click", (ev) => {
         ev.stopPropagation();
         openAnimationPresetEditor(preset.name);

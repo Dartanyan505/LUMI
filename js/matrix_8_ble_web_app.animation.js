@@ -94,7 +94,7 @@ export function renderFrames() {
       editBtn.className = "frame-edit-btn";
       editBtn.title = "Kareyi düzenle";
       editBtn.setAttribute("aria-label", "Kareyi düzenle");
-      editBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M5 19h14v2H5zM14.7 5.3l4 4L10 18H6v-4z"/></svg>';
+      editBtn.innerHTML = '<i class="bi bi-pencil-fill" aria-hidden="true"></i>';
       editBtn.addEventListener("click", (ev) => {
         ev.stopPropagation();
         window.dispatchEvent(new CustomEvent("lumi:edit-frame", { detail: { index: idx } }));

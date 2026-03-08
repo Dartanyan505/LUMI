@@ -23,6 +23,16 @@
       height: 18px;
       fill: currentColor;
     }
+    .tool-btn .bi {
+      font-size: 18px;
+      line-height: 1;
+    }
+    .tool-btn .bi.rotate-icon {
+      font-size: 21px;
+    }
+    #sendImgBtn .bi {
+      font-size: 28px;
+    }
 
     .tool-btn.primary {
       background: linear-gradient(135deg, var(--brand), var(--brand-2));
@@ -198,6 +208,10 @@
       width: 30px;
       height: 30px;
     }
+    .text-dir-side .bi {
+      font-size: 30px;
+      line-height: 1;
+    }
 
     .text-send-wrap {
       display: flex;
@@ -235,6 +249,10 @@
       height: 18px;
       fill: currentColor;
     }
+    .text-send-btn .bi {
+      font-size: 18px;
+      line-height: 1;
+    }
 
     .chip-toggle {
       padding: 8px 10px;
@@ -254,6 +272,10 @@
       width: 14px;
       height: 14px;
       fill: currentColor;
+    }
+    .chip-toggle .bi {
+      font-size: 14px;
+      line-height: 1;
     }
 
     .chip-toggle.active {
@@ -503,6 +525,10 @@
       width: 12px;
       height: 12px;
       fill: currentColor;
+    }
+    .frame-edit-btn .bi {
+      font-size: 12px;
+      line-height: 1;
     }
 
     .draw-presets-shell {

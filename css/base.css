@@ -177,6 +177,13 @@
       height: 16px;
       fill: currentColor;
     }
+    .tab-btn .bi {
+      font-size: 16px;
+      line-height: 1;
+    }
+    .tab-btn .text-tab-icon {
+      font-size: 17px;
+    }
 
     .tab-btn.active {
       background: linear-gradient(135deg, var(--tab-active-a), var(--tab-active-b));
@@ -288,6 +295,10 @@
       height: 19px;
       fill: currentColor;
     }
+    .icon-btn .bi {
+      font-size: 19px;
+      line-height: 1;
+    }
 
     .anim-fab {
       position: fixed;
@@ -318,6 +329,10 @@
       height: 18px;
       fill: currentColor;
     }
+    .anim-fab .bi {
+      font-size: 18px;
+      line-height: 1;
+    }
 
     .anim-fab:hover {
       transform: translateX(-50%) translateY(-1px);
@@ -332,4 +347,3 @@
       border-color: var(--tool-active-border);
       color: var(--tool-active-text);
     }
-

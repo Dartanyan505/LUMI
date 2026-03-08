@@ -13,6 +13,7 @@
   <link rel="icon" type="image/svg+xml" href="./assets/images/icon.svg" />
   <link rel="icon" type="image/png" sizes="32x32" href="./assets/images/icon-32.png" />
   <link rel="apple-touch-icon" sizes="180x180" href="./assets/images/icon-180.png" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
   <link rel="stylesheet" href="./css/main.css" />
 </head>
 <body>
@@ -42,15 +43,15 @@
 
     <nav class="tabs" aria-label="Sekmeler">
       <button class="tab-btn active" data-tab="draw">
-        <svg viewBox="0 0 24 24"><path d="M7 16c.55 0 1 .45 1 1a3 3 0 0 1-3 3H4a1 1 0 0 1 0-2h1a1 1 0 0 0 1-1c0-.55.45-1 1-1Zm12.71-9.29a1 1 0 0 0 0-1.42l-1.99-1.99a1 1 0 0 0-1.42 0l-8.9 8.9c-.26.26-.45.58-.55.93l-.67 2.35a.75.75 0 0 0 .93.93l2.35-.67c.35-.1.67-.29.93-.55l8.9-8.9Z"/></svg>
+        <i class="bi bi-brush-fill" aria-hidden="true"></i>
         <span>Çizim</span>
       </button>
       <button class="tab-btn" data-tab="text">
-        <svg viewBox="0 0 24 24"><path d="M4 5h16v3h-6v11h-4V8H4z"/></svg>
+        <i class="bi bi-chat-left-text-fill text-tab-icon" aria-hidden="true"></i>
         <span>Yazı</span>
       </button>
       <button class="tab-btn" data-tab="anim">
-        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7zM3 5h3v14H3z"/></svg>
+        <i class="bi bi-film" aria-hidden="true"></i>
         <span>Animasyon</span>
       </button>
       <button class="tab-btn" data-tab="device">
@@ -66,23 +67,23 @@
         </div>
         <div class="quick-grid">
           <button id="clearGridBtn" class="tool-btn">
-            <svg viewBox="0 0 24 24"><path d="M6 7h12l-1 14H7zm3-4h6l1 2H8z"/></svg>
+            <i class="bi bi-trash3-fill" aria-hidden="true"></i>
             <span>Temizle</span>
           </button>
           <button id="fillGridBtn" class="tool-btn">
-            <svg viewBox="0 0 24 24"><path d="M7 3h10v18H7z"/></svg>
+            <i class="bi bi-bucket-fill" aria-hidden="true"></i>
             <span>Doldur</span>
           </button>
           <button id="invertGridBtn" class="tool-btn">
-            <svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18V3z"/></svg>
+            <i class="bi bi-circle-half" aria-hidden="true"></i>
             <span>Tersle</span>
           </button>
           <button id="rotateBtn" class="tool-btn">
-            <svg viewBox="0 0 24 24"><path d="M12 4V1L7 6l5 5V7a5 5 0 1 1-5 5H5a7 7 0 1 0 7-8z"/></svg>
+            <i class="bi bi-arrow-clockwise rotate-icon" aria-hidden="true"></i>
             <span>Döndür</span>
           </button>
           <button id="sendImgBtn" class="tool-btn">
-            <svg viewBox="0 0 24 24"><path d="M3 12h10v2H3zm8-6 10 7-10 7v-5H5v-4h6z"/></svg>
+            <i class="bi bi-play-fill" aria-hidden="true"></i>
             <span id="sendImgBtnLabel">Göster</span>
           </button>
         </div>
@@ -124,11 +125,11 @@
           <div class="text-card text-preview-shell">
             <div class="text-preview-row">
               <button id="dirLeftBtn" class="chip-toggle text-dir-btn text-dir-side" aria-label="Sola">
-                <svg viewBox="0 0 24 24"><path d="m14 7-5 5 5 5V7z"/></svg>
+                <i class="bi bi-caret-left-fill" aria-hidden="true"></i>
               </button>
               <div id="textPreviewGrid" class="text-preview-grid" aria-label="8x8 yazı önizleme"></div>
               <button id="dirRightBtn" class="chip-toggle text-dir-btn text-dir-side" aria-label="Sağa">
-                <svg viewBox="0 0 24 24"><path d="m10 17 5-5-5-5v10z"/></svg>
+                <i class="bi bi-caret-right-fill" aria-hidden="true"></i>
               </button>
             </div>
           </div>
@@ -172,7 +173,7 @@
 
           <div class="text-send-wrap">
             <button id="txtSendBtn" class="text-send-btn">
-              <svg viewBox="0 0 24 24"><path d="M3 11h11v2H3zm9-6 9 7-9 7v-5H5v-4h7z"/></svg>
+              <i class="bi bi-play-fill" aria-hidden="true"></i>
               <span>Mesajı Oynat</span>
             </button>
           </div>
@@ -193,27 +194,27 @@
       <section id="tab-device" class="panel" hidden>
         <div class="device-grid">
           <button id="pingBtn" class="tool-btn">
-            <svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 18 0h-2a7 7 0 0 0-14 0zm4 0a5 5 0 0 1 10 0h-2a3 3 0 0 0-6 0zm4 0h2v8h-2z"/></svg>
+            <i class="bi bi-broadcast-pin" aria-hidden="true"></i>
             <span>Ping</span>
           </button>
           <button id="statusBtn" class="tool-btn">
-            <svg viewBox="0 0 24 24"><path d="M4 5h16v14H4zm3 3v2h10V8zm0 4v2h6v-2z"/></svg>
+            <i class="bi bi-card-text" aria-hidden="true"></i>
             <span>Durum</span>
           </button>
           <button id="helpBtn" class="tool-btn">
-            <svg viewBox="0 0 24 24"><path d="M11 18h2v2h-2zm1-16a9 9 0 0 0-9 9h2a7 7 0 1 1 7 7v2A9 9 0 1 0 12 2zm0 5a3 3 0 0 0-3 3h2a1 1 0 1 1 1 1 2 2 0 0 0-2 2v1h2v-1a.5.5 0 0 1 .5-.5A2.5 2.5 0 1 0 12 7z"/></svg>
+            <i class="bi bi-question-circle" aria-hidden="true"></i>
             <span>Yardım</span>
           </button>
           <button id="clearDeviceBtn" class="tool-btn warn">
-            <svg viewBox="0 0 24 24"><path d="M6 7h12l-1 14H7zM9 3h6l1 2H8z"/></svg>
+            <i class="bi bi-trash3-fill" aria-hidden="true"></i>
             <span>Temizle</span>
           </button>
           <button id="stopBtn" class="tool-btn danger">
-            <svg viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></svg>
+            <i class="bi bi-stop-fill" aria-hidden="true"></i>
             <span>Durdur</span>
           </button>
           <button id="themeBtn" class="tool-btn">
-            <svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9h-2a7 7 0 1 1-7-7V3zm6.5 2.5 1 2 2 1-2 1-1 2-1-2-2-1 2-1z"/></svg>
+            <i class="bi bi-palette-fill" aria-hidden="true"></i>
             <span>Tema</span>
           </button>
         </div>
@@ -225,9 +226,7 @@
   </main>
 
   <button id="animToggleBtn" class="anim-fab" type="button" hidden>
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path id="animToggleIcon" d="M8 5v14l11-7z"></path>
-    </svg>
+    <i id="animToggleIcon" class="bi bi-play-fill" aria-hidden="true"></i>
     <span id="animToggleLabel">Oynat</span>
   </button>
 
@@ -237,35 +236,35 @@
       <div class="draw-preset-title-row">
         <h2 id="drawPresetModalTitle" class="frame-editor-title" contenteditable="true" spellcheck="false"></h2>
         <button id="drawPresetRenameBtn" class="frame-edit-btn draw-preset-rename-btn" type="button" aria-label="Adı düzenle" title="Adı düzenle">
-          <svg viewBox="0 0 24 24"><path d="M5 19h14v2H5zM14.7 5.3l4 4L10 18H6v-4z"/></svg>
+          <i class="bi bi-pencil-fill" aria-hidden="true"></i>
         </button>
       </div>
       <div id="drawPresetGrid" class="pixel-grid frame-editor-grid" aria-label="8x8 çizim düzenleyici"></div>
       <div class="quick-grid">
         <button id="drawPresetClearBtn" class="tool-btn" type="button">
-          <svg viewBox="0 0 24 24"><path d="M6 7h12l-1 14H7zm3-4h6l1 2H8z"/></svg>
+          <i class="bi bi-trash3-fill" aria-hidden="true"></i>
           <span>Temizle</span>
         </button>
         <button id="drawPresetFillBtn" class="tool-btn" type="button">
-          <svg viewBox="0 0 24 24"><path d="M7 3h10v18H7z"/></svg>
+          <i class="bi bi-bucket-fill" aria-hidden="true"></i>
           <span>Doldur</span>
         </button>
         <button id="drawPresetInvertBtn" class="tool-btn" type="button">
-          <svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18V3z"/></svg>
+          <i class="bi bi-circle-half" aria-hidden="true"></i>
           <span>Tersle</span>
         </button>
         <button id="drawPresetRotateBtn" class="tool-btn" type="button">
-          <svg viewBox="0 0 24 24"><path d="M12 4V1L7 6l5 5V7a5 5 0 1 1-5 5H5a7 7 0 1 0 7-8z"/></svg>
+          <i class="bi bi-arrow-clockwise rotate-icon" aria-hidden="true"></i>
           <span>Döndür</span>
         </button>
       </div>
       <div class="frame-editor-actions draw-preset-editor-actions">
         <button id="drawPresetModalDeleteBtn" class="tool-btn warn" type="button">
-          <svg viewBox="0 0 24 24"><path d="M6 7h12l-1 14H7zm3-4h6l1 2H8z"/></svg>
+          <i class="bi bi-trash3-fill" aria-hidden="true"></i>
           <span>Sil</span>
         </button>
         <button id="drawPresetModalSaveBtn" class="tool-btn primary" type="button">
-          <svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5 1.4-1.4L9 14.2 18.6 4.6z"/></svg>
+          <i class="bi bi-check-lg" aria-hidden="true"></i>
           <span>Kaydet</span>
         </button>
       </div>
@@ -278,7 +277,7 @@
       <div class="draw-preset-title-row">
         <h2 id="animPresetModalTitle" class="frame-editor-title" contenteditable="true" spellcheck="false"></h2>
         <button id="animPresetRenameBtn" class="frame-edit-btn draw-preset-rename-btn" type="button" aria-label="Adı düzenle" title="Adı düzenle">
-          <svg viewBox="0 0 24 24"><path d="M5 19h14v2H5zM14.7 5.3l4 4L10 18H6v-4z"/></svg>
+          <i class="bi bi-pencil-fill" aria-hidden="true"></i>
         </button>
       </div>
       <div class="text-card anim-preview-shell" style="margin-top:6px;">
@@ -288,11 +287,11 @@
       <div id="frames" class="frames"></div>
       <div class="frame-editor-actions draw-preset-editor-actions">
         <button id="animPresetModalDeleteBtn" class="tool-btn warn" type="button">
-          <svg viewBox="0 0 24 24"><path d="M6 7h12l-1 14H7zm3-4h6l1 2H8z"/></svg>
+          <i class="bi bi-trash3-fill" aria-hidden="true"></i>
           <span>Sil</span>
         </button>
         <button id="animPresetModalSaveBtn" class="tool-btn primary" type="button">
-          <svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5 1.4-1.4L9 14.2 18.6 4.6z"/></svg>
+          <i class="bi bi-check-lg" aria-hidden="true"></i>
           <span>Kaydet</span>
         </button>
       </div>
@@ -320,7 +319,7 @@
       <div class="frame-editor-actions">
         <button id="createAnimCancelBtn" class="secondary" type="button">İptal</button>
         <button id="createAnimCreateBtn" class="tool-btn primary" type="button">
-          <svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5 1.4-1.4L9 14.2 18.6 4.6z"/></svg>
+          <i class="bi bi-check-lg" aria-hidden="true"></i>
           <span>Oluştur</span>
         </button>
       </div>
@@ -333,19 +332,19 @@
       <div id="addFrameGrid" class="pixel-grid frame-editor-grid" aria-label="8x8 kare editörü"></div>
       <div class="quick-grid">
         <button id="addFrameClearBtn" class="tool-btn" type="button">
-          <svg viewBox="0 0 24 24"><path d="M6 7h12l-1 14H7zm3-4h6l1 2H8z"/></svg>
+          <i class="bi bi-trash3-fill" aria-hidden="true"></i>
           <span>Temizle</span>
         </button>
         <button id="addFrameFillBtn" class="tool-btn" type="button">
-          <svg viewBox="0 0 24 24"><path d="M7 3h10v18H7z"/></svg>
+          <i class="bi bi-bucket-fill" aria-hidden="true"></i>
           <span>Doldur</span>
         </button>
         <button id="addFrameInvertBtn" class="tool-btn" type="button">
-          <svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18V3z"/></svg>
+          <i class="bi bi-circle-half" aria-hidden="true"></i>
           <span>Tersle</span>
         </button>
         <button id="addFrameRotateBtn" class="tool-btn" type="button">
-          <svg viewBox="0 0 24 24"><path d="M12 4V1L7 6l5 5V7a5 5 0 1 1-5 5H5a7 7 0 1 0 7-8z"/></svg>
+          <i class="bi bi-arrow-clockwise rotate-icon" aria-hidden="true"></i>
           <span>Döndür</span>
         </button>
       </div>
@@ -388,11 +387,11 @@
       <div class="frame-editor-actions">
         <button id="addFrameCancelBtn" class="secondary" type="button">İptal</button>
         <button id="addFrameDeleteBtn" class="tool-btn warn" type="button" hidden>
-          <svg viewBox="0 0 24 24"><path d="M6 7h12l-1 14H7zm3-4h6l1 2H8z"/></svg>
+          <i class="bi bi-trash3-fill" aria-hidden="true"></i>
           <span>Kareyi Sil</span>
         </button>
         <button id="addFrameSaveBtn" class="tool-btn primary" type="button">
-          <svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5 1.4-1.4L9 14.2 18.6 4.6z"/></svg>
+          <i class="bi bi-check-lg" aria-hidden="true"></i>
           <span>Kareyi Ekle</span>
         </button>
       </div>
