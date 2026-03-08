@@ -526,7 +526,8 @@
 
     .draw-presets {
       margin-top: 8px;
-      max-height: 180px;
+      max-height: none;
+      overflow: visible;
     }
 
     .draw-preset-actions {

@@ -124,26 +124,13 @@ export function renderFrames() {
   if (state.activeAnimationName && state.activeAnimationCanAddFrames) {
     const addCard = document.createElement("button");
     addCard.type = "button";
-    addCard.className = "frame frame-add-card";
+    addCard.className = "draw-add-btn";
     addCard.setAttribute("aria-label", "Yeni Kare Ekle");
     addCard.title = "Yeni Kare Ekle";
+    addCard.textContent = "+";
     addCard.addEventListener("click", () => {
       window.dispatchEvent(new CustomEvent("lumi:add-frame"));
     });
-
-    const mini = document.createElement("div");
-    mini.className = "mini mini-add";
-    const icon = document.createElement("span");
-    icon.className = "mini-add-icon";
-    icon.textContent = "+";
-    mini.appendChild(icon);
-
-    const meta = document.createElement("div");
-    meta.className = "small";
-    meta.textContent = "Yeni Kare Ekle";
-
-    addCard.appendChild(mini);
-    addCard.appendChild(meta);
     ui.frames.appendChild(addCard);
   }
 
