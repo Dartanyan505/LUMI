@@ -1033,13 +1033,24 @@ export function rowsToGrid(rows) {
 }
 
 function sanitizeRows(rows) {
-  if (!Array.isArray(rows)) return emptyRows8();
-  return Array.from({ length: 8 }, (_, i) => clamp(rows[i], 0, 255, 0));
+  if (Array.isArray(rows) && rows.length === 8 && rows.every((v) => Number.isFinite(Number(v)))) {
+    return Array.from({ length: 8 }, (_, i) => clamp(rows[i], 0, 255, 0));
+  }
+  if (Array.isArray(rows) && rows.length === 8 && rows.every((r) => Array.isArray(r))) {
+    return rows.map((bitRow) => {
+      let value = 0;
+      for (let c = 0; c < 8; c++) {
+        if (clamp(bitRow[c], 0, 1, 0) === 1) value |= (1 << (7 - c));
+      }
+      return value;
+    });
+  }
+  return emptyRows8();
 }
 
 function sanitizeFrame(frame) {
   return {
-    rows: sanitizeRows(frame?.rows),
+    rows: sanitizeRows(frame?.rows ?? frame?.bits),
     duration: clamp(frame?.duration, 1, 65535, 150),
     brightness: clamp(frame?.brightness, 0, 15, 8),
   };
@@ -1050,7 +1061,7 @@ function localDrawPresetList() {
   return presets
     .map((item) => ({
       name: normalizePresetName(item?.name),
-      rows: sanitizeRows(item?.rows),
+      rows: sanitizeRows(item?.rows ?? item?.bits),
       savedAt: Number(item?.savedAt) || 0,
       source: "local",
     }))
@@ -1061,7 +1072,7 @@ function serverDrawPresetList() {
   return remoteDrawPresets
     .map((item) => ({
       name: normalizePresetName(item?.name),
-      rows: sanitizeRows(item?.rows),
+      rows: sanitizeRows(item?.rows ?? item?.bits),
       savedAt: Number(item?.savedAt) || 0,
       source: "server",
     }))
