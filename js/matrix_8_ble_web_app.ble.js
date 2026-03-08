@@ -102,7 +102,15 @@ export async function connectBle() {
     setStatus(`Bağlı: ${state.device.name || "LUMI"}`, true);
     log("Bağlantı kuruldu.");
   } catch (err) {
-    log(`Bağlantı hatası: ${err.message}`);
+    const errName = String(err?.name || "");
+    const errMsg = String(err?.message || "Bilinmeyen hata");
+    if (errName === "NotFoundError") {
+      setStatus("Bağlantı iptal", false);
+      log("Bağlantı iptal edildi.");
+      return;
+    }
+    setStatus("Bağlantı başarısız", false);
+    log(`Bağlantı hatası: ${errMsg}`);
   }
 }
 
