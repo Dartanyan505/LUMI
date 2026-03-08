@@ -69,7 +69,7 @@ export function scheduleLivePreview() {
 
 function animationSignature() {
   return JSON.stringify({
-    loop: Number(ui.loopSelect.value) ? 1 : 0,
+    loop: 1,
     frames: state.frames,
   });
 }
@@ -118,10 +118,36 @@ export function renderFrames() {
     ui.frames.appendChild(card);
   });
 
+  if (state.activeAnimationName && state.activeAnimationCanAddFrames) {
+    const addCard = document.createElement("button");
+    addCard.type = "button";
+    addCard.className = "frame frame-add-card";
+    addCard.setAttribute("aria-label", "Yeni Kare Ekle");
+    addCard.title = "Yeni Kare Ekle";
+    addCard.addEventListener("click", () => {
+      window.dispatchEvent(new CustomEvent("lumi:add-frame"));
+    });
+
+    const mini = document.createElement("div");
+    mini.className = "mini mini-add";
+    const icon = document.createElement("span");
+    icon.className = "mini-add-icon";
+    icon.textContent = "+";
+    mini.appendChild(icon);
+
+    const meta = document.createElement("div");
+    meta.className = "small";
+    meta.textContent = "Yeni Kare Ekle";
+
+    addCard.appendChild(mini);
+    addCard.appendChild(meta);
+    ui.frames.appendChild(addCard);
+  }
+
   ui.frameInfo.textContent = `${state.frames.length} kare` + (state.selectedFrame >= 0 ? `, seçili: #${state.selectedFrame + 1}` : "");
 }
 
-export async function uploadFrameSet(frameSet, loopValue) {
+export async function uploadFrameSet(frameSet, loopValue = 1) {
   if (!frameSet.length) throw new Error("Gönderilecek kare yok.");
   if (frameSet.length > MAX_FRAMES) throw new Error(`Maksimum ${MAX_FRAMES} kare.`);
 
@@ -171,8 +197,7 @@ async function uploadAnimationIfNeeded(force = false) {
     return false;
   }
 
-  const loop = Number(ui.loopSelect.value) ? 1 : 0;
-  await uploadFrameSet(state.frames, loop);
+  await uploadFrameSet(state.frames, 1);
 
   state.lastUploadedSignature = signature;
   state.animationDirty = false;

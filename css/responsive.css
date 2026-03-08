@@ -1,0 +1,56 @@
+    @media (max-width: 420px) {
+      .quick-grid,
+      .device-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .tool-btn.wide {
+        grid-column: span 2;
+      }
+
+      .draw-send-wrap .tool-btn {
+        width: calc((100% - 8px) / 2);
+      }
+
+      .text-control-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .text-send-wrap {
+        justify-content: center;
+      }
+    }
+
+    @media (min-width: 700px) {
+      .app {
+        max-width: 900px;
+        padding-bottom: 22px;
+      }
+
+      .hero {
+        padding: 14px;
+      }
+
+      .tabs {
+        position: static;
+        margin-top: 12px;
+        border: 0;
+        background: transparent;
+        padding: 0;
+        gap: 8px;
+      }
+
+      .panel-wrap {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .panel[data-wide="1"] {
+        grid-column: 1 / -1;
+      }
+
+      .anim-fab {
+        bottom: 18px;
+      }
+    }

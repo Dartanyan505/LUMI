@@ -1,0 +1,129 @@
+    .frame-editor-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(34, 24, 30, 0.5);
+      display: grid;
+      place-items: center;
+      padding: 16px;
+      z-index: 60;
+      backdrop-filter: blur(2px);
+      -webkit-backdrop-filter: blur(2px);
+    }
+
+    .frame-editor-modal[hidden] {
+      display: none;
+    }
+
+    .frame-editor-card {
+      width: min(440px, 100%);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: linear-gradient(180deg, var(--panel) 0%, var(--panel-end) 100%);
+      box-shadow: var(--shadow);
+      padding: 12px;
+      display: grid;
+      gap: 10px;
+      position: relative;
+    }
+
+    .modal-close-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      border: 1px solid var(--tool-border);
+      background: var(--tool-bg);
+      color: var(--tool-text);
+      display: grid;
+      place-items: center;
+      padding: 0;
+      box-shadow: none;
+      font-size: 1rem;
+      line-height: 1;
+      z-index: 1;
+    }
+
+    .frame-editor-title {
+      margin: 0;
+      font-size: 0.95rem;
+      letter-spacing: 0.01em;
+      color: var(--title);
+      text-align: center;
+    }
+
+    .frame-editor-grid {
+      max-width: 320px;
+      margin: 0 auto;
+    }
+
+    .frame-editor-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .frame-editor-actions .secondary {
+      min-height: 42px;
+      padding: 0 14px;
+    }
+
+    .frame-editor-actions .tool-btn {
+      min-height: 42px;
+      min-width: 132px;
+      padding: 0 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 0.74rem;
+    }
+
+    .draw-preset-editor-actions {
+      justify-content: space-between;
+      width: 100%;
+    }
+
+    .draw-preset-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 8px;
+      min-height: 30px;
+    }
+
+    .draw-preset-title-row .frame-editor-title {
+      text-align: left;
+    }
+
+    .draw-preset-rename-btn {
+      position: static;
+      width: auto;
+      height: auto;
+      min-width: 0;
+      min-height: 0;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      box-shadow: none;
+      color: var(--tool-text);
+      border-radius: 0;
+    }
+
+    .draw-preset-rename-btn:hover {
+      transform: none;
+      filter: none;
+    }
+
+
+    .pill {
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: var(--pill-bg);
+      border: 1px solid var(--pill-border);
+      color: var(--pill-text);
+      font-size: 0.72rem;
+    }
+

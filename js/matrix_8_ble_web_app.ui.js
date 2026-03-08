@@ -64,6 +64,8 @@ let animPresetEditorName = "";
 let animPresetEditorOpen = false;
 let animPresetPreviewTimer = null;
 let animPresetPreviewCards = [];
+let createAnimModalOpen = false;
+let createAnimModalResolve = null;
 
 function readPresetStore(storageKey) {
   try {
@@ -439,7 +441,9 @@ function openAddFrameEditor(frameToEdit = null, editIndex = -1) {
   if (isEdit) {
     rowsToAddFrameEditor(frameToEdit.rows || emptyRows8());
   } else {
-    rowsToAddFrameEditor(gridToRows());
+    // Seçili bir animasyon yoksa ilk kareyi boş başlat.
+    const seedRows = state.frames.length ? gridToRows() : emptyRows8();
+    rowsToAddFrameEditor(seedRows);
   }
   renderAddFrameEditorGrid();
 
@@ -467,6 +471,24 @@ function openAddFrameEditor(frameToEdit = null, editIndex = -1) {
   document.body.classList.add("modal-open");
   addFrameEditorState.open = true;
   ui.addFrameDurationInput?.focus();
+}
+
+function clearAnimationWorkspace() {
+  state.frames = [];
+  state.selectedFrame = -1;
+  animPresetSelectedName = "";
+  state.activeAnimationName = "";
+  state.activeAnimationCanAddFrames = false;
+  rowsToGrid(emptyRows8());
+  if (boundActions?.markAnimationDirty) {
+    boundActions.markAnimationDirty();
+  } else {
+    state.animationDirty = true;
+  }
+  hooks.renderFrames();
+  refreshAnimPreview();
+  setAnimToggleState("idle");
+  renderAnimationPresets();
 }
 
 function updateAddFrameEditorSliderMeta() {
@@ -591,15 +613,9 @@ function stepAnimPreview() {
   if (!frame) return;
   drawAnimPreviewRows(frame.rows || emptyRows8());
   const delay = clamp(frame.duration, 40, 1200, 150);
-  const loopEnabled = Number(ui.loopSelect?.value || 0) === 1;
   animPreviewTimer = window.setTimeout(() => {
     if (!state.frames.length || ui.tabAnim?.hidden) return;
     if (animPreviewIndex >= state.frames.length - 1) {
-      if (!loopEnabled) {
-        if (ui.animPreviewHint) ui.animPreviewHint.textContent = `Önizleme: ${state.frames.length} kare (tek tur)`;
-        animPreviewTimer = null;
-        return;
-      }
       animPreviewIndex = 0;
     } else {
       animPreviewIndex += 1;
@@ -1163,7 +1179,6 @@ function applyAnimationPreset(preset) {
   state.frames = frames.slice(0, MAX_FRAMES);
   state.selectedFrame = state.frames.length ? 0 : -1;
 
-  if (ui.loopSelect) ui.loopSelect.value = Number(preset?.loop) ? "1" : "0";
   if (state.selectedFrame >= 0) {
     const f = state.frames[0];
     rowsToGrid(f.rows);
@@ -1184,40 +1199,90 @@ function applyAnimationPreset(preset) {
 }
 
 function loadAnimationPresetByName(name) {
+  if (animPresetSelectedName === name) {
+    clearAnimationWorkspace();
+    log("Animasyon seçimi kaldırıldı.");
+    return;
+  }
   const found = animationPresetList().find((item) => item.name === name);
   if (!found) return;
   applyAnimationPreset(found);
   animPresetSelectedName = found.name;
+  state.activeAnimationName = found.name;
+  state.activeAnimationCanAddFrames = false;
   renderAnimationPresets();
   log(`Animasyon yüklendi: ${found.name}`);
 }
 
-function saveAnimationPresetFromInput() {
-  if (!state.frames.length) {
-    alert("Kaydetmek için en az bir kare ekle.");
-    return;
-  }
-  const name = normalizePresetName(ui.animPresetNameInput?.value);
-  if (!name) {
-    alert("Animasyon adı gir.");
-    ui.animPresetNameInput?.focus();
-    return;
-  }
-
+function createEmptyAnimationByName(name) {
   const payload = {
     name,
-    loop: Number(ui.loopSelect?.value || 0) ? 1 : 0,
-    frames: state.frames.map((f) => sanitizeFrame(f)),
+    loop: 1,
+    frames: [],
     savedAt: Date.now(),
   };
   const next = localAnimationPresetList().filter((item) => item.name !== name);
   next.unshift(payload);
   writePresetStore(ANIM_PRESETS_STORAGE_KEY, next);
-
   animPresetSelectedName = name;
-  if (ui.animPresetNameInput) ui.animPresetNameInput.value = "";
+  state.activeAnimationName = name;
+  state.activeAnimationCanAddFrames = true;
+  applyAnimationPreset(payload);
   renderAnimationPresets();
-  log(`Animasyon kaydedildi: ${name}`);
+  log(`Animasyon oluşturuldu: ${name}`);
+}
+
+function closeCreateAnimationModal(resultName = "") {
+  if (!ui.createAnimModal) return;
+  ui.createAnimModal.hidden = true;
+  document.body.classList.remove("modal-open");
+  createAnimModalOpen = false;
+  if (ui.createAnimNameError) ui.createAnimNameError.textContent = "";
+  const resolve = createAnimModalResolve;
+  createAnimModalResolve = null;
+  if (resolve) resolve(resultName);
+}
+
+function submitCreateAnimationModal() {
+  const name = normalizePresetName(ui.createAnimNameInput?.value);
+  if (!name) {
+    if (ui.createAnimNameError) ui.createAnimNameError.textContent = "Animasyon adı gir.";
+    ui.createAnimNameInput?.focus();
+    return;
+  }
+  const exists = animationPresetList().some((item) => item.name === name);
+  if (exists) {
+    if (ui.createAnimNameError) ui.createAnimNameError.textContent = "Bu adda bir animasyon zaten var.";
+    ui.createAnimNameInput?.focus();
+    ui.createAnimNameInput?.select();
+    return;
+  }
+  closeCreateAnimationModal(name);
+}
+
+function openCreateAnimationModal() {
+  if (!ui.createAnimModal || !ui.createAnimNameInput) return Promise.resolve("");
+  if (createAnimModalResolve) {
+    createAnimModalResolve("");
+    createAnimModalResolve = null;
+  }
+  ui.createAnimNameInput.value = "";
+  if (ui.createAnimNameError) ui.createAnimNameError.textContent = "";
+  ui.createAnimModal.hidden = false;
+  document.body.classList.add("modal-open");
+  createAnimModalOpen = true;
+  window.setTimeout(() => ui.createAnimNameInput?.focus(), 0);
+
+  return new Promise((resolve) => {
+    createAnimModalResolve = resolve;
+  });
+}
+
+async function createAnimationFromModal() {
+  const name = await openCreateAnimationModal();
+  if (!name) return false;
+  createEmptyAnimationByName(name);
+  return true;
 }
 
 function deleteAnimationPresetByName(name) {
@@ -1229,7 +1294,11 @@ function deleteAnimationPresetByName(name) {
   }
   const next = localAnimationPresetList().filter((item) => item.name !== name);
   writePresetStore(ANIM_PRESETS_STORAGE_KEY, next);
-  if (animPresetSelectedName === name) animPresetSelectedName = "";
+  if (animPresetSelectedName === name) {
+    animPresetSelectedName = "";
+    state.activeAnimationName = "";
+    state.activeAnimationCanAddFrames = false;
+  }
   if (animPresetEditorName === name) closeAnimationPresetEditor();
   renderAnimationPresets();
   log(`Animasyon silindi: ${name}`);
@@ -1250,7 +1319,7 @@ function openAnimationPresetEditor(name) {
   animPresetEditorOpen = true;
   if (ui.animPresetModalTitle) ui.animPresetModalTitle.textContent = preset.name;
   if (ui.animPresetModalMeta) {
-    ui.animPresetModalMeta.textContent = `${preset.frames.length} kare · Loop ${preset.loop ? "Açık" : "Kapalı"}`;
+    ui.animPresetModalMeta.textContent = `${preset.frames.length} kare · Loop Açık`;
   }
   ui.animPresetModal.hidden = false;
   document.body.classList.add("modal-open");
@@ -1286,7 +1355,7 @@ function saveAnimationPresetEditor() {
   const updated = {
     ...local[idx],
     name: nextName,
-    loop: Number(ui.loopSelect?.value || 0) ? 1 : 0,
+    loop: 1,
     frames: state.frames.map((f) => sanitizeFrame(f)),
     savedAt: Date.now(),
   };
@@ -1295,6 +1364,7 @@ function saveAnimationPresetEditor() {
 
   animPresetEditorName = nextName;
   animPresetSelectedName = nextName;
+  state.activeAnimationName = nextName;
   renderAnimationPresets();
   closeAnimationPresetEditor();
   log(`Animasyon güncellendi: ${nextName}`);
@@ -1569,18 +1639,6 @@ export function bindUi(actions) {
       saveDrawPresetFromInput();
     });
   }
-  if (ui.animPresetSaveBtn) {
-    ui.animPresetSaveBtn.addEventListener("click", () => {
-      saveAnimationPresetFromInput();
-    });
-  }
-  if (ui.animPresetNameInput) {
-    ui.animPresetNameInput.addEventListener("keydown", (ev) => {
-      if (ev.key !== "Enter") return;
-      ev.preventDefault();
-      saveAnimationPresetFromInput();
-    });
-  }
   if (ui.drawPresetModal) {
     ui.drawPresetModal.addEventListener("click", (ev) => {
       if (ev.target === ui.drawPresetModal) {
@@ -1700,11 +1758,45 @@ export function bindUi(actions) {
     });
   }
 
-  if (ui.addFrameBtn) {
-    ui.addFrameBtn.addEventListener("click", () => {
-      openAddFrameEditor();
+  if (ui.createAnimModal) {
+    ui.createAnimModal.addEventListener("click", (ev) => {
+      if (ev.target === ui.createAnimModal) {
+        closeCreateAnimationModal("");
+      }
     });
   }
+  if (ui.createAnimCancelBtn) {
+    ui.createAnimCancelBtn.addEventListener("click", () => {
+      closeCreateAnimationModal("");
+    });
+  }
+  if (ui.createAnimCreateBtn) {
+    ui.createAnimCreateBtn.addEventListener("click", () => {
+      submitCreateAnimationModal();
+    });
+  }
+  if (ui.createAnimNameInput) {
+    ui.createAnimNameInput.addEventListener("input", () => {
+      if (ui.createAnimNameError) ui.createAnimNameError.textContent = "";
+    });
+    ui.createAnimNameInput.addEventListener("keydown", (ev) => {
+      if (ev.key === "Enter") {
+        ev.preventDefault();
+        submitCreateAnimationModal();
+      }
+    });
+  }
+
+  if (ui.addFrameBtn) {
+    ui.addFrameBtn.addEventListener("click", async () => {
+      await createAnimationFromModal();
+    });
+  }
+
+  window.addEventListener("lumi:add-frame", () => {
+    if (!state.activeAnimationName || !state.activeAnimationCanAddFrames) return;
+    openAddFrameEditor();
+  });
 
   if (ui.addFrameModal) {
     ui.addFrameModal.addEventListener("click", (ev) => {
@@ -1815,6 +1907,11 @@ export function bindUi(actions) {
       closeAnimationPresetEditor();
       return;
     }
+    if (createAnimModalOpen) {
+      ev.preventDefault();
+      closeCreateAnimationModal("");
+      return;
+    }
     if (!addFrameEditorState.open) return;
     ev.preventDefault();
     closeAddFrameEditor();
@@ -1856,11 +1953,6 @@ export function bindUi(actions) {
     hooks.renderFrames();
     refreshAnimPreview();
     setAnimToggleState("idle");
-  });
-
-  ui.loopSelect.addEventListener("change", () => {
-    actions.markAnimationDirty();
-    refreshAnimPreview();
   });
 
   ui.brightnessRange.addEventListener("input", () => {

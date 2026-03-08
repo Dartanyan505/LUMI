@@ -13,7 +13,7 @@
   <link rel="icon" type="image/svg+xml" href="./assets/images/icon.svg" />
   <link rel="icon" type="image/png" sizes="32x32" href="./assets/images/icon-32.png" />
   <link rel="apple-touch-icon" sizes="180x180" href="./assets/images/icon-180.png" />
-  <link rel="stylesheet" href="./matrix_8_ble_web_app.css" />
+  <link rel="stylesheet" href="./css/main.css" />
 </head>
 <body>
   <main class="app">
@@ -188,19 +188,8 @@
       </section>
 
       <section id="tab-anim" class="panel" hidden>
-        <div class="row">
-          <div class="field" style="flex:1 1 100px;">
-            <label for="loopSelect">Loop</label>
-            <select id="loopSelect">
-              <option value="1" selected>Açık</option>
-              <option value="0">Kapalı</option>
-            </select>
-          </div>
-        </div>
-
         <div class="text-card anim-preview-shell" style="margin-top:10px;">
           <div id="animPreviewGrid" class="text-preview-grid" aria-label="8x8 animasyon önizleme"></div>
-          <div id="animPreviewHint" class="text-preview-hint">Önizleme için kare ekle.</div>
         </div>
 
         <div class="quick-grid" style="margin-top:10px;">
@@ -214,14 +203,10 @@
           </button>
           <button id="addFrameBtn" class="tool-btn primary">
             <svg viewBox="0 0 24 24"><path d="M11 4h2v7h7v2h-7v7h-2v-7H4v-2h7z"/></svg>
-            <span>Yeni Kare Ekle</span>
+            <span>Animasyon Oluştur</span>
           </button>
         </div>
         <div class="text-card anim-presets-shell" style="margin-top:10px;">
-          <div class="draw-preset-create">
-            <input id="animPresetNameInput" type="text" maxlength="40" placeholder="Animasyon adı" aria-label="Animasyon adı" />
-            <button id="animPresetSaveBtn" class="secondary" type="button">Kaydet</button>
-          </div>
           <div id="animPresetInfo" class="small" style="margin-top:8px;">Henüz kayıt yok.</div>
           <div id="animPresets" class="frames draw-presets"></div>
         </div>
@@ -349,6 +334,35 @@
         <button id="animPresetModalSaveBtn" class="tool-btn primary" type="button">
           <svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5 1.4-1.4L9 14.2 18.6 4.6z"/></svg>
           <span>Kaydet</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="createAnimModal" class="frame-editor-modal" hidden>
+    <div class="frame-editor-card" role="dialog" aria-modal="true" aria-labelledby="createAnimTitle">
+      <h2 id="createAnimTitle" class="frame-editor-title">Yeni Animasyon</h2>
+      <div class="stack">
+        <div class="field">
+          <label for="createAnimNameInput">Animasyon adı</label>
+          <input
+            id="createAnimNameInput"
+            type="text"
+            maxlength="40"
+            placeholder="Animasyon adı"
+            aria-label="Animasyon adı"
+            autocomplete="off"
+            autocorrect="off"
+            spellcheck="false"
+          />
+          <div id="createAnimNameError" class="small" style="margin-top:6px;color:var(--danger-text);"></div>
+        </div>
+      </div>
+      <div class="frame-editor-actions">
+        <button id="createAnimCancelBtn" class="secondary" type="button">İptal</button>
+        <button id="createAnimCreateBtn" class="tool-btn primary" type="button">
+          <svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5 1.4-1.4L9 14.2 18.6 4.6z"/></svg>
+          <span>Oluştur</span>
         </button>
       </div>
     </div>
