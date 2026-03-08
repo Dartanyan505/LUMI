@@ -1690,7 +1690,16 @@ function afterGridMutation() {
   hooks.scheduleLivePreview();
 }
 
-export function renderGrid() {
+function setGridNoAnimTemporarily() {
+  if (!ui.pixelGrid) return;
+  ui.pixelGrid.classList.add("no-anim");
+  window.requestAnimationFrame(() => {
+    ui.pixelGrid?.classList.remove("no-anim");
+  });
+}
+
+export function renderGrid(noAnim = false) {
+  if (noAnim) setGridNoAnimTemporarily();
   for (let r = 0; r < 8; r++) {
     for (let c = 0; c < 8; c++) {
       renderGridCell(r, c);
@@ -1711,7 +1720,7 @@ function rotateCCW() {
       state.grid[r][c] = next[r][c];
     }
   }
-  renderGrid();
+  renderGrid(true);
 }
 
 export function renderStatus(statusText) {
@@ -1759,17 +1768,17 @@ export function bindUi(actions) {
 
   ui.clearGridBtn.addEventListener("click", () => {
     for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) state.grid[r][c] = false;
-    renderGrid();
+    renderGrid(true);
   });
 
   ui.fillGridBtn.addEventListener("click", () => {
     for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) state.grid[r][c] = true;
-    renderGrid();
+    renderGrid(true);
   });
 
   ui.invertGridBtn.addEventListener("click", () => {
     for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) state.grid[r][c] = !state.grid[r][c];
-    renderGrid();
+    renderGrid(true);
   });
 
   ui.rotateBtn.addEventListener("click", rotateCCW);
