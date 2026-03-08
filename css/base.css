@@ -249,7 +249,7 @@
         linear-gradient(180deg, var(--pixel-shell-a) 0%, var(--pixel-shell-b) 100%);
       touch-action: none;
       user-select: none;
-      box-shadow: inset 0 0 0 1px var(--pixel-shell-inner);
+      box-shadow: none;
     }
 
     .px {
@@ -265,7 +265,7 @@
 
     .px.on {
       background: var(--pixel-on);
-      box-shadow: var(--pixel-glow);
+      box-shadow: none;
       transform: none;
     }
     .pixel-grid.no-anim .px {
@@ -278,7 +278,7 @@
       }
       .px.on {
         transform: none;
-        box-shadow: var(--pixel-glow);
+        box-shadow: none;
       }
     }
 
@@ -289,7 +289,19 @@
     .pixel-grid.drawing .px.on {
       transition: none !important;
       transform: none !important;
-      box-shadow: var(--pixel-glow) !important;
+      box-shadow: none !important;
+    }
+
+    #pixelGrid,
+    #drawPresetGrid,
+    #addFrameGrid {
+      box-shadow: none !important;
+    }
+
+    #pixelGrid .px.on,
+    #drawPresetGrid .px.on,
+    #addFrameGrid .px.on {
+      box-shadow: none !important;
     }
 
 
