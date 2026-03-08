@@ -918,8 +918,17 @@ function serverDrawPresetList() {
 function drawPresetList() {
   const local = localDrawPresetList();
   const remote = serverDrawPresetList();
-  const names = new Set(local.map((item) => item.name));
-  return [...local, ...remote.filter((item) => !names.has(item.name))];
+  const out = remote.slice();
+  const indexByName = new Map(out.map((item, idx) => [item.name, idx]));
+  for (const item of local) {
+    const idx = indexByName.get(item.name);
+    if (idx == null) {
+      out.push(item);
+    } else {
+      out[idx] = item;
+    }
+  }
+  return out;
 }
 
 function localAnimationPresetList() {
@@ -950,8 +959,17 @@ function serverAnimationPresetList() {
 function animationPresetList() {
   const local = localAnimationPresetList();
   const remote = serverAnimationPresetList();
-  const names = new Set(local.map((item) => item.name));
-  return [...local, ...remote.filter((item) => !names.has(item.name))];
+  const out = remote.slice();
+  const indexByName = new Map(out.map((item, idx) => [item.name, idx]));
+  for (const item of local) {
+    const idx = indexByName.get(item.name);
+    if (idx == null) {
+      out.push(item);
+    } else {
+      out[idx] = item;
+    }
+  }
+  return out;
 }
 
 function isRemoteAnimationName(name) {
@@ -1081,7 +1099,7 @@ function saveDrawPresetEditor() {
       savedAt: Date.now(),
     };
     const next = localDrawPresetList().filter((item) => item.name !== nextName);
-    next.unshift(created);
+    next.push(created);
     writePresetStore(DRAW_PRESETS_STORAGE_KEY, next);
     drawPresetSelectedName = created.name;
     rowsToGrid(created.rows);
@@ -1219,7 +1237,7 @@ function createEmptyAnimationByName(name) {
     savedAt: Date.now(),
   };
   const next = localAnimationPresetList().filter((item) => item.name !== name);
-  next.unshift(payload);
+  next.push(payload);
   writePresetStore(ANIM_PRESETS_STORAGE_KEY, next);
   animPresetSelectedName = name;
   state.activeAnimationName = name;
