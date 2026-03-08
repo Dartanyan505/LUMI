@@ -274,12 +274,19 @@
 
     @media (pointer: coarse) {
       .px {
-        transition: background 60ms ease, box-shadow 60ms ease;
+        transition: none;
       }
       .px.on {
         transform: none;
         box-shadow: none;
       }
+    }
+
+    .pixel-grid.drawing .px,
+    .pixel-grid.drawing .px.on {
+      transition: none !important;
+      transform: none !important;
+      box-shadow: none !important;
     }
 
     .row {

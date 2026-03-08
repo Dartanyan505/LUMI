@@ -33,6 +33,7 @@ let animPreviewIndex = 0;
 let animToggleState = "idle";
 let drawPointerMoveRaf = null;
 let drawPointerMovePending = null;
+let drawStrokeActive = false;
 const drawCells = Array.from({ length: 8 }, () => Array(8).fill(null));
 const addFrameEditorCells = Array.from({ length: 8 }, () => Array(8).fill(null));
 const drawPresetEditorCells = Array.from({ length: 8 }, () => Array(8).fill(null));
@@ -1594,6 +1595,8 @@ export function createGrid() {
 
       cell.addEventListener("pointerdown", (ev) => {
         ev.preventDefault();
+        drawStrokeActive = true;
+        ui.pixelGrid.classList.add("drawing");
         state.drawActive = true;
         state.drawValue = !state.grid[r][c];
         state.grid[r][c] = state.drawValue;
@@ -1617,6 +1620,10 @@ export function createGrid() {
 
   if (!globalPointerUpBound) {
     window.addEventListener("pointerup", () => {
+      if (drawStrokeActive) {
+        drawStrokeActive = false;
+        ui.pixelGrid?.classList.remove("drawing");
+      }
       state.drawActive = false;
       state.lastPaintedKey = "";
       drawPointerMovePending = null;
@@ -1658,6 +1665,10 @@ export function createGrid() {
   });
 
   ui.pixelGrid.addEventListener("pointerup", () => {
+    if (drawStrokeActive) {
+      drawStrokeActive = false;
+      ui.pixelGrid.classList.remove("drawing");
+    }
     state.drawActive = false;
     state.lastPaintedKey = "";
     drawPointerMovePending = null;
@@ -1668,6 +1679,10 @@ export function createGrid() {
   });
 
   ui.pixelGrid.addEventListener("pointercancel", () => {
+    if (drawStrokeActive) {
+      drawStrokeActive = false;
+      ui.pixelGrid.classList.remove("drawing");
+    }
     state.drawActive = false;
     state.lastPaintedKey = "";
     drawPointerMovePending = null;
