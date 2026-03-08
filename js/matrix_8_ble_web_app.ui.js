@@ -34,6 +34,12 @@ let animToggleState = "idle";
 let drawPointerMoveRaf = null;
 let drawPointerMovePending = null;
 let drawStrokeActive = false;
+let addFramePointerMoveRaf = null;
+let addFramePointerMovePending = null;
+let addFrameStrokeActive = false;
+let drawPresetPointerMoveRaf = null;
+let drawPresetPointerMovePending = null;
+let drawPresetStrokeActive = false;
 const drawCells = Array.from({ length: 8 }, () => Array(8).fill(null));
 const addFrameEditorCells = Array.from({ length: 8 }, () => Array(8).fill(null));
 const drawPresetEditorCells = Array.from({ length: 8 }, () => Array(8).fill(null));
@@ -221,6 +227,8 @@ function createAddFrameEditorGrid() {
 
       cell.addEventListener("pointerdown", (ev) => {
         ev.preventDefault();
+        addFrameStrokeActive = true;
+        ui.addFrameGrid.classList.add("drawing");
         addFrameEditorState.drawActive = true;
         addFrameEditorState.drawValue = !addFrameEditorState.grid[r][c];
         addFrameEditorState.grid[r][c] = addFrameEditorState.drawValue;
@@ -242,36 +250,72 @@ function createAddFrameEditorGrid() {
 
   ui.addFrameGrid.addEventListener("pointermove", (ev) => {
     if (!addFrameEditorState.drawActive) return;
-    const target = document.elementFromPoint(ev.clientX, ev.clientY);
-    if (!(target instanceof HTMLElement) || !target.classList.contains("px")) return;
+    addFramePointerMovePending = { x: ev.clientX, y: ev.clientY };
+    if (addFramePointerMoveRaf) return;
+    addFramePointerMoveRaf = window.requestAnimationFrame(() => {
+      addFramePointerMoveRaf = null;
+      const p = addFramePointerMovePending;
+      addFramePointerMovePending = null;
+      if (!p || !addFrameEditorState.drawActive) return;
 
-    const r = Number(target.dataset.r);
-    const c = Number(target.dataset.c);
-    if (!Number.isInteger(r) || !Number.isInteger(c)) return;
+      const target = document.elementFromPoint(p.x, p.y);
+      if (!(target instanceof HTMLElement) || !target.classList.contains("px")) return;
 
-    const key = `${r},${c}`;
-    if (key === addFrameEditorState.lastPaintedKey) return;
-    addFrameEditorState.lastPaintedKey = key;
+      const r = Number(target.dataset.r);
+      const c = Number(target.dataset.c);
+      if (!Number.isInteger(r) || !Number.isInteger(c)) return;
 
-    if (addFrameEditorState.grid[r][c] !== addFrameEditorState.drawValue) {
-      addFrameEditorState.grid[r][c] = addFrameEditorState.drawValue;
-      renderAddFrameEditorCell(r, c);
-    }
+      const key = `${r},${c}`;
+      if (key === addFrameEditorState.lastPaintedKey) return;
+      addFrameEditorState.lastPaintedKey = key;
+
+      if (addFrameEditorState.grid[r][c] !== addFrameEditorState.drawValue) {
+        addFrameEditorState.grid[r][c] = addFrameEditorState.drawValue;
+        renderAddFrameEditorCell(r, c);
+      }
+    });
   });
 
   ui.addFrameGrid.addEventListener("pointerup", () => {
+    if (addFrameStrokeActive) {
+      addFrameStrokeActive = false;
+      ui.addFrameGrid.classList.remove("drawing");
+    }
     addFrameEditorState.drawActive = false;
     addFrameEditorState.lastPaintedKey = "";
+    addFramePointerMovePending = null;
+    if (addFramePointerMoveRaf) {
+      cancelAnimationFrame(addFramePointerMoveRaf);
+      addFramePointerMoveRaf = null;
+    }
   });
 
   ui.addFrameGrid.addEventListener("pointercancel", () => {
+    if (addFrameStrokeActive) {
+      addFrameStrokeActive = false;
+      ui.addFrameGrid.classList.remove("drawing");
+    }
     addFrameEditorState.drawActive = false;
     addFrameEditorState.lastPaintedKey = "";
+    addFramePointerMovePending = null;
+    if (addFramePointerMoveRaf) {
+      cancelAnimationFrame(addFramePointerMoveRaf);
+      addFramePointerMoveRaf = null;
+    }
   });
 
   window.addEventListener("pointerup", () => {
+    if (addFrameStrokeActive) {
+      addFrameStrokeActive = false;
+      ui.addFrameGrid?.classList.remove("drawing");
+    }
     addFrameEditorState.drawActive = false;
     addFrameEditorState.lastPaintedKey = "";
+    addFramePointerMovePending = null;
+    if (addFramePointerMoveRaf) {
+      cancelAnimationFrame(addFramePointerMoveRaf);
+      addFramePointerMoveRaf = null;
+    }
   });
 }
 
@@ -281,6 +325,13 @@ function closeAddFrameEditor() {
   document.body.classList.remove("modal-open");
   addFrameEditorState.drawActive = false;
   addFrameEditorState.lastPaintedKey = "";
+  addFrameStrokeActive = false;
+  addFramePointerMovePending = null;
+  if (addFramePointerMoveRaf) {
+    cancelAnimationFrame(addFramePointerMoveRaf);
+    addFramePointerMoveRaf = null;
+  }
+  ui.addFrameGrid?.classList.remove("drawing");
   addFrameEditorState.editIndex = -1;
   addFrameEditorState.open = false;
 }

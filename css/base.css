@@ -260,13 +260,13 @@
       border-radius: 9px;
       background: var(--pixel-off);
       cursor: pointer;
-      transition: transform 90ms ease, background 90ms ease, box-shadow 90ms ease;
+      transition: none;
     }
 
     .px.on {
       background: var(--pixel-on);
       box-shadow: var(--pixel-glow);
-      transform: scale(1.02);
+      transform: none;
     }
     .pixel-grid.no-anim .px {
       transition: none !important;
@@ -278,16 +278,20 @@
       }
       .px.on {
         transform: none;
-        box-shadow: none;
+        box-shadow: var(--pixel-glow);
       }
     }
 
-    .pixel-grid.drawing .px,
+    .pixel-grid.drawing .px {
+      transition: none !important;
+      transform: none !important;
+    }
     .pixel-grid.drawing .px.on {
       transition: none !important;
       transform: none !important;
-      box-shadow: none !important;
+      box-shadow: var(--pixel-glow) !important;
     }
+
 
     .row {
       display: flex;
