@@ -51,6 +51,7 @@ const drawPresetEditorState = {
 const MAX_LOCAL_PRESETS = 64;
 const DRAW_PRESETS_REMOTE_URL = "../presets/draw_presets.json";
 const ANIM_PRESETS_REMOTE_URL = "../presets/anim_presets.json";
+const DEFAULT_NEW_DRAW_NAME_BASE = "Yeni Çizim";
 let drawPresetSelectedName = "";
 let remoteDrawPresets = [];
 let remoteAnimPresets = [];
@@ -59,6 +60,8 @@ let remoteAnimPresetsPromise = null;
 let drawPresetEditorName = "";
 let drawPresetEditorOpen = false;
 let drawPresetEditorCreateMode = false;
+let drawPresetDefaultNameAutoClearPending = false;
+let drawPresetCurrentDefaultName = "";
 let animPresetSelectedName = "";
 let animPresetEditorName = "";
 let animPresetEditorOpen = false;
@@ -287,7 +290,25 @@ function closeDrawPresetEditor() {
   drawPresetEditorState.lastPaintedKey = "";
   drawPresetEditorName = "";
   drawPresetEditorCreateMode = false;
+  drawPresetDefaultNameAutoClearPending = false;
+  drawPresetCurrentDefaultName = "";
   drawPresetEditorOpen = false;
+}
+
+function clearDefaultDrawTitleOnFirstEdit() {
+  if (!drawPresetDefaultNameAutoClearPending || !ui.drawPresetModalTitle) return false;
+  const current = normalizePresetName(ui.drawPresetModalTitle.textContent);
+  drawPresetDefaultNameAutoClearPending = false;
+  if (!drawPresetCurrentDefaultName || current !== drawPresetCurrentDefaultName) return false;
+  ui.drawPresetModalTitle.textContent = "";
+  return true;
+}
+
+function nextDefaultDrawName() {
+  const names = new Set(drawPresetList().map((item) => item.name));
+  let i = 1;
+  while (names.has(`${DEFAULT_NEW_DRAW_NAME_BASE} #${i}`)) i += 1;
+  return `${DEFAULT_NEW_DRAW_NAME_BASE} #${i}`;
 }
 
 function rowsToDrawPresetEditor(rows) {
@@ -411,6 +432,8 @@ function openDrawPresetEditor(name) {
   const preset = drawPresetList().find((item) => item.name === name);
   if (!preset || preset.source !== "local" || !ui.drawPresetModal) return;
   drawPresetEditorCreateMode = false;
+  drawPresetDefaultNameAutoClearPending = false;
+  drawPresetCurrentDefaultName = "";
   createDrawPresetEditorGrid();
   rowsToDrawPresetEditor(preset.rows || emptyRows8());
   renderDrawPresetEditorGrid();
@@ -430,12 +453,14 @@ function openDrawPresetEditor(name) {
 function openCreateDrawPresetEditor() {
   if (!ui.drawPresetModal) return;
   drawPresetEditorCreateMode = true;
+  drawPresetDefaultNameAutoClearPending = true;
+  drawPresetCurrentDefaultName = nextDefaultDrawName();
   drawPresetEditorName = "";
   drawPresetEditorOpen = true;
   createDrawPresetEditorGrid();
   rowsToDrawPresetEditor(emptyRows8());
   renderDrawPresetEditorGrid();
-  if (ui.drawPresetModalTitle) ui.drawPresetModalTitle.textContent = "Yeni Çizim";
+  if (ui.drawPresetModalTitle) ui.drawPresetModalTitle.textContent = drawPresetCurrentDefaultName;
   if (ui.drawPresetModalDeleteBtn) ui.drawPresetModalDeleteBtn.hidden = true;
   if (ui.drawPresetModalSaveBtn) {
     const label = ui.drawPresetModalSaveBtn.querySelector("span");
@@ -443,7 +468,6 @@ function openCreateDrawPresetEditor() {
   }
   ui.drawPresetModal.hidden = false;
   document.body.classList.add("modal-open");
-  ui.drawPresetModalTitle?.focus();
 }
 
 function openAddFrameEditor(frameToEdit = null, editIndex = -1) {
@@ -1323,6 +1347,14 @@ function createEmptyAnimationByName(name) {
   log(`Animasyon oluşturuldu: ${name}`);
 }
 
+function nextDefaultAnimationName() {
+  const base = "Yeni Animasyon";
+  const names = new Set(animationPresetList().map((item) => item.name));
+  let i = 1;
+  while (names.has(`${base} #${i}`)) i += 1;
+  return `${base} #${i}`;
+}
+
 function persistActiveAnimationFrames() {
   if (!state.activeAnimationCanAddFrames || !state.activeAnimationName) return;
   const local = localAnimationPresetList();
@@ -1541,7 +1573,7 @@ function renderAnimationPresets() {
   addCard.title = "Animasyon Oluştur";
   addCard.textContent = "+";
   addCard.addEventListener("click", () => {
-    void createAnimationFromModal();
+    createEmptyAnimationByName(nextDefaultAnimationName());
   });
   ui.animPresets.appendChild(addCard);
   startAnimationPresetMiniPreview();
@@ -1753,6 +1785,7 @@ export function bindUi(actions) {
       if (!drawPresetEditorName && !drawPresetEditorCreateMode) return;
       if (!ui.drawPresetModalTitle) return;
       ui.drawPresetModalTitle.focus();
+      if (clearDefaultDrawTitleOnFirstEdit()) return;
       const range = document.createRange();
       range.selectNodeContents(ui.drawPresetModalTitle);
       const sel = window.getSelection();
@@ -1761,6 +1794,15 @@ export function bindUi(actions) {
     });
   }
   if (ui.drawPresetModalTitle) {
+    ui.drawPresetModalTitle.addEventListener("focus", () => {
+      clearDefaultDrawTitleOnFirstEdit();
+    });
+    ui.drawPresetModalTitle.addEventListener("input", () => {
+      const current = normalizePresetName(ui.drawPresetModalTitle?.textContent);
+      if (current && current !== drawPresetCurrentDefaultName) {
+        drawPresetDefaultNameAutoClearPending = false;
+      }
+    });
     ui.drawPresetModalTitle.addEventListener("keydown", (ev) => {
       if (ev.key !== "Enter") return;
       ev.preventDefault();
